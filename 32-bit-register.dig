@@ -4,7 +4,7 @@
   <attributes>
     <entry>
       <string>Label</string>
-      <string>Register(32-bit)</string>
+      <string>Registers(32-bit)</string>
     </entry>
     <entry>
       <string>romContent</string>

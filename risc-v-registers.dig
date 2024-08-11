@@ -4,7 +4,7 @@
   <attributes>
     <entry>
       <string>Label</string>
-      <string>RISC-V Registers</string>
+      <string>RISC-V Common Registers</string>
     </entry>
     <entry>
       <string>romContent</string>
