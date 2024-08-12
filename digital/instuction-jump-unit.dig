@@ -12,6 +12,10 @@
       </awt-color>
     </entry>
     <entry>
+      <string>Label</string>
+      <string>Instruction-Jump-Unit</string>
+    </entry>
+    <entry>
       <string>romContent</string>
       <romList>
         <roms/>

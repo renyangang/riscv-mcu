@@ -4,7 +4,7 @@
   <attributes>
     <entry>
       <string>Label</string>
-      <string>Cust_Ctrl</string>
+      <string>CustInstruction-Unit</string>
     </entry>
     <entry>
       <string>romContent</string>
