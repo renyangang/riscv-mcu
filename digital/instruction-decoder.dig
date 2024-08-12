@@ -58,7 +58,7 @@
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="160" y="200"/>
+      <pos x="20" y="200"/>
     </visualElement>
     <visualElement>
       <elementName>Splitter</elementName>
@@ -2745,16 +2745,16 @@
       <p2 x="1240" y="840"/>
     </wire>
     <wire>
-      <p1 x="160" y="200"/>
-      <p2 x="200" y="200"/>
-    </wire>
-    <wire>
       <p1 x="220" y="200"/>
       <p2 x="280" y="200"/>
     </wire>
     <wire>
       <p1 x="520" y="200"/>
       <p2 x="860" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="20" y="200"/>
+      <p2 x="200" y="200"/>
     </wire>
     <wire>
       <p1 x="1300" y="-460"/>
