@@ -31,7 +31,7 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>7f,13</data>
+          <data>7f,b7,13,b7,0,0,0,13,6f,93,13,93,13,6f</data>
         </entry>
       </elementAttributes>
       <pos x="640" y="220"/>
@@ -49,7 +49,7 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>0,81</data>
+          <data>0,0,1,1,0,0,0,1,c4,0,1,1,2</data>
         </entry>
       </elementAttributes>
       <pos x="780" y="220"/>
@@ -64,6 +64,10 @@
         <entry>
           <string>Bits</string>
           <int>8</int>
+        </entry>
+        <entry>
+          <string>Data</string>
+          <data>0,0,0,8,0,0,0,13,ff</data>
         </entry>
       </elementAttributes>
       <pos x="940" y="220"/>
@@ -81,7 +85,7 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>80,4</data>
+          <data>80,1,6*0,ff</data>
         </entry>
       </elementAttributes>
       <pos x="1120" y="220"/>

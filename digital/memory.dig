@@ -303,7 +303,7 @@
       <elementAttributes>
         <entry>
           <string>NetName</string>
-          <string>data</string>
+          <string>data_in</string>
         </entry>
       </elementAttributes>
       <pos x="360" y="260"/>
@@ -351,7 +351,7 @@
         </entry>
         <entry>
           <string>NetName</string>
-          <string>data</string>
+          <string>data_in</string>
         </entry>
       </elementAttributes>
       <pos x="280" y="1020"/>
