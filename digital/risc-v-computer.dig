@@ -2357,6 +2357,20 @@
       </elementAttributes>
       <pos x="2200" y="100"/>
     </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>c</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1080" y="80"/>
+    </visualElement>
   </visualElements>
   <wires>
     <wire>

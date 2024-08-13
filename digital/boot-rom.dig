@@ -49,7 +49,7 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>0,0,1,1,0,0,0,1,c4,0,1,1,2</data>
+          <data>0,0,1,1,0,0,0,1,f4,0,1,1,2</data>
         </entry>
       </elementAttributes>
       <pos x="780" y="220"/>
@@ -67,7 +67,7 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>0,0,0,8,0,0,0,13,ff</data>
+          <data>0,0,0,8,0,0,0,13,9f</data>
         </entry>
       </elementAttributes>
       <pos x="940" y="220"/>
