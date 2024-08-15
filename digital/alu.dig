@@ -236,16 +236,6 @@
       <elementAttributes>
         <entry>
           <string>NetName</string>
-          <string>rs1</string>
-        </entry>
-      </elementAttributes>
-      <pos x="640" y="-180"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>NetName</string>
           <string>rs2</string>
         </entry>
       </elementAttributes>
@@ -372,7 +362,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -386,7 +376,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -400,7 +390,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -414,7 +404,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -428,7 +418,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -442,7 +432,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -456,7 +446,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -470,7 +460,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -484,7 +474,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -498,7 +488,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -512,7 +502,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[30]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[29]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -1190,20 +1180,6 @@
       <pos x="2100" y="-320"/>
     </visualElement>
     <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>rs1</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1920" y="-320"/>
-    </visualElement>
-    <visualElement>
       <elementName>Const</elementName>
       <elementAttributes>
         <entry>
@@ -1646,7 +1622,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[138]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[136]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -1660,7 +1636,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[138]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[136]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -1674,7 +1650,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[138]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[136]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -1688,7 +1664,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[138]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[136]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -1702,7 +1678,7 @@
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[138]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[136]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -2726,6 +2702,50 @@
         </entry>
       </elementAttributes>
       <pos x="1860" y="1100"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>rs1</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1920" y="-320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>rs1</string>
+        </entry>
+      </elementAttributes>
+      <pos x="640" y="-180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>Clock</string>
+        </entry>
+      </elementAttributes>
+      <pos x="640" y="-260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>c</string>
+        </entry>
+      </elementAttributes>
+      <pos x="640" y="-260"/>
     </visualElement>
   </visualElements>
   <wires>
