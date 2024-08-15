@@ -53,24 +53,14 @@
       <pos x="640" y="300"/>
     </visualElement>
     <visualElement>
-      <elementName>Clock</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Label</string>
-          <string>clock</string>
-        </entry>
-      </elementAttributes>
-      <pos x="640" y="380"/>
-    </visualElement>
-    <visualElement>
       <elementName>In</elementName>
       <elementAttributes>
         <entry>
           <string>Label</string>
-          <string>WE</string>
+          <string>Clock</string>
         </entry>
       </elementAttributes>
-      <pos x="640" y="440"/>
+      <pos x="640" y="380"/>
     </visualElement>
     <visualElement>
       <elementName>Out</elementName>
@@ -105,10 +95,10 @@
       <elementAttributes>
         <entry>
           <string>Label</string>
-          <string>OE1</string>
+          <string>WE</string>
         </entry>
       </elementAttributes>
-      <pos x="640" y="240"/>
+      <pos x="640" y="440"/>
     </visualElement>
     <visualElement>
       <elementName>Driver</elementName>
@@ -157,6 +147,16 @@
         </entry>
       </elementAttributes>
       <pos x="960" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>OE1</string>
+        </entry>
+      </elementAttributes>
+      <pos x="640" y="240"/>
     </visualElement>
     <visualElement>
       <elementName>In</elementName>
@@ -245,16 +245,16 @@
       <p2 x="660" y="300"/>
     </wire>
     <wire>
-      <p1 x="640" y="380"/>
-      <p2 x="660" y="380"/>
-    </wire>
-    <wire>
       <p1 x="900" y="380"/>
       <p2 x="960" y="380"/>
     </wire>
     <wire>
       <p1 x="840" y="380"/>
       <p2 x="860" y="380"/>
+    </wire>
+    <wire>
+      <p1 x="640" y="380"/>
+      <p2 x="660" y="380"/>
     </wire>
     <wire>
       <p1 x="720" y="360"/>

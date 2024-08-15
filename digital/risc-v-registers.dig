@@ -3463,6 +3463,16 @@
       </elementAttributes>
       <pos x="-240" y="-720"/>
     </visualElement>
+    <visualElement>
+      <elementName>PullDown</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>5</int>
+        </entry>
+      </elementAttributes>
+      <pos x="-660" y="740"/>
+    </visualElement>
   </visualElements>
   <wires>
     <wire>
@@ -4023,6 +4033,10 @@
     </wire>
     <wire>
       <p1 x="-740" y="680"/>
+      <p2 x="-660" y="680"/>
+    </wire>
+    <wire>
+      <p1 x="-660" y="680"/>
       <p2 x="-600" y="680"/>
     </wire>
     <wire>
@@ -4476,6 +4490,10 @@
     <wire>
       <p1 x="1040" y="380"/>
       <p2 x="1040" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="-660" y="680"/>
+      <p2 x="-660" y="740"/>
     </wire>
     <wire>
       <p1 x="2260" y="-140"/>

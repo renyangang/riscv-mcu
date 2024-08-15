@@ -30,7 +30,7 @@
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="360" y="180"/>
+      <pos x="360" y="200"/>
     </visualElement>
     <visualElement>
       <elementName>In</elementName>
@@ -44,7 +44,7 @@
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="360" y="260"/>
+      <pos x="360" y="280"/>
     </visualElement>
     <visualElement>
       <elementName>Out</elementName>
@@ -62,7 +62,7 @@
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="360" y="340"/>
+      <pos x="360" y="360"/>
     </visualElement>
     <visualElement>
       <elementName>In</elementName>
@@ -82,7 +82,7 @@
           <string>we</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="40"/>
+      <pos x="480" y="40"/>
     </visualElement>
     <visualElement>
       <elementName>In</elementName>
@@ -92,7 +92,7 @@
           <string>OE</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="100"/>
+      <pos x="360" y="120"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -102,7 +102,7 @@
           <string>oe</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="100"/>
+      <pos x="360" y="120"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -140,7 +140,7 @@
           <string>addr</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="180"/>
+      <pos x="360" y="200"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -306,7 +306,7 @@
           <string>data_in</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="260"/>
+      <pos x="360" y="280"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -316,7 +316,7 @@
           <string>data</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="340"/>
+      <pos x="360" y="360"/>
     </visualElement>
     <visualElement>
       <elementName>In</elementName>
@@ -330,7 +330,7 @@
           <int>4</int>
         </entry>
       </elementAttributes>
-      <pos x="360" y="440"/>
+      <pos x="360" y="460"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -340,7 +340,7 @@
           <string>bytesize_in</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="440"/>
+      <pos x="360" y="460"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2814,7 +2814,7 @@
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="360" y="620"/>
+      <pos x="360" y="640"/>
     </visualElement>
     <visualElement>
       <elementName>In</elementName>
@@ -2824,7 +2824,7 @@
           <string>OE_PC</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="540"/>
+      <pos x="360" y="560"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2834,7 +2834,7 @@
           <string>oe_pc</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="540"/>
+      <pos x="360" y="560"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2844,7 +2844,7 @@
           <string>addr_pc</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="620"/>
+      <pos x="360" y="640"/>
     </visualElement>
     <visualElement>
       <elementName>Out</elementName>
@@ -2862,7 +2862,7 @@
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="360" y="700"/>
+      <pos x="360" y="720"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2872,7 +2872,7 @@
           <string>data_pc</string>
         </entry>
       </elementAttributes>
-      <pos x="360" y="700"/>
+      <pos x="360" y="720"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -3970,6 +3970,11 @@
       </elementAttributes>
       <pos x="2500" y="700"/>
     </visualElement>
+    <visualElement>
+      <elementName>PullDown</elementName>
+      <elementAttributes/>
+      <pos x="420" y="60"/>
+    </visualElement>
   </visualElements>
   <wires>
     <wire>
@@ -4283,6 +4288,14 @@
     <wire>
       <p1 x="1600" y="1000"/>
       <p2 x="1640" y="1000"/>
+    </wire>
+    <wire>
+      <p1 x="360" y="40"/>
+      <p2 x="420" y="40"/>
+    </wire>
+    <wire>
+      <p1 x="420" y="40"/>
+      <p2 x="480" y="40"/>
     </wire>
     <wire>
       <p1 x="760" y="1260"/>
@@ -4723,6 +4736,10 @@
     <wire>
       <p1 x="2800" y="440"/>
       <p2 x="2800" y="500"/>
+    </wire>
+    <wire>
+      <p1 x="420" y="40"/>
+      <p2 x="420" y="60"/>
     </wire>
     <wire>
       <p1 x="1960" y="240"/>
