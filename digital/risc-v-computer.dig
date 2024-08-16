@@ -573,7 +573,7 @@
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1960" y="-420"/>
+      <pos x="1700" y="-520"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1009,7 +1009,7 @@
           <string>instruction_code</string>
         </entry>
       </elementAttributes>
-      <pos x="1960" y="-420"/>
+      <pos x="1700" y="-520"/>
     </visualElement>
     <visualElement>
       <elementName>instuction-jump-unit.dig</elementName>
