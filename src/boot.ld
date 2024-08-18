@@ -1,0 +1,28 @@
+MEMORY
+{
+  /* boot rom */
+  FLASH (rwx) : ORIGIN = 0x80000000, LENGTH = 5120K
+  /* gpio and so on */
+  PERIPHERAL(rwx): ORIGIN = 0xA0000000, LENGTH = 128K
+  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
+}
+
+ENTRY(_start)
+
+SECTIONS
+{
+  . = ALIGN(4);
+  .text 0x80000000: {
+    *(.text)
+    . = ALIGN(4);
+    . = 0x100;
+    *(.exceptiontext)
+    . = ALIGN(4);
+    . = 0x11C;
+    *(.timerinttext)
+    . = ALIGN(4);
+    . = 0x12C;
+    *(.peripheralinttext)
+    _etext = .;
+  } > FLASH =0x13000000
+}

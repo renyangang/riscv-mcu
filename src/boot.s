@@ -1,3 +1,4 @@
+.section .text
 .global _start
 _start:
     # cust flag set instruction code
@@ -9,15 +10,17 @@ _start:
     sw t1, 0(a1)
     li t3, 0xB0000008
     lw t4, 0(t3)
-    addi t4, t4, 2000
+    addi t4, t4, 0x7D0
     li t3, 0xB0000000
     sw t4, 0(t3)
     la a5,int_handler
+    addi a5,a5, 0x1
     csrrw t2,mtvec,a5
     li t3,0x1808
     csrrw t2,mstatus,t3
     li t3,0x888
     csrrw t2,mie,t3
+    mv s0,zero
     # ssd base address
 #     lui t1, 0x40000
 #     # offset
@@ -54,25 +57,46 @@ _start:
 #     li t2, 0
 #     li t3, 0
 #     li t4, 0
-
 main:
     j main
 
+.section .exceptiontext
 int_handler:
-    lw t1, 4(a1)
-     # 将低7位取反
-    li      a2, 0x7F            # 加载0x7F到a2，0x7F = 0111 1111b (用于掩码)
-    and     a2, t1, a2          # 提取a1中的低7位：a2 = a1 & 0x7F
-    xori    a2, a2, 0x7F        # 取反低7位：a2 = a2 ^ 0x7F
+    nop
 
-    # 清除a1的低7位，然后将取反后的值写回a1
-    li      t0, -0x80           # t0 = 0xFFFFFF80，用于清除低7位
-    and     t1, t1, t0          # 清除a1的低7位：a1 = a1 & 0xFFFFFF80
-    or      t1, t1, a2          # 将取反后的低7位合并到a1中
+.section .timerinttext
+timer_handler:
+    j timer_func
+
+.section .peripheralinttext
+peripheral_handler:
+    li t5, 0xA0000004
+    lw s3, 0(t5)
+    andi s3,s3,0b001000000000
+    beq s3, zero, clearint
+    addi s0, s0, 1
+clearint:
+    sw zero, 4(t5)
+    mret
+
+timer_func:
+    and t0, s0, 0x1
+    bnez t0, delay
+    addi s1,s1,1
+    lw t1, 4(a1)
+    and t0, s1, 0x1
+    bnez t0, close
+open:
+    ori t1, t1, 0b1111111
+    j save
+close:
+    andi t1, t1, 0b1110000000 
+save:
     sw t1, 4(a1)
-    li t3, 0xB0000008
-    lw t4, 0(t3)
-    addi t4, t4, 2000
+delay:
+    # set timer after 500ms
     li t3, 0xB0000000
+    lw t4, 8(t3)
+    addi t4, t4, 0x2E8
     sw t4, 0(t3)
     mret

@@ -7,10 +7,10 @@ OBJDUMP := riscv32-unknown-linux-gnu-objdump
 all: boot.bin
 
 boot.bin: boot.elf
-	$(OBJCOPY) -O binary -S $^ $@
+	$(OBJCOPY) -O binary --gap-fill 0 -S $^ $@
 	
 boot.elf: boot.o
-	$(LD) -Ttext 0x80000000 -o $@ $^
+	$(LD) -T boot.ld -o $@ $^
 	$(OBJDUMP) -D $@ > $@.asm
 	
 %.o: %.s

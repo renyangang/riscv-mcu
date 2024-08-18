@@ -23,7 +23,7 @@
       <elementAttributes>
         <entry>
           <string>AddrBits</string>
-          <int>8</int>
+          <int>24</int>
         </entry>
         <entry>
           <string>Bits</string>
@@ -31,8 +31,9 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>7f,f3,13,b7,23,37,13,83,93,37,23,97,93,f3,37,13,f3,37,13,f3,6f
-,3,13,33,13,93,33,33,23,37,13,83,b7,93,b3,37,23,73</data>
+          <data>7f,f3,13,b7,23,37,13,83,93,37,23,97,93,93,f3,37,13,f3,37,13,f3
+,13,6f,48*13,6f,13,13,13,37,13,83,93,63,13,23,73,93,63,93,3,93
+,63,13,6f,13,23,37,83,93,23,73</data>
         </entry>
       </elementAttributes>
       <pos x="640" y="220"/>
@@ -42,7 +43,7 @@
       <elementAttributes>
         <entry>
           <string>AddrBits</string>
-          <int>8</int>
+          <int>24</int>
         </entry>
         <entry>
           <string>Bits</string>
@@ -50,8 +51,8 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>0,12,3,5,a0,e,e,2e,8e,e,20,7,87,93,2e,e,13,1e,e,13,0,a3,6,76,46
-,2,73,63,a2,e,e,2e,27,87,8e,e,20</data>
+          <data>0,12,3,5,a0,e,e,2e,8e,e,20,7,87,87,93,2e,e,13,1e,e,13,4,53*0,f,f
+,29,f9,84,4,22,0,72,92,84,a3,f2,96,63,0,73,a2,e,2e,8e,20</data>
         </entry>
       </elementAttributes>
       <pos x="780" y="220"/>
@@ -61,7 +62,7 @@
       <elementAttributes>
         <entry>
           <string>AddrBits</string>
-          <int>8</int>
+          <int>24</int>
         </entry>
         <entry>
           <string>Bits</string>
@@ -69,8 +70,8 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>0,0,f0,0,65,0,8e,e,e,0,de,0,87,57,0,8e,e,0,8e,4e,0,45,f0,c3,f6
-,0,53,c3,65,0,8e,e,0,7,fe,0,de,20</data>
+          <data>0,0,f0,0,65,0,8e,e,e,0,de,0,47,17,57,0,8e,e,0,8e,4e,55*0,4f,f
+,9,9,14,f,20,14,2,14,45,14,2,f3,80,3,65,0,8e,8e,de,20</data>
         </entry>
       </elementAttributes>
       <pos x="940" y="220"/>
@@ -80,7 +81,7 @@
       <elementAttributes>
         <entry>
           <string>AddrBits</string>
-          <int>8</int>
+          <int>24</int>
         </entry>
         <entry>
           <string>Bits</string>
@@ -88,8 +89,8 @@
         </entry>
         <entry>
           <string>Data</string>
-          <data>80,30,7,a0,0,b0,0,0,7d,b0,1,0,2,30,0,80,30,0,88,30,0,0,7,0,7,f8
-,0,0,0,b0,0,0,0,71,0,b0,1,30</data>
+          <data>80,30,7,a0,0,b0,0,0,7d,b0,1,0,d,0,30,0,80,30,0,88,30,50*0,3,0,0,0
+,a0,0,0,20,0,0,0,30,0,2,4*0,7,0,38,0,b0,0,2e,1,30</data>
         </entry>
       </elementAttributes>
       <pos x="1120" y="220"/>
@@ -103,7 +104,7 @@
         </entry>
         <entry>
           <string>Bits</string>
-          <int>8</int>
+          <int>24</int>
         </entry>
       </elementAttributes>
       <pos x="440" y="460"/>
@@ -151,7 +152,7 @@
       <elementAttributes>
         <entry>
           <string>Bits</string>
-          <int>8</int>
+          <int>24</int>
         </entry>
         <entry>
           <string>direction</string>
@@ -169,7 +170,7 @@
         </entry>
         <entry>
           <string>Bits</string>
-          <int>4</int>
+          <int>5</int>
         </entry>
       </elementAttributes>
       <pos x="460" y="500"/>
