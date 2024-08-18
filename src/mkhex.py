@@ -2,6 +2,7 @@ hex1text = 'v2.0 raw\n'
 hex2text = 'v2.0 raw\n'
 hex3text = 'v2.0 raw\n'
 hex4text = 'v2.0 raw\n'
+kerneltext = 'v2.0 raw\n'
 
 with open('./boot.bin',mode='rb') as f:
     bts = f.read()
@@ -25,3 +26,14 @@ with open('./3.hex',mode='w') as f:
 
 with open('./4.hex',mode='w') as f:
     f.write(hex4text)
+
+with open('./kernel.bin',mode='rb') as f:
+    bts = f.read()
+    hexs = bts.hex(' ').split(' ')
+    i = 0
+    while i < len(hexs):
+        kerneltext += f'{hexs[i]}\n'
+        i += 1
+    
+with open('./kernel.hex',mode='w') as f:
+    f.write(kerneltext)

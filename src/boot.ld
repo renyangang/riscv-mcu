@@ -14,15 +14,6 @@ SECTIONS
   . = ALIGN(4);
   .text 0x80000000: {
     *(.text)
-    . = ALIGN(4);
-    . = 0x100;
-    *(.exceptiontext)
-    . = ALIGN(4);
-    . = 0x11C;
-    *(.timerinttext)
-    . = ALIGN(4);
-    . = 0x12C;
-    *(.peripheralinttext)
     _etext = .;
-  } > FLASH =0x13000000
+  } > FLASH
 }
