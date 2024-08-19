@@ -1,5 +1,6 @@
 0x80000000 -> rom boot base
 0x02000000 -> kernel memory base
+0x01000000 -> kernel stack base
 0x40000000 -> ssd load base
 
 0xB0000000 -> mtimecmp low 32bits

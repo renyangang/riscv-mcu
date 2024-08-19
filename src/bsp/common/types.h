@@ -10,4 +10,6 @@ typedef unsigned int uint32_t;
 typedef signed long long int64_t;
 typedef unsigned long long uint64_t;
 
+#define NULL 0
+
 #endif

@@ -2,18 +2,19 @@
 #define INTERRUPT_H
 #include "types.h"
 
-#define TIMEER_INT 0x80
+#define TIMER_INT 0x80
 #define PERIPHERAL_INT 0x800
 #define SOFT_INT 0x8
 
 #define INT_CODE_ADDR 0xB0001000
 
-uint64_t get_cur_mtime();
+#define PERIPHERAL_INT_NUM 5
+#define INT_GPIO 0x1
 
-void exception_handler();
-void int_timer_handler();
-void int_peripheral_handler();
+typedef void (*int_handler_t)(void);
 
+void register_peripheral_int_handler(int int_num, int_handler_t handler);
+void register_timer_int_handler(int_handler_t handler);
 
 extern void set_mie(int mie);
 

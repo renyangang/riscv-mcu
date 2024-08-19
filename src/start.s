@@ -9,6 +9,8 @@ _start:
     # open interrupts
     li t3,0x1808
     csrrw t2,mstatus,t3
+    # set sp
+    li sp, 0x01000000
     call main
 
 set_mie:

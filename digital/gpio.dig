@@ -1875,10 +1875,6 @@
       <elementName>Const</elementName>
       <elementAttributes>
         <entry>
-          <string>Value</string>
-          <long>16</long>
-        </entry>
-        <entry>
           <string>Bits</string>
           <int>32</int>
         </entry>
