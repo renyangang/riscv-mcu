@@ -27,13 +27,11 @@ SECTIONS
     *(.peripheralinttext)
     . = ALIGN(4);
     *(.text)
-    . = ALIGN(4);
-    main.o
     _etext = .;
   } > RAM =0x13000000
-  .rodata ALIGN(4) : {*(.rodata*)}     
-	.data ALIGN(4)   : { *(.data) }    
+  .rodata ALIGN(4) : {*(.rodata*)}  > RAM   
+	.data ALIGN(4)   : { *(.data) }   > RAM 
 	__bss_start = .;    
-	.bss ALIGN(4)  : { *(.bss)  *(COMMON) }    
+	.bss ALIGN(4)  : { *(.bss)  *(COMMON) }    > RAM
 	__bss_end = .;
 }

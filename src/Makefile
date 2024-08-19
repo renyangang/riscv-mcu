@@ -4,24 +4,54 @@ CC := riscv32-unknown-linux-gnu-gcc
 OBJCOPY := riscv32-unknown-linux-gnu-objcopy
 OBJDUMP := riscv32-unknown-linux-gnu-objdump
 
+OBJDIR := ./objs
+
+INCDIRS 		:= bsp/common \
+				   bsp/gpio \
+				   bsp/interrupt \
+				   bsp/timer 
+				   			   
+SRCDIRS			:= . \
+				   bsp/gpio \
+				   bsp/interrupt \
+				   bsp/timer 
+				   
+				   
+INCLUDE			:= $(patsubst %, -I %, $(INCDIRS))
+
+SFILES			:= $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.S))
+CFILES			:= $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
+
+SFILENDIR		:= $(notdir  $(SFILES))
+CFILENDIR		:= $(notdir  $(CFILES))
+
+SOBJS			:= $(patsubst %, $(OBJDIR)/%, $(SFILENDIR:.S=.o))
+COBJS			:= $(patsubst %, $(OBJDIR)/%, $(CFILENDIR:.c=.o))
+OBJS			:= $(SOBJS) $(COBJS)
+
+VPATH			:= $(SRCDIRS)
+
 all: boot.bin kernel.bin
 
-%.bin: %.elf
-	$(OBJCOPY) -O binary --gap-fill 0 -S $^ $@
+%.bin: $(OBJDIR)/%.elf
+	$(OBJCOPY) -O binary -S $^ $@
 	
-boot.elf: boot.o
+$(OBJDIR)/boot.elf: $(OBJDIR)/boot.o
 	$(LD) -T boot.ld -o $@ $^
 	$(OBJDUMP) -D $@ > $@.asm
 	
-%.o: %.s
-	$(AS) -march=rv32im -mabi=ilp32 -o $@ $^
+$(OBJDIR)/%.o: %.s
+	mkdir -p $(OBJDIR)
+	$(AS) -march=rv32im -mabi=ilp32 $(INCLUDE) -o $@ $^
 
-%.o: %.c
-	$(CC) -march=rv32im -mabi=ilp32 -Wall -nostdlib -c -O2 -o $@ $<
+$(COBJS) : $(OBJDIR)/%.o: %.c
+	mkdir -p $(OBJDIR)
+	$(CC) -march=rv32im -mabi=ilp32 -Wall -nostdlib $(INCLUDE) -c -O2 -o $@ $<
 
-kernel.elf: start.o main.o
+$(OBJDIR)/kernel.elf: $(OBJDIR)/start.o $(COBJS)
 	$(LD) -T kernel.ld -o $@ $^
 	$(OBJDUMP) -D $@ > $@.asm
 
+.PHONY: clean
 clean:
-	rm -f *.bin* *.o *.elf* *.hex
+	rm -rf *.bin* *.o *.elf* *.hex objs 
