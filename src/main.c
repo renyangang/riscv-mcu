@@ -39,9 +39,7 @@ void flash_timer_handler() {
             cur_pins_status = 1;
         }
     } else {
-        if(cur_pin > 0){
-            set_pin(cur_pin, 0);
-        }
+        set_all_pins(get_all_pins() & ~0x7f);
         cur_pin++;
         if(cur_pin > 7) {
             cur_pin = 1;
