@@ -1,4 +1,5 @@
-# cpu-v
+# riscv-mcu 
+[中文](README_zh.md)
 
 #### Introduction
 This project utilizes the Digital digital circuit simulation software [Download link](https://github.com/hneemann/Digital),to build a CPU that supports a simple instruction set and simple peripheral circuit simulation.   
