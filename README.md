@@ -165,24 +165,31 @@ The overall system includes modules such as instruction fetch bus, instruction d
           ```
 
 #### Software Compilation
-  The boot and application programs need to be compiled using the risc-v cross-compilation toolchain [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain)  .
+  The boot and application programs need to be compiled using the risc-v cross-compilation toolchain [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain)  
 
-  > Since this project only supports a 32-bit instruction set, params needs to be specified during compilation.
-    ```
-      ./configure --prefix=/opt/riscv --with-arch=rv32gc --with-abi=ilp32d   
-      make linux
-    ```
-    After the toolchain is compiled, add the bin directory to the system PATH. Then, you can execute make in the src directory to compile.
-    ```
-      export PATH=$PATH:/opt/riscv/bin
-      cd src
-      make
-    ```
-    After compilation, the generated boot.bin and kernel.bin are the boot program and user program, respectively. In the Digital tool, the compiled byte hex text needs to be imported into the program-rom. You can execute `python3 ./mkhex.py` in the src directory to generate a hex file.
-    ```
+  > Since this project only supports a 32-bit instruction set, params needs to be specified during compilation.  
+
+  ```
+        ./configure --prefix=/opt/riscv --with-arch=rv32gc --with-abi=ilp32d     
+        make linux 
+  ```
+
+  After the toolchain is compiled, add the bin directory to the system PATH. Then, you can execute make in the src directory to compile.    
+
+  ```
+      export PATH=$PATH:/opt/riscv/bin  
+      cd src  
+      make  
+  ```  
+
+  After compilation, the generated boot.bin and kernel.bin are the boot program and user program, respectively. In the Digital tool, the compiled byte hex text needs to be imported into the program-rom.     
+  You can execute `python3 ./mkhex.py` in the src directory to generate a hex file.  
+
+  ```
       cd src
       python3 ./mkhex.py
-    ```
+  ```
   
   The generated kernel.hex can be imported into the program-rom in the Digital tool.  
+
   ![image](doc/image/load-kernel.png)

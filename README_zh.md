@@ -168,25 +168,30 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
 #### 软件编译
   引导和应用程序需要使用risc-v交叉编译工具链进行编译。  
   交叉编译工具链 [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain)  
-  国内用户可以使用镜像地址: [riscv-gnu-toolchain](https://gitee.com/riscv-mcu/riscv-gnu-toolchain)
+  国内用户可以使用镜像地址: [riscv-gnu-toolchain](https://gitee.com/riscv-mcu/riscv-gnu-toolchain)  
 
-  > 本项目只支持32为指令集，所以编译的时候需要指定32位
-    ```
-      ./configure --prefix=/opt/riscv --with-arch=rv32gc --with-abi=ilp32d   
-      make linux
-    ```
+  > 本项目只支持32为指令集，所以编译的时候需要指定32位  
+
+  ```
+  ./configure --prefix=/opt/riscv --with-arch=rv32gc --with-abi=ilp32d   
+  make linux
+  ```
+
   工具链编译完毕后，将bin目录加入到系统PATH中，然后可以在src目录下执行 make 进行编译。
-    ```
+
+  ```
       export PATH=$PATH:/opt/riscv/bin
       cd src
       make
-    ```
-  编译完成后，将生成的boot.bin和kernel.bin 分别为引导程序和 用户程序。
+  ```
+  编译完成后，将生成的boot.bin和kernel.bin 分别为引导程序和 用户程序。  
   在Digital工具中，需要将编译后的字节hex文本导入到program-rom中，可以在src目录下执行 python3 ./mkhex.py 生成hex文件。
-    ```
+
+  ```
       cd src
       python3 ./mkhex.py
-    ```
+  ```
   
   生成的kernel.hex ，可以在Digital工具中导入到program-rom中。  
+
   ![image](doc/image/load-kernel.png)
