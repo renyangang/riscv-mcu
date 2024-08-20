@@ -3548,6 +3548,16 @@
           <string>wideShape</string>
           <boolean>true</boolean>
         </entry>
+        <entry>
+          <string>inverterConfig</string>
+          <inverterConfig>
+            <string>In_3</string>
+          </inverterConfig>
+        </entry>
+        <entry>
+          <string>Inputs</string>
+          <int>3</int>
+        </entry>
       </elementAttributes>
       <pos x="1300" y="660"/>
     </visualElement>
@@ -3563,7 +3573,7 @@
           <string>vec_mode</string>
         </entry>
       </elementAttributes>
-      <pos x="1300" y="700"/>
+      <pos x="1300" y="680"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -3688,6 +3698,16 @@
           <string>wideShape</string>
           <boolean>true</boolean>
         </entry>
+        <entry>
+          <string>inverterConfig</string>
+          <inverterConfig>
+            <string>In_3</string>
+          </inverterConfig>
+        </entry>
+        <entry>
+          <string>Inputs</string>
+          <int>3</int>
+        </entry>
       </elementAttributes>
       <pos x="1360" y="900"/>
     </visualElement>
@@ -3703,7 +3723,7 @@
           <string>vec_mode</string>
         </entry>
       </elementAttributes>
-      <pos x="1360" y="940"/>
+      <pos x="1360" y="920"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -3780,6 +3800,16 @@
           <string>wideShape</string>
           <boolean>true</boolean>
         </entry>
+        <entry>
+          <string>inverterConfig</string>
+          <inverterConfig>
+            <string>In_3</string>
+          </inverterConfig>
+        </entry>
+        <entry>
+          <string>Inputs</string>
+          <int>3</int>
+        </entry>
       </elementAttributes>
       <pos x="1300" y="1080"/>
     </visualElement>
@@ -3795,7 +3825,7 @@
           <string>vec_mode</string>
         </entry>
       </elementAttributes>
-      <pos x="1300" y="1120"/>
+      <pos x="1300" y="1100"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -4931,6 +4961,48 @@
         </entry>
       </elementAttributes>
       <pos x="1080" y="600"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>mret</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1280" y="1120"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>mret</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1280" y="700"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>mret</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="940"/>
     </visualElement>
   </visualElements>
   <wires>

@@ -5,7 +5,7 @@
 static int mode = 0;
 
 void flash_by_sleep() {
-    // set low 10 pins of port D as output
+    // set low 7 pins of port D as output
     set_all_pins_mode(0x7f);
     for(;;) {
         mode = get_pin(10);
@@ -28,7 +28,7 @@ static int cur_pin = 0;
 static int cur_pins_status = 0;
 
 void flash_timer_handler() {
-    // set low 10 pins of port D as output
+    // set low 7 pins of port D as output
     set_all_pins_mode(0x7f);
     if(mode) {
         if(cur_pins_status) {
