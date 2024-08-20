@@ -11,6 +11,7 @@ _start:
     csrrw t2,mstatus,t3
     # set sp
     li sp, 0x01000000
+    # goto c main
     call main
 
 set_mie:

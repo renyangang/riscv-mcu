@@ -8,7 +8,7 @@
 
 为了便于演示，当前支持了完整的RISCV32I指令集，以及部分外设电路，如定时器、GPIO等。基于入门学习的目的，当前仅支持单周期CPU，未采用多级流水线和cache技术，所有指令执行都设计为单周期执行指令，无指令乱序和多级发射等特性。
 
-支持通过risc-v汇编、C语言编写boot引导程序和用户程序，通过Digital数字电路仿真软件进行仿真运行。
+支持通过risc-v汇编、C语言编写boot引导程序和固件程序，通过Digital数字电路仿真软件进行仿真运行。
 
 RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.org/)。
 
@@ -24,9 +24,9 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
 #### 运行演示
 ![image](doc/image/output.gif)
 
-仿真运行后，首先加载引导程序，引导程序存放在boot-rom中，引导程序将用户程序加载从program-rom加载到内存中，然后跳转到用户程序入口地址开始执行用户程序。
+仿真运行后，首先加载引导程序，引导程序存放在boot-rom中，引导程序将固件程序加载从program-rom加载到内存中，然后跳转到固件程序入口地址开始执行固件程序。
 
-示例中为用户程序通过GPIO控制LED灯，通过定时器控制LED灯的闪烁。通过硬件中断实现GPIO输入检测，并改变LED闪烁方式。
+示例中为固件程序通过GPIO控制LED灯，通过定时器控制LED灯的闪烁。通过硬件中断实现GPIO输入检测，并改变LED闪烁方式。
 
 #### 硬件架构
 系统整体包含：指令取指总线、指令解码器、指令执行单元、存储器、异常中断处理单元、外设模块、内部数据总线等模块。
@@ -63,7 +63,7 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
   > 通用寄存器，实现了x0 ~ x31 共32个通用寄存器。  
     内存模块，实现了32位宽的内存，支持读写操作，通过4个block片选组合的方式，实现了非对齐字节操作，可以在单周期内实现4字节及以下的任意读写指令。  
     boot-rom，实现了32位宽的rom，支持读操作，用于存储引导程序，支持32位对齐，不支持字节操作。  
-    Program-ram，实现了8位宽的ram，支持读操作，支持字节读取，在引导程序加载用户程序到内存时，只能按照字节加载。
+    Program-ram，实现了8位宽的ram，支持读操作，支持字节读取，在引导程序加载固件程序到内存时，只能按照字节加载。
 
 * 异常中断处理单元
   ![image](doc/image/exception-int.png)  
@@ -83,17 +83,17 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
 
 
 #### 软件程序
-  软件程序包含boot引导程序和应用程序两个部分。  
+  软件程序包含boot引导程序和固件程序两个部分。  
   * boot引导程序
-    > boot引导程序用于加载用户程序到内存，并跳转到用户程序入口地址开始执行。  
-      boot引导程序存放在boot-rom中，引导程序将用户程序加载从program-rom加载到内存中，然后跳转到用户程序入口地址开始执行用户程序。  
+    > boot引导程序用于加载固件程序到内存，并跳转到固件程序入口地址开始执行。  
+      boot引导程序存放在boot-rom中，引导程序将固件程序加载从program-rom加载到内存中，然后跳转到固件程序入口地址开始执行固件程序。  
       boot引导程序使用risc-v汇编语言编写，具体参见 `src/boot.s` 文件。
 
-  * 应用程序
+  * 固件程序
     > 通过start.s 启动，在start.s中设置了中断处理函数和设置，然后跳转到C语言的main函数中开始执行。  
       在src/bsp目录下，对gpio、定时器、中断等操作，做了对应的代码封装，方便在C语言中调用。  
-      在src/main.c中，通过调用bsp中的代码，实现了一个简单的用户程序，通过GPIO控制LED灯，通过定时器控制LED灯的闪烁。通过硬件中断实现GPIO输入检测，并改变LED闪烁方式。在代码中包含一个sleep延时实现的版本和通过中断实现的版本示例。
-      应用程序使用C语言编写，具体参见 `src/main.c` 文件。
+      在src/main.c中，通过调用bsp中的代码，实现了一个简单的固件程序，通过GPIO控制LED灯，通过定时器控制LED灯的闪烁。通过硬件中断实现GPIO输入检测，并改变LED闪烁方式。在代码中包含一个sleep延时实现的版本和通过中断实现的版本示例。
+      固件程序使用C语言编写，具体参见 `src/main.c` 文件。
       ```c
         #include "gpio.h"
         #include "timer.h"
@@ -166,7 +166,7 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
           ```
 
 #### 软件编译
-  引导和应用程序需要使用risc-v交叉编译工具链进行编译。  
+  引导和固件程序需要使用risc-v交叉编译工具链进行编译。  
   交叉编译工具链 [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain)  
   国内用户可以使用镜像地址: [riscv-gnu-toolchain](https://gitee.com/riscv-mcu/riscv-gnu-toolchain)  
 
@@ -184,7 +184,7 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
       cd src
       make
   ```
-  编译完成后，将生成的boot.bin和kernel.bin 分别为引导程序和 用户程序。  
+  编译完成后，将生成的boot.bin和kernel.bin 分别为引导程序和 固件程序。  
   在Digital工具中，需要将编译后的字节hex文本导入到program-rom中，可以在src目录下执行 python3 ./mkhex.py 生成hex文件。
 
   ```

@@ -92,7 +92,7 @@ The overall system includes modules such as instruction fetch bus, instruction d
   * Firmware
     > The firmware starts with start.s, sets up interrupt handling functions and configurations in `start.s`, and then jumps to the C language main function to start execution.  
     In the `src/bsp` directory, corresponding code encapsulation for operations such as gpio, timer, and interrupts is provided for easy calling in C language.  
-    In the `src/main.c` file, a simple user program is implemented by calling the code in bsp, controlling the LED light through GPIO, controlling the blinking of the LED light through a timer, and detecting GPIO input through hardware interrupts to change the blinking mode of the LED light. The code includes a version with a sleep delay implementation and a version with interrupt implementation. The application program is written in C language. For details, please refer to the `src/main.c` file.  
+    In the `src/main.c` file, a simple firmware is implemented by calling the code in bsp, controlling the LED light through GPIO, controlling the blinking of the LED light through a timer, and detecting GPIO input through hardware interrupts to change the blinking mode of the LED light. The code includes a version with a sleep delay implementation and a version with interrupt implementation. The application program is written in C language. For details, please refer to the `src/main.c` file.  
       ```c
         #include "gpio.h"
         #include "timer.h"
@@ -182,7 +182,7 @@ The overall system includes modules such as instruction fetch bus, instruction d
       make  
   ```  
 
-  After compilation, the generated boot.bin and kernel.bin are the boot program and user program, respectively. In the Digital tool, the compiled byte hex text needs to be imported into the program-rom.     
+  After compilation, the generated boot.bin and kernel.bin are the boot program and firmware, respectively. In the Digital tool, the compiled byte hex text needs to be imported into the program-rom.     
   You can execute `python3 ./mkhex.py` in the src directory to generate a hex file.  
 
   ```
