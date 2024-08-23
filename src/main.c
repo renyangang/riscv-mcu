@@ -1,6 +1,7 @@
 #include "gpio.h"
 #include "timer.h"
 #include "interrupt.h"
+#include "uart.h"
 
 static int mode = 0;
 
@@ -46,12 +47,14 @@ void flash_timer_handler() {
         }
         set_pin(cur_pin, 1);
     }
+    send_string("led status changed\n");
     add_soft_timer(500, flash_timer_handler);
 }
 
 void mode_change_handler() {
     mode = get_pin(10);
     clear_gpio_int();
+    send_string("led flash mode changed\n");
 }
 
 void flash_by_interrupt() {

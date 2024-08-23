@@ -64,7 +64,8 @@ The overall system includes modules such as instruction fetch bus, instruction d
   > General-purpose registers, implement 32 general-purpose registers x0 ~ x31. 
     Memory module, implements 32-bit wide memory, supports read and write operations, and implements non-aligned byte operations through 4-block selection combinations. It can implement any read and write instructions of 4 bytes and below in a single cycle.  
     Boot-rom, implements 32-bit wide ROM, supports read operations, and is used to store the boot program. It supports 32-bit alignment and does not support byte operations.  
-    Program-ram, implements 8-bit wide RAM, supports read operations, and supports byte reads. When the boot program loads the firmware into memory, it can only be loaded by bytes.  
+    Program-ram, implements 8-bit wide RAM, supports read operations, and supports byte reads. When the boot program loads the firmware into memory, it can only be loaded by bytes.
+    DMA 32-bit wide memory, supports read and write operations, and implements non-aligned byte operations through 4-block selection combinations. base address is 0xC0000000.
 
 * Exception Interrupt Handling Unit
   ![image](doc/image/exception-int.png)  
@@ -75,7 +76,8 @@ The overall system includes modules such as instruction fetch bus, instruction d
 * Peripherals
   ![image](doc/image/gpio.png)  
 
-  > GPIO implements a hardware peripheral with 10 gpio ports, supports input/output mode configuration, and supports input hardware interrupt triggering.
+  > GPIO implements a hardware peripheral with 10 gpio ports, supports input/output mode configuration, and supports input hardware interrupt triggering.  
+  Uart implements a serial port peripheral, which supports serial port data receiving and sending. [Detailed Description] (doc/uart.md)
 
 * Internal Data Bus
   ![image](doc/image/data-bus.png)

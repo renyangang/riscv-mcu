@@ -9,11 +9,13 @@ OBJDIR := ./objs
 INCDIRS 		:= bsp/common \
 				   bsp/gpio \
 				   bsp/interrupt \
+				   bsp/uart \
 				   bsp/timer 
 				   			   
 SRCDIRS			:= . \
 				   bsp/gpio \
 				   bsp/interrupt \
+				   bsp/uart \
 				   bsp/timer 
 				   
 				   

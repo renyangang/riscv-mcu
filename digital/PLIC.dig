@@ -2135,7 +2135,31 @@
           <string>cur_perint_code</string>
         </entry>
       </elementAttributes>
-      <pos x="260" y="780"/>
+      <pos x="380" y="780"/>
+    </visualElement>
+    <visualElement>
+      <elementName>PullDown</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="320" y="820"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>en_periph</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1220" y="1040"/>
     </visualElement>
   </visualElements>
   <wires>
@@ -2192,12 +2216,24 @@
       <p2 x="1740" y="780"/>
     </wire>
     <wire>
+      <p1 x="260" y="780"/>
+      <p2 x="320" y="780"/>
+    </wire>
+    <wire>
+      <p1 x="320" y="780"/>
+      <p2 x="380" y="780"/>
+    </wire>
+    <wire>
       <p1 x="1280" y="1100"/>
       <p2 x="1300" y="1100"/>
     </wire>
     <wire>
       <p1 x="1820" y="720"/>
       <p2 x="1860" y="720"/>
+    </wire>
+    <wire>
+      <p1 x="1220" y="1040"/>
+      <p2 x="1300" y="1040"/>
     </wire>
     <wire>
       <p1 x="1300" y="1040"/>
@@ -2410,6 +2446,10 @@
     <wire>
       <p1 x="1760" y="1020"/>
       <p2 x="1760" y="1060"/>
+    </wire>
+    <wire>
+      <p1 x="320" y="780"/>
+      <p2 x="320" y="820"/>
     </wire>
     <wire>
       <p1 x="1700" y="700"/>
