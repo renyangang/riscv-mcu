@@ -17,7 +17,7 @@ RISC-V is a currently active open-source instruction set. For more information, 
 1.  Download the Digital software [Digital](https://github.com/hneemann/Digital)
 2.  Download the code for this project
     ```
-    git clone https://gitee.com/virtual-computer/cpu-v.git
+    git clone https://github.com/renyangang/riscv-mcu.git
     ```
 3.  Open the Digital, click on File-Open, and select the risc-v-computer.dig file in the digital directory of the project.
 4.  Click the run simulation button.
