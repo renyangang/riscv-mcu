@@ -437,7 +437,7 @@ s2: send dev address</string>
           <string>sda</string>
         </entry>
       </elementAttributes>
-      <pos x="1360" y="180"/>
+      <pos x="1320" y="180"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -447,7 +447,7 @@ s2: send dev address</string>
           <string>ack</string>
         </entry>
       </elementAttributes>
-      <pos x="1360" y="220"/>
+      <pos x="1320" y="220"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -457,7 +457,7 @@ s2: send dev address</string>
           <string>start_status</string>
         </entry>
       </elementAttributes>
-      <pos x="1360" y="200"/>
+      <pos x="1320" y="200"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -533,7 +533,7 @@ s2: send dev address</string>
           <string>start_status</string>
         </entry>
       </elementAttributes>
-      <pos x="1460" y="300"/>
+      <pos x="1540" y="320"/>
     </visualElement>
     <visualElement>
       <elementName>Clock</elementName>
@@ -670,6 +670,10 @@ s2: send dev address</string>
           <string>wideShape</string>
           <boolean>true</boolean>
         </entry>
+        <entry>
+          <string>Inputs</string>
+          <int>3</int>
+        </entry>
       </elementAttributes>
       <pos x="680" y="420"/>
     </visualElement>
@@ -719,65 +723,6 @@ s2: send dev address</string>
       <pos x="520" y="200"/>
     </visualElement>
     <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>master_s1</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1440" y="340"/>
-    </visualElement>
-    <visualElement>
-      <elementName>And</elementName>
-      <elementAttributes>
-        <entry>
-          <string>wideShape</string>
-          <boolean>true</boolean>
-        </entry>
-        <entry>
-          <string>inverterConfig</string>
-          <inverterConfig>
-            <string>In_2</string>
-          </inverterConfig>
-        </entry>
-      </elementAttributes>
-      <pos x="1460" y="300"/>
-    </visualElement>
-    <visualElement>
-      <elementName>DriverInvSel</elementName>
-      <elementAttributes/>
-      <pos x="800" y="440"/>
-    </visualElement>
-    <visualElement>
-      <elementName>T_FF</elementName>
-      <elementAttributes/>
-      <pos x="720" y="340"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Const</elementName>
-      <elementAttributes/>
-      <pos x="720" y="340"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>c</string>
-        </entry>
-      </elementAttributes>
-      <pos x="720" y="360"/>
-    </visualElement>
-    <visualElement>
       <elementName>Const</elementName>
       <elementAttributes>
         <entry>
@@ -791,6 +736,68 @@ s2: send dev address</string>
       </elementAttributes>
       <pos x="520" y="320"/>
     </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>scl</string>
+        </entry>
+      </elementAttributes>
+      <pos x="480" y="480"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>c</string>
+        </entry>
+      </elementAttributes>
+      <pos x="480" y="460"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Counter</elementName>
+      <elementAttributes/>
+      <pos x="480" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Const</elementName>
+      <elementAttributes/>
+      <pos x="480" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>start_sig</string>
+        </entry>
+      </elementAttributes>
+      <pos x="540" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>start_sig</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="440"/>
+    </visualElement>
   </visualElements>
   <wires>
     <wire>
@@ -802,24 +809,8 @@ s2: send dev address</string>
       <p2 x="1240" y="340"/>
     </wire>
     <wire>
-      <p1 x="780" y="340"/>
-      <p2 x="800" y="340"/>
-    </wire>
-    <wire>
-      <p1 x="1320" y="180"/>
-      <p2 x="1360" y="180"/>
-    </wire>
-    <wire>
-      <p1 x="1320" y="200"/>
-      <p2 x="1360" y="200"/>
-    </wire>
-    <wire>
       <p1 x="840" y="280"/>
       <p2 x="860" y="280"/>
-    </wire>
-    <wire>
-      <p1 x="820" y="440"/>
-      <p2 x="880" y="440"/>
     </wire>
     <wire>
       <p1 x="940" y="440"/>
@@ -827,23 +818,15 @@ s2: send dev address</string>
     </wire>
     <wire>
       <p1 x="760" y="440"/>
-      <p2 x="780" y="440"/>
+      <p2 x="880" y="440"/>
     </wire>
     <wire>
       <p1 x="1200" y="380"/>
       <p2 x="1240" y="380"/>
     </wire>
     <wire>
-      <p1 x="1320" y="220"/>
-      <p2 x="1360" y="220"/>
-    </wire>
-    <wire>
       <p1 x="960" y="440"/>
       <p2 x="960" y="480"/>
-    </wire>
-    <wire>
-      <p1 x="800" y="340"/>
-      <p2 x="800" y="420"/>
     </wire>
     <wire>
       <p1 x="840" y="240"/>

@@ -229,12 +229,11 @@
       <elementAttributes>
         <entry>
           <string>Bits</string>
-          <int>4</int>
+          <int>3</int>
         </entry>
         <entry>
           <string>inverterConfig</string>
           <inverterConfig>
-            <string>C</string>
             <string>clr</string>
           </inverterConfig>
         </entry>
@@ -253,7 +252,7 @@
           <string>scl</string>
         </entry>
       </elementAttributes>
-      <pos x="620" y="580"/>
+      <pos x="640" y="580"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -444,20 +443,6 @@ s2: wait ack</string>
       <pos x="1100" y="480"/>
     </visualElement>
     <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>master_s0</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1540" y="440"/>
-    </visualElement>
-    <visualElement>
       <elementName>Const</elementName>
       <elementAttributes/>
       <pos x="640" y="560"/>
@@ -516,7 +501,7 @@ s2: wait ack</string>
           <string>sda_in</string>
         </entry>
       </elementAttributes>
-      <pos x="1340" y="260"/>
+      <pos x="1280" y="260"/>
     </visualElement>
     <visualElement>
       <elementName>And</elementName>
@@ -532,12 +517,12 @@ s2: wait ack</string>
           </inverterConfig>
         </entry>
       </elementAttributes>
-      <pos x="1360" y="220"/>
+      <pos x="1300" y="220"/>
     </visualElement>
     <visualElement>
       <elementName>Register</elementName>
       <elementAttributes/>
-      <pos x="1480" y="240"/>
+      <pos x="1420" y="240"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -551,7 +536,7 @@ s2: wait ack</string>
           <string>scl</string>
         </entry>
       </elementAttributes>
-      <pos x="1480" y="260"/>
+      <pos x="1420" y="260"/>
     </visualElement>
     <visualElement>
       <elementName>Out</elementName>
@@ -621,7 +606,7 @@ s2: wait ack</string>
       <elementAttributes>
         <entry>
           <string>rotation</string>
-          <rotation reference="../../../../visualElement[52]/elementAttributes/entry/rotation"/>
+          <rotation reference="../../../../visualElement[51]/elementAttributes/entry/rotation"/>
         </entry>
         <entry>
           <string>NetName</string>
@@ -659,40 +644,6 @@ s2: wait ack</string>
       <pos x="1480" y="660"/>
     </visualElement>
     <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>on-off</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1340" y="340"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Or</elementName>
-      <elementAttributes>
-        <entry>
-          <string>wideShape</string>
-          <boolean>true</boolean>
-        </entry>
-      </elementAttributes>
-      <pos x="1340" y="300"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>NetName</string>
-          <string>s_end</string>
-        </entry>
-      </elementAttributes>
-      <pos x="880" y="500"/>
-    </visualElement>
-    <visualElement>
       <elementName>PullUp</elementName>
       <elementAttributes>
         <entry>
@@ -707,30 +658,6 @@ s2: wait ack</string>
       <pos x="1200" y="620"/>
     </visualElement>
     <visualElement>
-      <elementName>Splitter</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Input Splitting</string>
-          <string>4</string>
-        </entry>
-        <entry>
-          <string>Output Splitting</string>
-          <string>3,1</string>
-        </entry>
-      </elementAttributes>
-      <pos x="900" y="660"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Comparator</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Bits</string>
-          <int>4</int>
-        </entry>
-      </elementAttributes>
-      <pos x="820" y="500"/>
-    </visualElement>
-    <visualElement>
       <elementName>Tunnel</elementName>
       <elementAttributes>
         <entry>
@@ -739,24 +666,10 @@ s2: wait ack</string>
         </entry>
         <entry>
           <string>NetName</string>
-          <string>bit_pos</string>
+          <string>s_end</string>
         </entry>
       </elementAttributes>
-      <pos x="820" y="500"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Const</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Value</string>
-          <long>8</long>
-        </entry>
-        <entry>
-          <string>Bits</string>
-          <int>4</int>
-        </entry>
-      </elementAttributes>
-      <pos x="820" y="520"/>
+      <pos x="1300" y="220"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -770,28 +683,14 @@ s2: wait ack</string>
           <string>s_end</string>
         </entry>
       </elementAttributes>
-      <pos x="1360" y="220"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>s_end</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1340" y="300"/>
+      <pos x="1420" y="280"/>
     </visualElement>
     <visualElement>
       <elementName>Const</elementName>
       <elementAttributes>
         <entry>
           <string>Value</string>
-          <long>0</long>
+          <long>5</long>
         </entry>
         <entry>
           <string>Bits</string>
@@ -800,16 +699,308 @@ s2: wait ack</string>
       </elementAttributes>
       <pos x="520" y="440"/>
     </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>first</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1120" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>RS_FF_AS</elementName>
+      <elementAttributes/>
+      <pos x="1020" y="160"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>master_s1</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1020" y="160"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>end</string>
+        </entry>
+      </elementAttributes>
+      <pos x="820" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Counter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>2</int>
+        </entry>
+      </elementAttributes>
+      <pos x="820" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>scl</string>
+        </entry>
+      </elementAttributes>
+      <pos x="820" y="200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Const</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Value</string>
+          <long>0</long>
+        </entry>
+      </elementAttributes>
+      <pos x="820" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>end</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1200" y="400"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>master_s0</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="380"/>
+    </visualElement>
+    <visualElement>
+      <elementName>DriverInvSel</elementName>
+      <elementAttributes/>
+      <pos x="1160" y="400"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>on-off</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Or</elementName>
+      <elementAttributes>
+        <entry>
+          <string>wideShape</string>
+          <boolean>true</boolean>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>first</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>end</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1460" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>PullDown</elementName>
+      <elementAttributes/>
+      <pos x="1480" y="460"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>s_endtmp</string>
+        </entry>
+      </elementAttributes>
+      <pos x="700" y="580"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>s_end</string>
+        </entry>
+      </elementAttributes>
+      <pos x="960" y="480"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>scl</string>
+        </entry>
+      </elementAttributes>
+      <pos x="880" y="480"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Register</elementName>
+      <elementAttributes>
+        <entry>
+          <string>inverterConfig</string>
+          <inverterConfig>
+            <string>C</string>
+          </inverterConfig>
+        </entry>
+      </elementAttributes>
+      <pos x="900" y="460"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>s_endtmp</string>
+        </entry>
+      </elementAttributes>
+      <pos x="780" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>scl</string>
+        </entry>
+      </elementAttributes>
+      <pos x="780" y="460"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Register</elementName>
+      <elementAttributes/>
+      <pos x="780" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Const</elementName>
+      <elementAttributes/>
+      <pos x="780" y="480"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Const</elementName>
+      <elementAttributes/>
+      <pos x="900" y="500"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>ack</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1480" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>ack</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="420"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Or</elementName>
+      <elementAttributes>
+        <entry>
+          <string>wideShape</string>
+          <boolean>true</boolean>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="380"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>ack</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1540" y="260"/>
+    </visualElement>
   </visualElements>
   <wires>
-    <wire>
-      <p1 x="1440" y="240"/>
-      <p2 x="1480" y="240"/>
-    </wire>
-    <wire>
-      <p1 x="840" y="400"/>
-      <p2 x="860" y="400"/>
-    </wire>
     <wire>
       <p1 x="1020" y="640"/>
       <p2 x="1080" y="640"/>
@@ -819,8 +1010,16 @@ s2: wait ack</string>
       <p2 x="1160" y="640"/>
     </wire>
     <wire>
-      <p1 x="1420" y="320"/>
-      <p2 x="1460" y="320"/>
+      <p1 x="1380" y="240"/>
+      <p2 x="1420" y="240"/>
+    </wire>
+    <wire>
+      <p1 x="840" y="400"/>
+      <p2 x="860" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="400"/>
+      <p2 x="1200" y="400"/>
     </wire>
     <wire>
       <p1 x="1240" y="580"/>
@@ -839,12 +1038,28 @@ s2: wait ack</string>
       <p2 x="1520" y="660"/>
     </wire>
     <wire>
-      <p1 x="920" y="660"/>
+      <p1 x="900" y="660"/>
       <p2 x="960" y="660"/>
     </wire>
     <wire>
-      <p1 x="1460" y="280"/>
-      <p2 x="1480" y="280"/>
+      <p1 x="1080" y="180"/>
+      <p2 x="1120" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="980" y="180"/>
+      <p2 x="1020" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="880" y="200"/>
+      <p2 x="980" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="1460" y="440"/>
+      <p2 x="1480" y="440"/>
+    </wire>
+    <wire>
+      <p1 x="1480" y="440"/>
+      <p2 x="1540" y="440"/>
     </wire>
     <wire>
       <p1 x="1440" y="620"/>
@@ -855,12 +1070,20 @@ s2: wait ack</string>
       <p2 x="1200" y="620"/>
     </wire>
     <wire>
+      <p1 x="1140" y="300"/>
+      <p2 x="1160" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="840" y="460"/>
+      <p2 x="900" y="460"/>
+    </wire>
+    <wire>
       <p1 x="1220" y="500"/>
       <p2 x="1220" y="560"/>
     </wire>
     <wire>
-      <p1 x="1460" y="280"/>
-      <p2 x="1460" y="320"/>
+      <p1 x="980" y="180"/>
+      <p2 x="980" y="200"/>
     </wire>
     <wire>
       <p1 x="840" y="360"/>
@@ -871,8 +1094,16 @@ s2: wait ack</string>
       <p2 x="1160" y="620"/>
     </wire>
     <wire>
+      <p1 x="1160" y="300"/>
+      <p2 x="1160" y="380"/>
+    </wire>
+    <wire>
       <p1 x="1160" y="620"/>
       <p2 x="1160" y="640"/>
+    </wire>
+    <wire>
+      <p1 x="1480" y="440"/>
+      <p2 x="1480" y="460"/>
     </wire>
   </wires>
   <measurementOrdering/>
