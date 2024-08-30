@@ -542,8 +542,16 @@ writeable  readable           stop  verify  bit-size   start</string>
       <elementName>Clock</elementName>
       <elementAttributes>
         <entry>
+          <string>runRealTime</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
           <string>Label</string>
           <string>Clock</string>
+        </entry>
+        <entry>
+          <string>Frequency</string>
+          <int>100</int>
         </entry>
       </elementAttributes>
       <pos x="200" y="40"/>
@@ -609,16 +617,16 @@ writeable  readable           stop  verify  bit-size   start</string>
       <elementName>Clock</elementName>
       <elementAttributes>
         <entry>
+          <string>runRealTime</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
           <string>Label</string>
           <string>UartClock</string>
         </entry>
         <entry>
           <string>Frequency</string>
           <int>50</int>
-        </entry>
-        <entry>
-          <string>runRealTime</string>
-          <boolean>true</boolean>
         </entry>
       </elementAttributes>
       <pos x="200" y="-20"/>
@@ -759,7 +767,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1420" y="640"/>
+      <pos x="1480" y="700"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -803,7 +811,7 @@ writeable  readable           stop  verify  bit-size   start</string>
         </entry>
         <entry>
           <string>NetName</string>
-          <string>Addr_rd</string>
+          <string>Addr_w</string>
         </entry>
       </elementAttributes>
       <pos x="480" y="280"/>
@@ -868,12 +876,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>buf_wpos</string>
         </entry>
       </elementAttributes>
-      <pos x="1040" y="560"/>
-    </visualElement>
-    <visualElement>
-      <elementName>addr-compare.dig</elementName>
-      <elementAttributes/>
-      <pos x="1040" y="560"/>
+      <pos x="940" y="580"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -887,7 +890,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>Data_in</string>
         </entry>
       </elementAttributes>
-      <pos x="1040" y="600"/>
+      <pos x="940" y="560"/>
     </visualElement>
     <visualElement>
       <elementName>And</elementName>
@@ -907,7 +910,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>buf-write-pos</string>
         </entry>
       </elementAttributes>
-      <pos x="1460" y="640"/>
+      <pos x="1520" y="700"/>
     </visualElement>
     <visualElement>
       <elementName>Driver</elementName>
@@ -917,7 +920,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1440" y="640"/>
+      <pos x="1500" y="700"/>
     </visualElement>
     <visualElement>
       <elementName>addr-compare.dig</elementName>
@@ -1038,20 +1041,6 @@ writeable  readable           stop  verify  bit-size   start</string>
       <pos x="160" y="660"/>
     </visualElement>
     <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>read_ready</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1680" y="740"/>
-    </visualElement>
-    <visualElement>
       <elementName>Out</elementName>
       <elementAttributes>
         <entry>
@@ -1063,7 +1052,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1680" y="580"/>
+      <pos x="1780" y="580"/>
     </visualElement>
     <visualElement>
       <elementName>Out</elementName>
@@ -1077,7 +1066,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1680" y="660"/>
+      <pos x="1780" y="660"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1091,7 +1080,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>buf_wpos</string>
         </entry>
       </elementAttributes>
-      <pos x="1680" y="660"/>
+      <pos x="1780" y="660"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1105,7 +1094,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>read_byte</string>
         </entry>
       </elementAttributes>
-      <pos x="1600" y="580"/>
+      <pos x="1700" y="580"/>
     </visualElement>
     <visualElement>
       <elementName>Out</elementName>
@@ -1115,7 +1104,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>we_dma</string>
         </entry>
       </elementAttributes>
-      <pos x="1680" y="740"/>
+      <pos x="1780" y="740"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1163,7 +1152,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>buf-write-pos</string>
         </entry>
       </elementAttributes>
-      <pos x="1460" y="840"/>
+      <pos x="1660" y="900"/>
     </visualElement>
     <visualElement>
       <elementName>Add</elementName>
@@ -1173,7 +1162,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1300" y="840"/>
+      <pos x="1340" y="900"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1187,7 +1176,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>buf_wpos</string>
         </entry>
       </elementAttributes>
-      <pos x="1300" y="840"/>
+      <pos x="1340" y="900"/>
     </visualElement>
     <visualElement>
       <elementName>Const</elementName>
@@ -1197,7 +1186,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1300" y="860"/>
+      <pos x="1340" y="920"/>
     </visualElement>
     <visualElement>
       <elementName>Const</elementName>
@@ -1207,7 +1196,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <long>0</long>
         </entry>
       </elementAttributes>
-      <pos x="1300" y="880"/>
+      <pos x="1340" y="940"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1228,20 +1217,6 @@ writeable  readable           stop  verify  bit-size   start</string>
       <elementName>Const</elementName>
       <elementAttributes/>
       <pos x="660" y="660"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>read_ready</string>
-        </entry>
-      </elementAttributes>
-      <pos x="200" y="900"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1434,7 +1409,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>32</string>
         </entry>
       </elementAttributes>
-      <pos x="1640" y="580"/>
+      <pos x="1740" y="580"/>
     </visualElement>
     <visualElement>
       <elementName>Const</elementName>
@@ -1448,21 +1423,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>24</int>
         </entry>
       </elementAttributes>
-      <pos x="1640" y="600"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>read_ready</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1380" y="800"/>
+      <pos x="1740" y="600"/>
     </visualElement>
     <visualElement>
       <elementName>Driver</elementName>
@@ -1472,7 +1433,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1400" y="840"/>
+      <pos x="1580" y="900"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1623,6 +1584,233 @@ writeable  readable           stop  verify  bit-size   start</string>
       </elementAttributes>
       <pos x="1060" y="460"/>
     </visualElement>
+    <visualElement>
+      <elementName>And</elementName>
+      <elementAttributes>
+        <entry>
+          <string>wideShape</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
+          <string>inverterConfig</string>
+          <inverterConfig>
+            <string>In_1</string>
+          </inverterConfig>
+        </entry>
+      </elementAttributes>
+      <pos x="1400" y="560"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>read_ready</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1380" y="560"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>pos_init</string>
+        </entry>
+      </elementAttributes>
+      <pos x="-40" y="920"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Or</elementName>
+      <elementAttributes>
+        <entry>
+          <string>wideShape</string>
+          <boolean>true</boolean>
+        </entry>
+      </elementAttributes>
+      <pos x="-40" y="880"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>pos_init</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1500" y="580"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Comparator</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="940" y="560"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Or</elementName>
+      <elementAttributes>
+        <entry>
+          <string>wideShape</string>
+          <boolean>true</boolean>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="560"/>
+    </visualElement>
+    <visualElement>
+      <elementName>D_FF</elementName>
+      <elementAttributes/>
+      <pos x="1240" y="840"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>C</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1240" y="860"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>read_ready</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1240" y="840"/>
+    </visualElement>
+    <visualElement>
+      <elementName>XOr</elementName>
+      <elementAttributes>
+        <entry>
+          <string>wideShape</string>
+          <boolean>true</boolean>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="800"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>read_ready</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="800"/>
+    </visualElement>
+    <visualElement>
+      <elementName>And</elementName>
+      <elementAttributes>
+        <entry>
+          <string>wideShape</string>
+          <boolean>true</boolean>
+        </entry>
+      </elementAttributes>
+      <pos x="1460" y="780"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>read_ready</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1460" y="780"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>pos_add</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1600" y="800"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>pos_add</string>
+        </entry>
+      </elementAttributes>
+      <pos x="-40" y="880"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>pos_add</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1780" y="740"/>
+    </visualElement>
+    <visualElement>
+      <elementName>D_FF</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1480" y="900"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>pos_add</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1480" y="920"/>
+    </visualElement>
   </visualElements>
   <wires>
     <wire>
@@ -1646,8 +1834,80 @@ writeable  readable           stop  verify  bit-size   start</string>
       <p2 x="200" y="640"/>
     </wire>
     <wire>
-      <p1 x="1380" y="800"/>
-      <p2 x="1400" y="800"/>
+      <p1 x="1140" y="580"/>
+      <p2 x="1180" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="580"/>
+      <p2 x="1320" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1760" y="580"/>
+      <p2 x="1780" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1700" y="580"/>
+      <p2 x="1740" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1480" y="580"/>
+      <p2 x="1500" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1000" y="580"/>
+      <p2 x="1040" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="40" y="900"/>
+      <p2 x="200" y="900"/>
+    </wire>
+    <wire>
+      <p1 x="1600" y="900"/>
+      <p2 x="1660" y="900"/>
+    </wire>
+    <wire>
+      <p1 x="1400" y="900"/>
+      <p2 x="1480" y="900"/>
+    </wire>
+    <wire>
+      <p1 x="1540" y="900"/>
+      <p2 x="1560" y="900"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="840"/>
+      <p2 x="1340" y="840"/>
+    </wire>
+    <wire>
+      <p1 x="940" y="720"/>
+      <p2 x="980" y="720"/>
+    </wire>
+    <wire>
+      <p1 x="980" y="720"/>
+      <p2 x="1040" y="720"/>
+    </wire>
+    <wire>
+      <p1 x="560" y="20"/>
+      <p2 x="580" y="20"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="660"/>
+      <p2 x="340" y="660"/>
+    </wire>
+    <wire>
+      <p1 x="1040" y="600"/>
+      <p2 x="1060" y="600"/>
+    </wire>
+    <wire>
+      <p1 x="120" y="540"/>
+      <p2 x="140" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="160" y="540"/>
+      <p2 x="200" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="860" y="860"/>
+      <p2 x="960" y="860"/>
     </wire>
     <wire>
       <p1 x="580" y="160"/>
@@ -1662,20 +1922,12 @@ writeable  readable           stop  verify  bit-size   start</string>
       <p2 x="1260" y="160"/>
     </wire>
     <wire>
-      <p1 x="1140" y="580"/>
-      <p2 x="1180" y="580"/>
+      <p1 x="1540" y="800"/>
+      <p2 x="1580" y="800"/>
     </wire>
     <wire>
-      <p1 x="1300" y="580"/>
-      <p2 x="1320" y="580"/>
-    </wire>
-    <wire>
-      <p1 x="1660" y="580"/>
-      <p2 x="1680" y="580"/>
-    </wire>
-    <wire>
-      <p1 x="1600" y="580"/>
-      <p2 x="1640" y="580"/>
+      <p1 x="1580" y="800"/>
+      <p2 x="1600" y="800"/>
     </wire>
     <wire>
       <p1 x="1500" y="40"/>
@@ -1710,36 +1962,28 @@ writeable  readable           stop  verify  bit-size   start</string>
       <p2 x="760" y="680"/>
     </wire>
     <wire>
-      <p1 x="1360" y="840"/>
-      <p2 x="1380" y="840"/>
-    </wire>
-    <wire>
-      <p1 x="1420" y="840"/>
-      <p2 x="1460" y="840"/>
-    </wire>
-    <wire>
       <p1 x="580" y="300"/>
       <p2 x="640" y="300"/>
     </wire>
     <wire>
-      <p1 x="1280" y="620"/>
+      <p1 x="1200" y="620"/>
       <p2 x="1320" y="620"/>
     </wire>
     <wire>
-      <p1 x="940" y="720"/>
-      <p2 x="980" y="720"/>
-    </wire>
-    <wire>
-      <p1 x="980" y="720"/>
-      <p2 x="1040" y="720"/>
+      <p1 x="1040" y="880"/>
+      <p2 x="1080" y="880"/>
     </wire>
     <wire>
       <p1 x="1260" y="560"/>
       <p2 x="1300" y="560"/>
     </wire>
     <wire>
-      <p1 x="1040" y="880"/>
-      <p2 x="1080" y="880"/>
+      <p1 x="1000" y="560"/>
+      <p2 x="1060" y="560"/>
+    </wire>
+    <wire>
+      <p1 x="1420" y="820"/>
+      <p2 x="1460" y="820"/>
     </wire>
     <wire>
       <p1 x="400" y="500"/>
@@ -1750,52 +1994,20 @@ writeable  readable           stop  verify  bit-size   start</string>
       <p2 x="500" y="500"/>
     </wire>
     <wire>
-      <p1 x="560" y="20"/>
-      <p2 x="580" y="20"/>
-    </wire>
-    <wire>
-      <p1 x="300" y="660"/>
-      <p2 x="340" y="660"/>
-    </wire>
-    <wire>
       <p1 x="1520" y="120"/>
       <p2 x="1580" y="120"/>
-    </wire>
-    <wire>
-      <p1 x="1400" y="600"/>
-      <p2 x="1440" y="600"/>
     </wire>
     <wire>
       <p1 x="1080" y="440"/>
       <p2 x="1120" y="440"/>
     </wire>
     <wire>
-      <p1 x="120" y="540"/>
-      <p2 x="140" y="540"/>
-    </wire>
-    <wire>
-      <p1 x="160" y="540"/>
-      <p2 x="200" y="540"/>
-    </wire>
-    <wire>
       <p1 x="1140" y="700"/>
-      <p2 x="1280" y="700"/>
-    </wire>
-    <wire>
-      <p1 x="860" y="860"/>
-      <p2 x="960" y="860"/>
+      <p2 x="1200" y="700"/>
     </wire>
     <wire>
       <p1 x="1280" y="0"/>
       <p2 x="1280" y="60"/>
-    </wire>
-    <wire>
-      <p1 x="1280" y="620"/>
-      <p2 x="1280" y="700"/>
-    </wire>
-    <wire>
-      <p1 x="1440" y="600"/>
-      <p2 x="1440" y="620"/>
     </wire>
     <wire>
       <p1 x="160" y="640"/>
@@ -1816,6 +2028,18 @@ writeable  readable           stop  verify  bit-size   start</string>
     <wire>
       <p1 x="1260" y="360"/>
       <p2 x="1260" y="420"/>
+    </wire>
+    <wire>
+      <p1 x="1580" y="800"/>
+      <p2 x="1580" y="880"/>
+    </wire>
+    <wire>
+      <p1 x="1200" y="620"/>
+      <p2 x="1200" y="700"/>
+    </wire>
+    <wire>
+      <p1 x="1040" y="580"/>
+      <p2 x="1040" y="600"/>
     </wire>
     <wire>
       <p1 x="340" y="660"/>
@@ -1850,8 +2074,8 @@ writeable  readable           stop  verify  bit-size   start</string>
       <p2 x="1080" y="920"/>
     </wire>
     <wire>
-      <p1 x="1400" y="800"/>
-      <p2 x="1400" y="820"/>
+      <p1 x="1500" y="580"/>
+      <p2 x="1500" y="680"/>
     </wire>
   </wires>
   <measurementOrdering/>

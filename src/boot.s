@@ -10,7 +10,7 @@ _start:
     # offset
     li t2, 0x2000000
     # total 4096 bytes
-    li t3, 0x2001000
+    li t3, 0x2003000
 
  load:
     lbu a1, 0(t1)

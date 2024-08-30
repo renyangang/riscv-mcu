@@ -4,6 +4,8 @@
         "timer.h": "c",
         "gpio.h": "c",
         "interrupt.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "common.h": "c",
+        "uart.h": "c"
     }
 }

@@ -6,16 +6,21 @@ OBJDUMP := riscv32-unknown-linux-gnu-objdump
 
 OBJDIR := ./objs
 
-INCDIRS 		:= bsp/common \
+INCDIRS 		:= examples \
+				   bsp/common \
 				   bsp/gpio \
 				   bsp/interrupt \
 				   bsp/uart \
+				   bsp/iic \
 				   bsp/timer 
 				   			   
 SRCDIRS			:= . \
+				   examples \
+				   bsp/common \
 				   bsp/gpio \
 				   bsp/interrupt \
 				   bsp/uart \
+				   bsp/iic \
 				   bsp/timer 
 				   
 				   
@@ -44,11 +49,11 @@ $(OBJDIR)/boot.elf: $(OBJDIR)/boot.o
 	
 $(OBJDIR)/%.o: %.s
 	mkdir -p $(OBJDIR)
-	$(AS) -march=rv32im -mabi=ilp32 $(INCLUDE) -o $@ $^
+	$(AS) -march=rv32i -mabi=ilp32 $(INCLUDE) -o $@ $^
 
 $(COBJS) : $(OBJDIR)/%.o: %.c
 	mkdir -p $(OBJDIR)
-	$(CC) -march=rv32im -mabi=ilp32 -Wall -nostdlib $(INCLUDE) -c -O2 -o $@ $<
+	$(CC) -march=rv32i -mabi=ilp32 -Wall -nostdlib -fno-builtin-memset $(INCLUDE) -c -O2 -o $@ $<
 
 $(OBJDIR)/kernel.elf: $(OBJDIR)/start.o $(COBJS)
 	$(LD) -T kernel.ld -o $@ $^

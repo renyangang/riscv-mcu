@@ -2,6 +2,7 @@
 #include "timer.h"
 #include "interrupt.h"
 #include "uart.h"
+#include "guess.h"
 
 static int mode = 0;
 
@@ -66,6 +67,7 @@ void flash_by_interrupt() {
 
 int main() {
     // flash_by_sleep();
-    flash_by_interrupt();
+    // flash_by_interrupt();
+    run_guess_game();
     return 0;
 }

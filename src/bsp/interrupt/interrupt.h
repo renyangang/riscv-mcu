@@ -11,6 +11,7 @@
 #define PERIPHERAL_INT_NUM 5
 #define INT_GPIO 0x1
 #define INT_UART 0x2
+#define INT_IIC 0x3
 
 typedef void (*int_handler_t)(void);
 

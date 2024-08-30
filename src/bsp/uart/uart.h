@@ -18,9 +18,11 @@
 #define UART_DMA_BASE 0xC0000000
 
 
+void send_char(uint8_t c);
 void send_data(uint8_t *data, uint32_t len);
 uint32_t read_data(uint8_t *data, uint32_t len);
-
+// get char from uart keyboard
+uint8_t getchar();
 void send_string(const char *str);
 
 #endif

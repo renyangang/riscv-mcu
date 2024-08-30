@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef TYPES_H
+#define TYPES_H
 
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
@@ -10,6 +10,7 @@ typedef unsigned int uint32_t;
 typedef signed long long int64_t;
 typedef unsigned long long uint64_t;
 
+typedef uint32_t size_t;
 #define NULL 0
 
 #endif
