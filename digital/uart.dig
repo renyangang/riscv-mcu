@@ -1162,7 +1162,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1340" y="900"/>
+      <pos x="1460" y="900"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1176,7 +1176,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>buf_wpos</string>
         </entry>
       </elementAttributes>
-      <pos x="1340" y="900"/>
+      <pos x="1460" y="900"/>
     </visualElement>
     <visualElement>
       <elementName>Const</elementName>
@@ -1186,7 +1186,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <int>32</int>
         </entry>
       </elementAttributes>
-      <pos x="1340" y="920"/>
+      <pos x="1460" y="920"/>
     </visualElement>
     <visualElement>
       <elementName>Const</elementName>
@@ -1196,7 +1196,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <long>0</long>
         </entry>
       </elementAttributes>
-      <pos x="1340" y="940"/>
+      <pos x="1460" y="940"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1382,20 +1382,6 @@ writeable  readable           stop  verify  bit-size   start</string>
       <elementName>Const</elementName>
       <elementAttributes/>
       <pos x="1240" y="240"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>buf_wpos</string>
-        </entry>
-      </elementAttributes>
-      <pos x="1120" y="240"/>
     </visualElement>
     <visualElement>
       <elementName>Splitter</elementName>
@@ -1626,7 +1612,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>pos_init</string>
         </entry>
       </elementAttributes>
-      <pos x="-40" y="920"/>
+      <pos x="60" y="920"/>
     </visualElement>
     <visualElement>
       <elementName>Or</elementName>
@@ -1636,7 +1622,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <boolean>true</boolean>
         </entry>
       </elementAttributes>
-      <pos x="-40" y="880"/>
+      <pos x="60" y="880"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1771,7 +1757,7 @@ writeable  readable           stop  verify  bit-size   start</string>
           <string>pos_add</string>
         </entry>
       </elementAttributes>
-      <pos x="-40" y="880"/>
+      <pos x="60" y="880"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1788,16 +1774,6 @@ writeable  readable           stop  verify  bit-size   start</string>
       <pos x="1780" y="740"/>
     </visualElement>
     <visualElement>
-      <elementName>D_FF</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Bits</string>
-          <int>32</int>
-        </entry>
-      </elementAttributes>
-      <pos x="1480" y="900"/>
-    </visualElement>
-    <visualElement>
       <elementName>Tunnel</elementName>
       <elementAttributes>
         <entry>
@@ -1806,10 +1782,10 @@ writeable  readable           stop  verify  bit-size   start</string>
         </entry>
         <entry>
           <string>NetName</string>
-          <string>pos_add</string>
+          <string>buf_wpos</string>
         </entry>
       </elementAttributes>
-      <pos x="1480" y="920"/>
+      <pos x="1120" y="240"/>
     </visualElement>
   </visualElements>
   <wires>
@@ -1858,7 +1834,7 @@ writeable  readable           stop  verify  bit-size   start</string>
       <p2 x="1040" y="580"/>
     </wire>
     <wire>
-      <p1 x="40" y="900"/>
+      <p1 x="140" y="900"/>
       <p2 x="200" y="900"/>
     </wire>
     <wire>
@@ -1866,11 +1842,7 @@ writeable  readable           stop  verify  bit-size   start</string>
       <p2 x="1660" y="900"/>
     </wire>
     <wire>
-      <p1 x="1400" y="900"/>
-      <p2 x="1480" y="900"/>
-    </wire>
-    <wire>
-      <p1 x="1540" y="900"/>
+      <p1 x="1520" y="900"/>
       <p2 x="1560" y="900"/>
     </wire>
     <wire>

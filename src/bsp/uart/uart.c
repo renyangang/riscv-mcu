@@ -18,7 +18,7 @@ void send_data(uint8_t *data, uint32_t len) {
 
 uint32_t read_data(uint8_t *data, uint32_t len) {
     uint32_t r_len = 0;
-    uint8_t* ret_buffer = read_buffer;
+    uint8_t* ret_buffer = (uint8_t*)read_buffer;
     while (r_len < len && ret_buffer < (uint8_t*)(*buffer_end)) {
         data[r_len++] = *ret_buffer++;
     }
@@ -41,7 +41,7 @@ uint8_t getchar() {
     // waiting for the character to be received
     while (read_buffer >= (uint8_t*)(*buffer_end));
     uint8_t c = *read_buffer;
-    *(volatile uint8_t**)UART_SET_READEND_ADDR = read_buffer+1;
+    *(volatile uint8_t**)UART_SET_READEND_ADDR = read_buffer+4;
     while((uint8_t*)(*buffer_end) > read_buffer);
     return c;
 }

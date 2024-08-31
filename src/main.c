@@ -67,7 +67,7 @@ void flash_by_interrupt() {
 
 int main() {
     // flash_by_sleep();
-    // flash_by_interrupt();
-    run_guess_game();
+    flash_by_interrupt();
+    // run_guess_game();
     return 0;
 }
