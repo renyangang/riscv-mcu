@@ -1,4 +1,4 @@
-# cpu-v
+# risv-mcu
 
 #### 介绍
 基于Digital数字电路仿真软件 [下载链接](https://github.com/hneemann/Digital),构建支持简易指令集的CPU以及简单的外设电路仿真。  
