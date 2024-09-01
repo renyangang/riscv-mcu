@@ -1,6 +1,9 @@
 # riscv-mcu
 
 #### 介绍
+
+B站讲解视频: [总体介绍](https://www.bilibili.com/video/BV1QXnoexEi5/) [boot引导过程](https://www.bilibili.com/video/BV1jKHYeeE2f/)
+
 基于Digital数字电路仿真软件 [下载链接](https://github.com/hneemann/Digital),构建支持简易指令集的CPU以及简单的外设电路仿真。  
 目标能够支持系统的引导、启动、运行、中断处理、外设控制等功能。
 

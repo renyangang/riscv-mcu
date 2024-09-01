@@ -3272,7 +3272,7 @@
           <string>Instruction Decoder</string>
         </entry>
       </elementAttributes>
-      <pos x="1340" y="-120"/>
+      <pos x="1340" y="-100"/>
     </visualElement>
     <visualElement>
       <elementName>Text</elementName>
@@ -3490,12 +3490,7 @@
     </visualElement>
     <visualElement>
       <elementName>memory.dig</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Label</string>
-          <string>Momery</string>
-        </entry>
-      </elementAttributes>
+      <elementAttributes/>
       <pos x="1980" y="80"/>
     </visualElement>
     <visualElement>
@@ -4874,72 +4869,6 @@
         </entry>
       </elementAttributes>
       <pos x="2200" y="140"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Out</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Label</string>
-          <string>sss</string>
-        </entry>
-        <entry>
-          <string>Bits</string>
-          <int>32</int>
-        </entry>
-      </elementAttributes>
-      <pos x="2960" y="600"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Register</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Bits</string>
-          <int>32</int>
-        </entry>
-      </elementAttributes>
-      <pos x="2900" y="580"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>c</string>
-        </entry>
-      </elementAttributes>
-      <pos x="2900" y="600"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>We_dma</string>
-        </entry>
-      </elementAttributes>
-      <pos x="2900" y="620"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>rotation</string>
-          <rotation reference="../../../../visualElement[411]/elementAttributes/entry/rotation"/>
-        </entry>
-        <entry>
-          <string>NetName</string>
-          <string>data_dma</string>
-        </entry>
-      </elementAttributes>
-      <pos x="2900" y="580"/>
     </visualElement>
   </visualElements>
   <wires>
