@@ -7,5 +7,7 @@
         "types.h": "c",
         "common.h": "c",
         "uart.h": "c"
-    }
+    },
+    "verilog.linting.linter": "iverilog",
+    "verilog.linting.iverilog.includePath": ["../verilog"],
 }

@@ -5,6 +5,7 @@
 #include "common.h"
 
 void run_guess_game() {
+    uart_init();
     while(1){
         iic_write(DEV_ADDRESS, MIN_REG_ADDR, MIN_NUMBER);
         iic_write(DEV_ADDRESS, MAX_REG_ADDR, MAX_NUMBER);

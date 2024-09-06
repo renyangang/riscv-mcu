@@ -1,4 +1,6 @@
 #include "interrupt.h"
+#include "uart.h"
+#include "common.h"
 
 static int_handler_t int_handler[PERIPHERAL_INT_NUM] = {NULL};
 static int_handler_t timer_handler = NULL;
@@ -29,7 +31,9 @@ void int_timer_handler() {
     }
     return;
 }
+
 void int_peripheral_handler() {
+    // send_string("int peripheral handler\n");
     uint32_t int_code = *(uint32_t *)INT_CODE_ADDR;
     if(int_handler[int_code]) {
         int_handler[int_code]();

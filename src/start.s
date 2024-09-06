@@ -14,14 +14,9 @@ _start:
     # goto c main
     call main
 
-set_mie:
-    csrrw t2,mie,a0
-    ret
-
 .section .exceptiontext
 int_handler:
-    # call exception func in c file
-    call exception_handler
+    call inner_exception_handler
     mret
 
 .section .timerinttext
@@ -31,5 +26,45 @@ timer_handler:
 
 .section .peripheralinttext
 peripheral_handler:
+    call save_regs
     call int_peripheral_handler
+    call restore_regs
     mret
+
+.section .text
+set_mie:
+    csrrw t2,mie,a0
+    ret
+
+save_regs:
+    addi sp, sp, -24
+    sw a2, 0(sp)
+    sw a3, 4(sp)
+    sw a4, 8(sp)
+    sw a5, 12(sp)
+    sw a6, 16(sp)
+    sw a7, 20(sp)
+    ret
+
+restore_regs:
+    lw a2, 0(sp)
+    lw a3, 4(sp)
+    lw a4, 8(sp)
+    lw a5, 12(sp)
+    lw a6, 16(sp)
+    lw a7, 20(sp)
+    addi sp, sp, 24
+    ret
+
+inner_timer_handler:
+    call save_regs
+    call int_timer_handler
+    call restore_regs
+    ret
+
+inner_exception_handler:
+    call save_regs
+    call exception_handler
+    call restore_regs
+    mret
+    ret

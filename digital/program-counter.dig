@@ -241,7 +241,7 @@
         </entry>
         <entry>
           <string>NetName</string>
-          <string>addr_next</string>
+          <string>out</string>
         </entry>
       </elementAttributes>
       <pos x="1180" y="240"/>

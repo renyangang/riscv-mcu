@@ -17,6 +17,7 @@
 // data buffer start address
 #define UART_DMA_BASE 0xC0000000
 
+void uart_init(void);
 
 void send_char(uint8_t c);
 void send_data(uint8_t *data, uint32_t len);

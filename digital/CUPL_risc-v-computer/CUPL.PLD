@@ -1,0 +1,17 @@
+Name     risc-v-computer.dig ;
+PartNo   00 ;
+Date     04.09.2024 ;
+Revision 01 ;
+Designer ? ;
+Company  unknown ;
+Assembly None ;
+Location unknown ;
+Device   g16v8a ;
+
+/* inputs */
+
+/* outputs */
+PIN 12 = Y;
+
+/* combinatorial logic */
+Y = 'b'0;

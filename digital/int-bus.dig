@@ -954,16 +954,6 @@
       <elementAttributes>
         <entry>
           <string>NetName</string>
-          <string>en_select</string>
-        </entry>
-      </elementAttributes>
-      <pos x="600" y="240"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Tunnel</elementName>
-      <elementAttributes>
-        <entry>
-          <string>NetName</string>
           <string>en_cur</string>
         </entry>
       </elementAttributes>
@@ -1040,6 +1030,16 @@
         </entry>
       </elementAttributes>
       <pos x="860" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>en_select</string>
+        </entry>
+      </elementAttributes>
+      <pos x="600" y="240"/>
     </visualElement>
   </visualElements>
   <wires>
