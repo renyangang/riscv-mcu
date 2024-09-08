@@ -10,4 +10,5 @@
     },
     "verilog.linting.linter": "iverilog",
     "verilog.linting.iverilog.includePath": ["../verilog"],
+    "verilog.linting.iverilog.runAtFileLocation": true
 }

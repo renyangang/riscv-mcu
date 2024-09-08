@@ -1,4 +1,5 @@
 `timescale 1ns/1ns
+`include "iic-master.v"
 
 module iic_master_tb;
 
@@ -42,18 +43,32 @@ always #20 clk = ~clk;
 initial begin
   rst = 1'b1;
   clk = 1'b1;
+  start = 1'b0;
+  mode = 2'd3;
   #201
   rst = 1'b0;
   #201
-  mode = 2'd3;
   rw = 1'b0;
-  data = 8'hA5;
+  data = 8'h1;
   start = 1'b1;
   #201
   wait (proc_ing);
   start = 1'b0;
   #201
   wait (done);
+  $display("step1");
+  data = 8'h2;
+  start = 1'b1;
+  #201
+  wait (proc_ing);
+  start = 1'b0;
+  #201
+  wait (done);
+  $display("step2");
+  stop = 1'b1;
+  #201
+  stop = 1'b0;
+  #201
   $finish;
 end
 

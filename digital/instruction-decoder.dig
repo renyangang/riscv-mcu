@@ -78,23 +78,15 @@
       <elementName>Out</elementName>
       <elementAttributes>
         <entry>
-          <string>rotation</string>
-          <rotation rotation="2"/>
-        </entry>
-        <entry>
           <string>Label</string>
-          <string>mechie_op</string>
+          <string>rd</string>
         </entry>
         <entry>
           <string>Bits</string>
-          <int>8</int>
-        </entry>
-        <entry>
-          <string>intFormat</string>
-          <intFormat>bin</intFormat>
+          <int>5</int>
         </entry>
       </elementAttributes>
-      <pos x="1540" y="1020"/>
+      <pos x="2020" y="-500"/>
     </visualElement>
     <visualElement>
       <elementName>Text</elementName>
@@ -267,20 +259,6 @@
       <elementAttributes>
         <entry>
           <string>Label</string>
-          <string>rd</string>
-        </entry>
-        <entry>
-          <string>Bits</string>
-          <int>5</int>
-        </entry>
-      </elementAttributes>
-      <pos x="2020" y="-500"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Out</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Label</string>
           <string>rs1</string>
         </entry>
         <entry>
@@ -303,6 +281,20 @@
         </entry>
       </elementAttributes>
       <pos x="2020" y="-380"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>imm_2531</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>7</int>
+        </entry>
+      </elementAttributes>
+      <pos x="2020" y="-320"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -589,20 +581,6 @@
       <elementAttributes>
         <entry>
           <string>Label</string>
-          <string>imm_2531</string>
-        </entry>
-        <entry>
-          <string>Bits</string>
-          <int>7</int>
-        </entry>
-      </elementAttributes>
-      <pos x="2020" y="-320"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Out</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Label</string>
           <string>imm_1231</string>
         </entry>
         <entry>
@@ -625,6 +603,20 @@
         </entry>
       </elementAttributes>
       <pos x="2020" y="-200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>invalid</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="2000" y="-640"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -650,15 +642,23 @@
       <elementName>Out</elementName>
       <elementAttributes>
         <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
           <string>Label</string>
-          <string>invalid</string>
+          <string>mechie_op</string>
         </entry>
         <entry>
           <string>Bits</string>
-          <int>32</int>
+          <int>8</int>
+        </entry>
+        <entry>
+          <string>intFormat</string>
+          <intFormat>bin</intFormat>
         </entry>
       </elementAttributes>
-      <pos x="2000" y="-640"/>
+      <pos x="1540" y="1020"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1552,7 +1552,7 @@
           <string>andi</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-960"/>
+      <pos x="1580" y="-760"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1562,7 +1562,7 @@
           <string>ori</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-980"/>
+      <pos x="1580" y="-780"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1572,7 +1572,7 @@
           <string>xori</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-1000"/>
+      <pos x="1580" y="-840"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1582,7 +1582,7 @@
           <string>addi</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-1020"/>
+      <pos x="1580" y="-920"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -1862,7 +1862,7 @@
         </entry>
         <entry>
           <string>Label</string>
-          <string>SL_op</string>
+          <string>mem_op</string>
         </entry>
         <entry>
           <string>Bits</string>
@@ -2161,7 +2161,7 @@
           <string>xor</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-940"/>
+      <pos x="1580" y="-1020"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2171,7 +2171,7 @@
           <string>or</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-920"/>
+      <pos x="1580" y="-960"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2181,7 +2181,7 @@
           <string>and</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-900"/>
+      <pos x="1580" y="-940"/>
     </visualElement>
     <visualElement>
       <elementName>Const</elementName>
@@ -2358,7 +2358,7 @@
           <string>srl</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-860"/>
+      <pos x="1580" y="-980"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2368,7 +2368,7 @@
           <string>sra</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-880"/>
+      <pos x="1580" y="-1000"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2378,7 +2378,7 @@
           <string>slli</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-840"/>
+      <pos x="1580" y="-900"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2388,7 +2388,7 @@
           <string>slti</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-820"/>
+      <pos x="1580" y="-880"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2398,7 +2398,7 @@
           <string>sltiu</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-800"/>
+      <pos x="1580" y="-860"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2408,7 +2408,7 @@
           <string>srai</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-760"/>
+      <pos x="1580" y="-800"/>
     </visualElement>
     <visualElement>
       <elementName>Tunnel</elementName>
@@ -2418,14 +2418,14 @@
           <string>srli</string>
         </entry>
       </elementAttributes>
-      <pos x="1580" y="-780"/>
+      <pos x="1580" y="-820"/>
     </visualElement>
     <visualElement>
       <elementName>Out</elementName>
       <elementAttributes>
         <entry>
           <string>Label</string>
-          <string>Cust_op</string>
+          <string>cust_op</string>
         </entry>
       </elementAttributes>
       <pos x="580" y="480"/>

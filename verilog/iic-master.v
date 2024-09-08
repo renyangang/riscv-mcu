@@ -22,8 +22,8 @@ module iic_master#(
     localparam S_DATA = 3'd2;
     localparam S_READ = 3'd3;
     localparam S_ACK = 3'd4;
-    localparam S_SENDACK = 3'd4;
-    localparam S_STOP = 3'd5;
+    localparam S_SENDACK = 3'd5;
+    localparam S_STOP = 3'd6;
     
 
     //Standard mode 100K, fast mode 400K, high-speed mode 3.4M	
@@ -57,7 +57,7 @@ module iic_master#(
             scl_reg <= 1'b1;
             counter_scl <= 25'd0;
         end
-        else if (state == S_IDLE) begin
+        else if (state == S_IDLE && nextstate == S_IDLE) begin
             counter_scl <= 25'd0;
         end
         else if (counter_scl == SCL_CNT) begin
@@ -75,7 +75,7 @@ module iic_master#(
             state <= S_IDLE;
             nextstate <= S_IDLE;
             proc_ing <= 1'b0;
-            done <= 1'b0;
+            done <= 1'b1;
             sda_reg <= 1'bz;
             bit_cnt <= 3'd0;
         end
@@ -106,6 +106,8 @@ module iic_master#(
         state <= nextstate;
         if (nextstate == S_START) begin
             sda_reg <= 1'b1;
+            done <= 1'b0;
+            proc_ing <= 1'b1;
         end
         else if (nextstate == S_STOP) begin
             sda_reg <= 1'b0;
@@ -129,6 +131,7 @@ module iic_master#(
 
     always @(posedge scl_reg) begin
         if (state == S_DATA) begin
+            proc_ing <= 1'b1;
             if (bit_cnt == 3'd7) begin
                 nextstate <= S_ACK;
                 bit_cnt <= 3'd0;
@@ -138,14 +141,16 @@ module iic_master#(
             end
         end
         else if (state == S_ACK) begin
+            proc_ing <= 1'b0;
             done <= 1'b1;
             ack <= sda_reg;
+            nextstate <= S_IDLE;
         end
         else if (state == S_IDLE) begin
-            done <= 1'b0;
             proc_ing <= 1'b0;
         end
         else if (state == S_READ) begin
+            proc_ing <= 1'b1;
             data_out[bit_cnt] <= sda_reg;
             if (bit_cnt == 3'd7) begin
                 bit_cnt <= 1'b0;
@@ -154,6 +159,7 @@ module iic_master#(
         end
         else if (state == S_SENDACK) begin
             nextstate <= S_IDLE;
+            proc_ing <= 1'b0;
             done <= 1'b1;
         end
     end
