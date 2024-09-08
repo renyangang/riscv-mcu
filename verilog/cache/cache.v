@@ -139,18 +139,28 @@ module cache_set #(
     endgenerate
 
     integer i;
-    always @(posedge clk) begin
+    always @(addr) begin
         for (i = 0; i < CACHE_WAYS; i = i + 1) begin
             if (pre_hit[i]) begin
-                way_cs[i] <= 1'b1;
-                hit <= 1'b1;
+                way_cs[i] = 1'b1;
+                hit = 1'b1;
                 if (write_cs[i] == 1'b0) begin
-                    write_cs[i] <= 1'b1;
+                    write_cs[i] = 1'b1;
                 end
                 else if (write_cs[i+CACHE_WAYS] == 1'b0) begin
-                    write_cs[i+CACHE_WAYS] <= 1'b1;
+                    write_cs[i+CACHE_WAYS] = 1'b1;
                 end
             end
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            `CLEAR_HIT_CS;
+            write_cs <= 0;
+        end
+        if (write_enable && !hit) begin
+            write_cs
         end
     end
 
@@ -162,6 +172,8 @@ module cache_set #(
     end
 
 endmodule
+
+
 
 module cache(
     input wire clk,
