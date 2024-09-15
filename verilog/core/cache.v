@@ -34,7 +34,7 @@ module cache_way (
     output wire dirty_status
 );
     
-    reg [31:0] cache_data [`CACHE_LINES-1:0][`CACHE_LINE_SIZE/4-1:0]; 
+    reg [`CACHE_LINE_WIDTH-1:0] cache_data [`CACHE_LINES-1:0]; 
     reg [21:0] tag [`CACHE_LINES-1:0];                          
     reg valid [`CACHE_LINES-1:0];
     reg dirty [`CACHE_LINES-1:0];                               
@@ -52,6 +52,16 @@ module cache_way (
     assign hit = (valid[index] && (tag[index] == tag_in))? 1'b1:1'b0;
     assign dirty_status = dirty[index];
 
+    always @(addr or cs) begin
+        if (cs) begin
+            write_back_data = cache_data[index];
+        end
+        else begin
+            write_back_data <= {`CACHE_LINE_WIDTH{1'bz}};
+            rdata <= 32'bz;
+        end 
+    end
+
     integer i, j;
     always @(negedge rst_n) begin
         if (!rst_n) begin
@@ -59,41 +69,27 @@ module cache_way (
                 valid[i] <= 0;
                 tag[i] <= 0;
                 dirty[i] <= 0;
-                for (j = 0; j < `CACHE_LINE_SIZE/4; j = j + 1) begin
-                    cache_data[i][j] <= 0;
-                end
+                cache_data[i] <= {`CACHE_LINE_WIDTH{1'b0}};
             end
-            write_back_data <= 0;
-            rdata <= 0;
+            write_back_data <= {`CACHE_LINE_WIDTH{1'bz}};
+            rdata <= 32'bz;
         end
     end
 
-    
     always @(posedge clk) begin
         if(cs) begin
             if (load_enable) begin
-                for(i = 0; i < `CACHE_LINE_SIZE/4; i = i + 4) begin
-                    cache_data[index][i] <= 32'hFFFFFFFF & write_load_data >> (i << 2);
-                end
+                cache_data[index] <= write_load_data;
                 dirty[index] <= 0;
                 valid[index] <= 1;
                 tag[index] <= tag_in;
             end
             else if (write_enable) begin
-                cache_data[index][offset >> 2] <= wdata; 
-                dirty[index] <= 1;                    
+                cache_data[index][(offset*8) +: 32] <= wdata;
+                dirty[index] <= 1;                   
             end
             else begin
-                if (valid[index] && (tag[index] == tag_in)) begin
-                    rdata <= cache_data[index][offset >> 2];
-                    for(i = 0; i < `CACHE_LINE_SIZE/4; i = i + 1) begin
-                        write_back_data <= write_back_data | (cache_data[index][i] << (i << 2));
-                    end
-                end
-                else begin
-                    rdata <= 32'h0;
-                    write_back_data <= 0;
-                end
+                rdata <= cache_data[index][(offset*8) +: 32];
             end
         end
         else begin
@@ -127,10 +123,12 @@ module cache_set(
     wire [`CACHE_WAYS-1:0] way_hit;
     reg [`CACHE_WAYS-1:0] way_cs [`CACHE_LINES-1:0];
     wire [`CACHE_WAYS-1:0] dirty_status;
+    reg [`CACHE_WAYS-1:0] write_cs [`CACHE_LINES-1:0];
     // support max way num == 4
-    reg [2:0] write_cs [`CACHE_LINES-1:0][`CACHE_WAYS-1:0]; 
-
+    reg [2:0] cover_idx;
+    reg [2:0] last_acc_idx;
     wire [5:0] index;
+    reg found;
     assign index = addr[9:4];
 
     reg [1:0]status;
@@ -157,13 +155,24 @@ module cache_set(
     endgenerate
 
     
-    integer i,j;
+    integer i,j,n;
     
-    always @(addr or load_enable or write_enable or read_enable) begin
-        status_ready = 1'b0;
+    always @(addr or posedge load_enable or posedge write_enable or posedge read_enable) begin
         save_ready = 1'b0;
         if (status == `S_IDLE) begin
+            status_ready = 1'b0;
             status = `S_ADDR;
+            if (&write_cs[index]) begin
+                write_cs[index] = {`CACHE_WAYS{1'b0}};
+                write_cs[last_acc_idx] = 1'b1;
+            end
+            found = 0;
+            for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
+                if (!found && !write_cs[index][i]) begin
+                    cover_idx = i[2:0];
+                    found = 1'b1;
+                end
+            end
         end
 
     end
@@ -177,8 +186,8 @@ module cache_set(
                     dirty <= 1'b0;
                 end
                 else begin
-                    way_cs[index][write_cs[index][0]] <= 1'b1;
-                    dirty <= dirty_status[write_cs[index][0]];
+                    way_cs[index][cover_idx] <= 1'b1;
+                    dirty <= dirty_status[cover_idx];
                 end
                 status <= `S_GETHIT;
                 status_ready <= 1'b1;
@@ -189,10 +198,8 @@ module cache_set(
                         // 常规读写命中时，更新
                         for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
                             if (way_cs[index][i]) begin
-                                for (j = 0; j < `CACHE_WAYS - 1; j = j + 1) begin
-                                    write_cs[index][j] <= write_cs[index][j+1];
-                                end
-                                write_cs[index][`CACHE_WAYS-1] <= i[2:0];
+                                write_cs[index][i] <= 1'b1;
+                                last_acc_idx <= i[2:0];
                             end
                         end
                     end
@@ -217,15 +224,15 @@ module cache_set(
 
     always @(negedge rst_n) begin
         if (!rst_n) begin
-            for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
-                for(j=0;j<`CACHE_LINES;j=j+1) begin
-                    write_cs[j][i] <= i[2:0];
-                    way_cs[j][i] <= 1'b0;
-                end
+            for(j=0;j<`CACHE_LINES;j=j+1) begin
+                write_cs[j] <= {`CACHE_WAYS{1'b0}};
+                way_cs[j] <=  {`CACHE_WAYS{1'b0}};
+                cover_idx <= 3'd0;
             end
             status <= `S_IDLE;
             dirty <= 1'b0;
             hit <= 1'b0;
+            last_acc_idx <= 3'd0;
             status_ready <= 1'b0;
         end
     end
@@ -284,6 +291,7 @@ module cache(
 
     always @(addr or posedge read_enable or posedge write_enable or posedge load_enable) begin
         op_start = 1'b1;
+        status_ready = 1'b0;
     end
 
     
@@ -313,31 +321,31 @@ module cache(
                     end
                 end
                 `WAIT_HIT: begin
-                    if(status_r) begin
+                    if (status_r) begin
                         status_ready <= 1'b1;
-                        data_hit <= hit;
-                        status <= `DO_READ_OR_WRITE;
+                        if (load_enable) begin
+                            if (dirty) begin
+                                status <= `WAIT_WRITE_2_MEM; // 进入等待写入内存状态
+                                save_data <= 1'b1;
+                                begin_load <= 1'b0;
+                            end
+                            else begin
+                                status <= `WAIT_LOAD_SAVE; // 进入等待加载状态
+                                save_data <= 1'b0;
+                                begin_load <= 1'b1;
+                            end
+                        end
+                        else begin
+                            status <= `DO_READ_OR_WRITE;
+                            data_hit <= hit;
+                        end
                     end
                     else begin
                         status <= status;
                     end
                 end
                 `DO_READ_OR_WRITE: begin
-                    if (load_enable) begin
-                        if (dirty) begin
-                            status <= `WAIT_WRITE_2_MEM; // 进入等待写入内存状态
-                            save_data <= 1'b1;
-                            begin_load <= 1'b0;
-                        end
-                        else begin
-                            status <= `WAIT_LOAD_SAVE; // 进入等待加载状态
-                            save_data <= 1'b0;
-                            begin_load <= 1'b1;
-                        end
-                    end
-                    else begin
                         status <= `IDLE;
-                    end
                 end
                 `WAIT_WRITE_2_MEM: begin // 等待写入内存
                     if (save_ready) begin

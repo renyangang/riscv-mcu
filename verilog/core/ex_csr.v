@@ -17,7 +17,7 @@
     CSR寄存器执行单元
  */
 
-module ex_csr(
+module ex_csr (
     input clk, rst,
     input [4:0] rd,
     input [4:0] imm_1519,
