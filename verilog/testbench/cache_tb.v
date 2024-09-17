@@ -10,6 +10,7 @@ module cache_tb();
     reg write_enable;
     reg load_enable;
     reg read_enable;
+    reg [1:0] byte_size;
     reg [127:0] write_load_data;
     reg save_ready;
     wire save_data;
@@ -32,6 +33,7 @@ cache dut(
 	.write_enable(write_enable),
 	.load_enable(load_enable),
 	.read_enable(read_enable),
+    .byte_size(byte_size),
 	.write_load_data(write_load_data),
 	.save_ready(save_ready),
 	.save_data(save_data),
@@ -116,6 +118,7 @@ cache dut(
         data_in = 0;
         write_enable = 0;
         load_enable = 0;
+        byte_size = 0;
         write_load_data = 0;
         read_enable = 0;
         save_ready = 0;

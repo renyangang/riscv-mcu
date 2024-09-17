@@ -37,7 +37,6 @@
     inst_jalr = 1'b0; \
     inst_lb = 1'b0; \
     inst_lbu = 1'b0; \
-    inst_ld = 1'b0; \
     inst_lh = 1'b0; \
     inst_lhu = 1'b0; \
     inst_lw = 1'b0; \
@@ -94,7 +93,6 @@ module inst_decoder(
     output reg inst_jalr,
     output reg inst_lb,
     output reg inst_lbu,
-    output reg inst_ld,
     output reg inst_lh,
     output reg inst_lhu,
     output reg inst_lw,

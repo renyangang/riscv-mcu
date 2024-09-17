@@ -37,6 +37,7 @@ module mem_controller(
     input [31:0] mem_addr,
     input read_en,
     input write_en,
+    input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     input [31:0] mem_wdata,
     // 数据返回通道
     output wire [31:0] mem_rdata,
@@ -69,6 +70,7 @@ module mem_controller(
         .write_enable(1'b0),
         .load_enable(inst_load_en),
         .read_enable(inst_read_en),
+        .byte_size(2'b00),
         .write_load_data(offchip_mem_data),
         .save_ready(1'b1),
         .save_data(inst_save_data),
@@ -164,6 +166,7 @@ module mem_controller(
         .write_enable(write_en),
         .load_enable(load_en),
         .read_enable(read_en),
+        .byte_size(byte_size),
         .write_load_data(d_write_load_data),
         .save_ready(d_save_ready),
         .save_data(d_save_data),

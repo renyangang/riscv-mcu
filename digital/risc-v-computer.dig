@@ -1214,36 +1214,8 @@
       </elementAttributes>
       <pos x="1220" y="240"/>
     </visualElement>
-    <visualElement>
-      <elementName>Out</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Bits</string>
-          <int>32</int>
-        </entry>
-      </elementAttributes>
-      <pos x="860" y="320"/>
-    </visualElement>
-    <visualElement>
-      <elementName>Out</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Bits</string>
-          <int>32</int>
-        </entry>
-      </elementAttributes>
-      <pos x="800" y="340"/>
-    </visualElement>
   </visualElements>
   <wires>
-    <wire>
-      <p1 x="740" y="320"/>
-      <p2 x="860" y="320"/>
-    </wire>
-    <wire>
-      <p1 x="760" y="340"/>
-      <p2 x="800" y="340"/>
-    </wire>
     <wire>
       <p1 x="740" y="200"/>
       <p2 x="980" y="200"/>
@@ -1257,16 +1229,8 @@
       <p2 x="820" y="220"/>
     </wire>
     <wire>
-      <p1 x="740" y="300"/>
-      <p2 x="760" y="300"/>
-    </wire>
-    <wire>
       <p1 x="800" y="160"/>
       <p2 x="800" y="220"/>
-    </wire>
-    <wire>
-      <p1 x="760" y="300"/>
-      <p2 x="760" y="340"/>
     </wire>
   </wires>
   <measurementOrdering/>

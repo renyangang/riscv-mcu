@@ -26,6 +26,7 @@ module cache_way (
     input wire [31:0] wdata,  
     input wire write_enable,
     input wire load_enable,
+    input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     input wire [(`CACHE_LINE_SIZE*8)-1:0] write_load_data,
     input wire cs, // cache select
     output reg [31:0] rdata,
@@ -37,7 +38,7 @@ module cache_way (
     reg [`CACHE_LINE_WIDTH-1:0] cache_data [`CACHE_LINES-1:0]; 
     reg [21:0] tag [`CACHE_LINES-1:0];                          
     reg valid [`CACHE_LINES-1:0];
-    reg dirty [`CACHE_LINES-1:0];                               
+    reg dirty [`CACHE_LINES-1:0];                              
 
     wire [5:0] index;
     wire [3:0] offset;
@@ -85,7 +86,17 @@ module cache_way (
                 tag[index] <= tag_in;
             end
             else if (write_enable) begin
-                cache_data[index][(offset*8) +: 32] <= wdata;
+                case (byte_size)
+                    1: begin
+                        cache_data[index][(offset*8) +: 8] <= wdata[7:0];     
+                    end
+                    2: begin
+                        cache_data[index][(offset*8) +: 16] <= wdata[15:0]; 
+                    end
+                    default: begin
+                        cache_data[index][(offset*8) +: 32] <= wdata;
+                    end
+                endcase
                 dirty[index] <= 1;                   
             end
             else begin
@@ -110,6 +121,7 @@ module cache_set(
     input wire write_enable,
     input wire load_enable,
     input wire read_enable,
+    input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     input wire begin_save,
     input wire [(`CACHE_LINE_SIZE*8)-1:0] write_load_data,
     output reg status_ready,
@@ -144,6 +156,7 @@ module cache_set(
                 .wdata(wdata),
                 .write_enable(write_enable),
                 .load_enable(begin_save),
+                .byte_size(byte_size),
                 .write_load_data(write_load_data),
                 .cs(way_cs[index][i_way]),
                 .rdata(rdata),
@@ -252,6 +265,7 @@ module cache(
     input wire write_enable,
     input wire read_enable,
     input wire load_enable,
+    input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     input wire [(`CACHE_LINE_SIZE*8)-1:0] write_load_data,
     input wire save_ready,
     output reg save_data,
@@ -279,6 +293,7 @@ module cache(
         .write_enable(write_enable),
         .read_enable(read_enable),
         .load_enable(load_enable),
+        .byte_size(byte_size),
         .begin_save(begin_load),
         .write_load_data(write_load_data),
         .rdata(data_out),
