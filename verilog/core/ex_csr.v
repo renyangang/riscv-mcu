@@ -18,7 +18,7 @@
  */
 
 module ex_csr (
-    input clk, rst,
+    input rst,
     input [4:0] rd,
     input [4:0] imm_1519,
     input [31:0] rs1_data, csr_data,
@@ -37,46 +37,46 @@ module ex_csr (
     output reg [11:0] csrw_addr
 );
 
-
-always @(posedge clk or posedge rst) begin
-    if (!rst) begin
-        out_en <= 0;
+always @(*) begin
+    rd_out = rd;
+    csrw_addr = imm_2031;
+    if (inst_csrrc) begin
+        out_en = 1'b1;
+        csr_out_en = 1'b1;
+        rd_data = csr_data;
+        csrw_data = csr_data & ~rs1_data;
+    end
+    else if (inst_csrrci) begin
+        out_en = 1'b1;
+        csr_out_en = 1'b1;
+        rd_data = csr_data;
+        csrw_data = csr_data & ~{27'b0,imm_1519};
+    end
+    else if (inst_csrrs) begin
+        out_en = 1'b1;
+        rd_data = csr_data | (1 << imm_2031);
+    end
+    else if (inst_csrrsi) begin
+        out_en = 1'b1;
+        rd_data = csr_data | (1 << rs1_data);
+    end
+    else if (inst_csrrw) begin
+        out_en = 1'b1;
+        rd_data = imm_2031;
+    end
+    else if (inst_csrrwi) begin
+        out_en = 1'b1;
+        rd_data = rs1_data;
     end
     else begin
-        rd_out <= rd;
-        csrw_addr <= imm_2031;
-        if (inst_csrrc) begin
-            out_en <= 1'b1;
-            csr_out_en <= 1'b1;
-            rd_data <= csr_data;
-            csrw_data <= csr_data & ~rs1_data;
-        end
-        else if (inst_csrrci) begin
-            out_en <= 1'b1;
-            csr_out_en <= 1'b1;
-            rd_data <= csr_data;
-            csrw_data <= csr_data & ~{27'b0,imm_1519};
-        end
-        else if (inst_csrrs) begin
-            out_en <= 1'b1;
-            rd_data <= csr_data | (1 << imm_2031);
-        end
-        else if (inst_csrrsi) begin
-            out_en <= 1'b1;
-            rd_data <= csr_data | (1 << rs1_data);
-        end
-        else if (inst_csrrw) begin
-            out_en <= 1'b1;
-            rd_data <= imm_2031;
-        end
-        else if (inst_csrrwi) begin
-            out_en <= 1'b1;
-            rd_data <= rs1_data;
-        end
-        else begin
-            out_en <= 1'b0;
-            csr_out_en <= 1'b0;
-        end
+        out_en = 1'b0;
+        csr_out_en = 1'b0;
+    end
+end
+
+always @(posedge rst) begin
+    if (!rst) begin
+        out_en = 0;
     end
 end
 
