@@ -70,71 +70,71 @@ module inst_decoder(
     input wire [31:0] instruction_code,
     input en,
     output wire [4:0] rd, rs1, rs2,
-    output wire [6:0] imm_2531,
     output wire [19:0] imm_1231,
-    output wire [11:0] imm_2031,
     output reg invalid_instruction,
-    output reg inst_beq,
-    output reg inst_bge,
-    output reg inst_bgeu,
-    output reg inst_blt,
-    output reg inst_bltu,
-    output reg inst_bne,
-    output reg inst_addi,
-    output reg inst_andi,
-    output reg inst_csrrc,
-    output reg inst_csrrci,
-    output reg inst_csrrs,
-    output reg inst_csrrsi,
-    output reg inst_csrrw,
-    output reg inst_csrrwi,
-    output reg inst_ebreak,
-    output reg inst_ecall,
-    output reg inst_jalr,
-    output reg inst_lb,
-    output reg inst_lbu,
-    output reg inst_lh,
-    output reg inst_lhu,
-    output reg inst_lw,
-    output reg inst_ori,
-    output reg inst_slli,
-    output reg inst_slti,
-    output reg inst_sltiu,
-    output reg inst_srai,
-    output reg inst_srli,
-    output reg inst_xori,
-    output reg inst_jal,
-    output reg inst_add,
-    output reg inst_and,
-    output reg inst_mret,
-    output reg inst_or,
-    output reg inst_sll,
-    output reg inst_slt,
-    output reg inst_sltu,
-    output reg inst_sra,
-    output reg inst_sret,
-    output reg inst_srl,
-    output reg inst_sub,
-    output reg inst_wfi,
-    output reg inst_xor,
-    output reg inst_sb,
-    output reg inst_sh,
-    output reg inst_sw,
-    output reg inst_auipc,
-    output reg inst_lui
+    output [47:0] inst_flags
 );
+
+ 	reg inst_beq;
+    reg inst_bge;
+    reg inst_bgeu;
+    reg inst_blt;
+    reg inst_bltu;
+    reg inst_bne;
+	reg inst_jalr;
+	reg inst_jal;
+	reg inst_auipc;
+    reg inst_addi;
+    reg inst_andi;
+	reg inst_ori;
+    reg inst_slli;
+    reg inst_slti;
+    reg inst_sltiu;
+    reg inst_srai;
+    reg inst_srli;
+    reg inst_xori;
+	reg inst_add;
+    reg inst_and;
+	reg inst_or;
+    reg inst_sll;
+    reg inst_slt;
+    reg inst_sltu;
+    reg inst_sra;
+    reg inst_srl;
+    reg inst_sub;
+	reg inst_xor;
+	reg inst_lui;
+	reg inst_lb;
+    reg inst_lbu;
+    reg inst_lh;
+    reg inst_lhu;
+    reg inst_lw;
+    reg inst_sb;
+    reg inst_sh;
+    reg inst_sw;
+    reg inst_csrrc;
+    reg inst_csrrci;
+    reg inst_csrrs;
+    reg inst_csrrsi;
+    reg inst_csrrw;
+    reg inst_csrrwi;
+    reg inst_ebreak;
+    reg inst_ecall;
+	reg inst_mret;
+	reg inst_sret;
+	reg inst_wfi;
 
     wire [6:2] opcode;
     wire [2:0] funct3;
 
     assign opcode = instruction_code[6:2];
     assign funct3 = instruction_code[14:12];
-    assign imm_2531 = en ? instruction_code[31:25] : 7'b0;
     assign imm_1231 = en ? instruction_code[31:12] : 19'b0;
-    assign imm_2031 = en ? instruction_code[31:20] : 12'b0;
     assign rd = en ? instruction_code[11:7] : 5'b0;
     assign rs1 = en ? instruction_code[19:15] : 5'b0;
     assign rs2 = en ? instruction_code[24:20] : 5'b0;
+
+    assign inst_flags = {inst_wfi,inst_sret,inst_mret,inst_ecall,inst_ebreak,inst_csrrwi,inst_csrrw,inst_csrrsi,inst_csrrs,inst_csrrci,inst_csrrc,inst_sw,inst_sh,inst_sb,inst_lw,inst_lhu,inst_lh,inst_lbu,inst_lb,inst_lui,inst_xor,inst_sub,inst_srl,inst_sra,inst_sltu,inst_slt,inst_sll,inst_or,inst_and,inst_add,inst_xori,inst_srli,inst_srai,inst_sltiu,inst_slti,inst_slli,inst_ori,inst_andi,inst_addi,inst_auipc,inst_jal,inst_jalr,inst_bne,inst_bltu,inst_blt,inst_bgeu,inst_bge,inst_beq};
 
     task get_jmp_op;
         case (funct3)
@@ -153,16 +153,16 @@ module inst_decoder(
     task get_alu_op;
         case (funct3)
             3'b000: begin 
-                inst_add = instruction_code[30] ? 1'b1 : 1'b0;  //add/sub
-                inst_sub = instruction_code[30] ? 1'b0 : 1'b1;
+                inst_add = instruction_code[30] ? 1'b0 : 1'b1;  //add/sub
+                inst_sub = instruction_code[30] ? 1'b1 : 1'b0;
             end
             3'b001: inst_sll = 1'b1;  // sll    
             3'b010: inst_slt = 1'b1;  // slt  
             3'b011: inst_sltu = 1'b1;  // sltu
             3'b100: inst_xor = 1'b1;  // xor
             3'b101: begin
-                inst_srl = instruction_code[30] ? 1'b1 : 1'b0; // srl/sra
-                inst_sra = instruction_code[30] ? 1'b0 : 1'b1;
+                inst_srl = instruction_code[30] ? 1'b0 : 1'b1; // srl/sra
+                inst_sra = instruction_code[30] ? 1'b1 : 1'b0;
             end
             3'b110: inst_or = 1'b1;  // or
             3'b111: inst_and = 1'b1;  // and
@@ -180,8 +180,8 @@ module inst_decoder(
             3'b011: inst_sltiu = 1'b1;  //sltiu
             3'b100: inst_xori = 1'b1;  //xori
             3'b101: begin 
-                inst_srli = instruction_code[30] ? 1'b1 : 1'b0; //srli/srai
-                inst_srai = instruction_code[30] ? 1'b0 : 1'b1;
+                inst_srli = instruction_code[30] ? 1'b0 : 1'b1; //srli/srai
+                inst_srai = instruction_code[30] ? 1'b1 : 1'b0;
             end
             3'b110: inst_ori = 1'b1; //ori
             3'b111: inst_andi = 1'b1; //andi
@@ -199,7 +199,8 @@ module inst_decoder(
             3'b100: inst_lbu = 1'b1; //lbu
             3'b101: inst_lhu = 1'b1; //lhu
             default: begin
-                invalid_instruction = 1'd1;
+                // 全0指令为特殊用途，非异常指令
+                invalid_instruction = (instruction_code == 32'd0) ? 1'd0 : 1'd1;
             end
         endcase
     endtask

@@ -2,7 +2,7 @@
 .global _start
 _start:
     # cust flag set instruction code
-    .insn 4, 0x8000007F
+    .insn 0x8000007F
     # close interrupts
     csrrw t0,mstatus,zero
     # ssd base address

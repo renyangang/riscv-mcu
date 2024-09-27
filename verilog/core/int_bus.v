@@ -27,6 +27,7 @@ module int_bus(
     input [31:0] inst_cur,
     input [31:0] exception_code,
     input exception_en,
+    input cur_branch_inst,
 
     output wire jmp_en,
     output wire [31:0] jmp_pc,
@@ -38,7 +39,7 @@ module int_bus(
     output wire [31:0] mtime_high,
 
     input wire [11:0] csr_read_addr,
-    input wire [4:0] csrw_addr,
+    input wire [11:0] csrw_addr,
     input wire [31:0] w_data,
     input wire write_en,
     output wire [31:0] csr_out,
@@ -94,6 +95,7 @@ module int_bus(
         .inst_cur(inst_cur),
         .exception_code(exception_code),
         .exception_en(exception_en),
+        .cur_branch_inst(cur_branch_inst),
         .peripheral_int(peripheral_int),
         .peripheral_int_code(peripheral_int_code),
         .soft_int(soft_int),

@@ -32,15 +32,7 @@ module ex_mem(
     input [31:0] mem_data_in,
     input mem_read_ready,
     input mem_write_ready,
-
-    input inst_lb,
-    input inst_lbu,
-    input inst_lh,
-    input inst_lhu,
-    input inst_lw,
-    input inst_sb,
-    input inst_sh,
-    input inst_sw,
+    input [47:0] inst_flags,
 
     output wire [4:0] rd_out,
     output reg rd_en,
@@ -49,12 +41,32 @@ module ex_mem(
     output reg [1:0] byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     output reg [31:0] mem_data,
     output reg [31:0] mem_addr,
+    output wire busy_flag,
     output reg mem_write_en,
     output reg mem_read_en
 );
 
     reg [1:0] state;
+    wire inst_lb;
+    wire inst_lbu;
+    wire inst_lh;
+    wire inst_lhu;
+    wire inst_lw;
+    wire inst_sb;
+    wire inst_sh;
+    wire inst_sw;
+
     assign rd_out = rd;
+    assign inst_lb = inst_flags[29];
+    assign inst_lbu = inst_flags[30];
+    assign inst_lh = inst_flags[31];
+    assign inst_lhu = inst_flags[32];
+    assign inst_lw = inst_flags[33];
+    assign inst_sb = inst_flags[34];
+    assign inst_sh = inst_flags[35];
+    assign inst_sw = inst_flags[36];
+
+    assign busy_flag = (state == `IDLE) ? 1'b0 : 1'b1;
 
     always @(posedge clk or posedge rst) begin
         if (!rst) begin
@@ -70,6 +82,7 @@ module ex_mem(
         else begin
             case (state)
                 `IDLE: begin
+                    rd_en <= 1'b0;
                     if (inst_lb) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd1;
@@ -85,8 +98,8 @@ module ex_mem(
                     else if (inst_lh) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd2;
-                         mem_read_en <= 1'b1;
-                         state <= `READ;
+                        mem_read_en <= 1'b1;
+                        state <= `READ;
                     end
                     else if (inst_lhu) begin
                         mem_addr <= rs1_data + {20'd0,imm_2031};

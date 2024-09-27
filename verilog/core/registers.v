@@ -30,14 +30,21 @@
     output wire [31:0] rs2_out
     );
     reg [31:0] reg_file[31:0];
-    assign rs1_out = reg_file[rs1_addr];
-    assign rs2_out = reg_file[rs2_addr];
+    integer i;
+
+    assign rs1_out = (rs1_addr == 5'd0) ? 32'd0 : reg_file[rs1_addr];
+    assign rs2_out = (rs2_addr == 5'd0) ? 32'd0 : reg_file[rs2_addr];
+
     always @(posedge clk) begin
-        if (rst) begin
-            reg_file[0] <= 32'h00000000;
+        if (!rst) begin
+            for (i = 0; i < 32; i = i + 1) begin
+                reg_file[i] <= 32'h00000000;
+            end
         end
-        else if (rd_en && rd_addr > 5'd0) begin
-            reg_file[rd_addr] <= rd_data;
+        else begin 
+            if (rd_en & (rd_addr != 5'd0)) begin
+                reg_file[rd_addr] <= rd_data;
+            end
         end
     end
 endmodule

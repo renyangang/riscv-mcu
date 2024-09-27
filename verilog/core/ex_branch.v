@@ -23,15 +23,7 @@ module ex_branch(
     input [4:0] rd,
     input [31:0] rs1_data, rs2_data,
     input [19:0] imm_1231,
-    input inst_beq,
-    input inst_bge,
-    input inst_bgeu,
-    input inst_blt,
-    input inst_bltu,
-    input inst_bne,
-    input inst_jalr,
-    input inst_jal,
-    input inst_auipc,
+    input [47:0] inst_flags,
 
     output reg [31:0] pc_next_out,
     output reg jmp_en,
@@ -41,8 +33,26 @@ module ex_branch(
 );
 
     wire [6:0] imm_2531;
+    wire inst_beq;
+    wire inst_bge;
+    wire inst_bgeu;
+    wire inst_blt;
+    wire inst_bltu;
+    wire inst_bne;
+	wire inst_jalr;
+	wire inst_jal;
+	wire inst_auipc;
 
     assign imm_2531 = imm_1231[19:13];
+    assign inst_beq = inst_flags[0];
+    assign inst_bge = inst_flags[1];
+    assign inst_bgeu = inst_flags[2];
+    assign inst_blt = inst_flags[3];
+    assign inst_bltu = inst_flags[4];
+    assign inst_bne = inst_flags[5];
+	assign inst_jalr = inst_flags[6];
+	assign inst_jal = inst_flags[7];
+	assign inst_auipc = inst_flags[8];
 
     always @(inst_beq or inst_bge or inst_bgeu or inst_blt or inst_bltu or inst_bne or inst_jalr or inst_jal or inst_auipc) begin
         if (inst_beq) begin

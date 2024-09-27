@@ -18,9 +18,9 @@
  */
 
  `include "config.v"
- `include "mem_controller.v"
- `include "int_bus.v"
 
+`define CUR_INST_CACHE 2'b00
+`define CUR_INST_FLASH 2'b01
 module sys_bus(
     input         clk,
     input         rst,
@@ -44,6 +44,7 @@ module sys_bus(
     input [31:0] inst_cur,
     input [31:0] exception_code,
     input exception_en,
+    input cur_branch_inst,
 
     output wire jmp_en,
     output wire [31:0] jmp_pc,
@@ -51,19 +52,20 @@ module sys_bus(
     input wire clk_timer,
 
     input wire [11:0] csr_read_addr,
-    input wire [4:0] csrw_addr,
+    input wire [11:0] csrw_addr,
     input wire [31:0] w_data,
     input wire csr_write_en,
-    output wire [31:0] csr_out
-);
+    output wire [31:0] csr_out,
 
     // 片外内存与内部cache
-    reg [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_data;
-    reg offchip_mem_ready;
-    reg [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata;
-    wire offchip_mem_write_en;
-    wire offchip_mem_read_en;
-    wire [31:0] offchip_mem_addr;
+    input [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_data,
+    input offchip_mem_ready,
+    output [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata,
+    output wire offchip_mem_write_en,
+    output wire offchip_mem_read_en,
+    output wire [31:0] offchip_mem_addr
+);
+
     wire offchip_mem_read_busy;
     wire offchip_mem_write_busy;
 
@@ -73,24 +75,31 @@ module sys_bus(
     wire [31:0] inst_rdata_icache;
     wire    inst_read_ready_icache;
 
-    mem_controller i_cache(
-        .clk(clk),
-        .rst(rst),
-        .inst_mem_addr(inst_read_addr_icache),
-        .inst_read_en(inst_read_en_icache),
-        .inst_mem_rdata(inst_rdata_icache),
-        .inst_mem_ready(inst_read_ready_icache),
+    reg [1:0] inst_cur_from; // 指令来源，0表示来自指令cache，1表示来自flash
 
-        // 片外内存获取通道
-        .offchip_mem_data(offchip_mem_data),
-        .offchip_mem_ready(offchip_mem_ready),
-        .offchip_mem_wdata(offchip_mem_wdata),
-        .offchip_mem_write_en(offchip_mem_write_en),
-        .offchip_mem_read_en(offchip_mem_read_en),
-        .offchip_mem_addr(offchip_mem_addr),
-        .offchip_mem_read_busy(offchip_mem_read_busy),
-        .offchip_mem_write_busy(offchip_mem_write_busy)
-    );
+    always @(negedge rst) begin
+        if (!rst) begin
+            inst_read_en_icache = 1'd0;
+        end
+    end
+
+    always @(posedge inst_read_en) begin
+        // TODO 需要判断指令地址，决定从哪里读取，目前只有缓存
+        inst_read_en_icache <= inst_read_en;
+        inst_read_addr_icache <= inst_read_addr;
+        inst_cur_from <= `CUR_INST_CACHE;
+    end
+
+    always @(inst_read_addr) begin
+        inst_read_ready = 1'd0;
+    end
+
+    always @(posedge inst_read_ready_icache) begin
+        if (inst_cur_from == `CUR_INST_CACHE) begin
+            inst_rdata <= inst_rdata_icache;
+            inst_read_ready <= inst_read_ready_icache;
+        end
+    end
 
     // 数据cache读取部分
     reg         read_en_dcache;       
@@ -104,6 +113,11 @@ module sys_bus(
     mem_controller d_cache(
         .clk(clk),
         .rst(rst),
+        .inst_mem_addr(inst_read_addr_icache),
+        .inst_read_en(inst_read_en_icache),
+        .inst_mem_rdata(inst_rdata_icache),
+        .inst_mem_ready(inst_read_ready_icache),
+
         .mem_addr(mem_addr_dcache),
         .read_en(read_en_dcache),
         .write_en(write_en_dcache),
@@ -144,6 +158,7 @@ module sys_bus(
         .inst_cur(inst_cur),
         .exception_code(exception_code),
         .exception_en(exception_en),
+        .cur_branch_inst(cur_branch_inst),
         .jmp_en(jmp_en),
         .jmp_pc(jmp_pc),
         .clk_timer(clk_timer),

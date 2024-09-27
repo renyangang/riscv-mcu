@@ -17,7 +17,6 @@
     指令取指实现
  */
  `include "config.v"
- `include "mem_controller.v"
 
  module inst_fetch(
     input clk,
@@ -29,35 +28,67 @@
     input [31:0] inst_data,
     input inst_mem_ready,
 
+    output reg inst_mem_read_en,
     output reg [31:0] cur_inst_addr,
     output reg [31:0] next_inst_addr,
     output reg [31:0] inst_code,
+    output reg control_hazard,
     output reg inst_ready
  );
 
-    always @(negedge rst) begin
+    reg fetch_stop;
+
+    task branch_prediction();
+        if (inst_data[6:0] == 7'b1100011) begin
+            // 分支跳转指令，进行静态预测， 向后统一预测为跳转，向前统一预测为不跳转
+            fetch_stop = inst_data[31];
+            // 如果预测不跳转，则设置冒险标记
+            control_hazard = ~(inst_data[31]);
+        end
+        else if (inst_data[6:0] == 7'b1101111 || inst_data[6:0] == 7'b1100111) begin
+            fetch_stop = 1'b1; // 等待跳转
+        end
+    endtask
+
+    always @(posedge clk or negedge rst) begin
         if (!rst) begin
             cur_inst_addr <= `BOOT_ADDR;
             next_inst_addr <= `BOOT_ADDR;
             inst_ready <= 1'b0;
+            inst_code <= 32'b0;
+            inst_mem_read_en <= 1'b0;
+            fetch_stop <= 1'b0;
+            control_hazard <= 1'b0;
         end
-    end
-
-    always @(negedge inst_mem_ready) begin
-        inst_ready = 1'b0;
-    end
-
-    always @(posedge clk) begin
-        if(next_en) begin
-            if (jmp_en) begin
-                next_inst_addr <= jmp_pc;
-            end
-            else if (inst_mem_ready && (!inst_ready)) begin
+        else if (inst_mem_ready && (!inst_ready)) begin
+            inst_ready <= 1'b1;
+            inst_code <= inst_data;
+            branch_prediction();
+            if (next_en && !fetch_stop) begin
                 cur_inst_addr <= next_inst_addr;
-                next_inst_addr <= next_inst_addr + 4;
-                inst_ready <= 1'b1;
-                inst_code <= inst_data;
+                if (jmp_en) begin
+                    next_inst_addr <= jmp_pc;
+                end
+                else begin
+                    next_inst_addr <= next_inst_addr + 4;
+                end
+                inst_mem_read_en <= 1'b1;
             end
+            else begin
+                inst_mem_read_en <= 1'b0;
+            end
+        end
+        else if(inst_ready) begin
+            inst_ready <= 1'b0;
+        end
+        else if (fetch_stop && jmp_en) begin
+            next_inst_addr <= jmp_pc;
+            fetch_stop <= 1'b0; // 等到跳转指令，停顿结束
+            inst_mem_read_en <= 1'b1;
+            inst_ready <= 1'b0;
+        end
+        else begin
+            inst_mem_read_en <= 1'b1;
         end
     end
 

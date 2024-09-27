@@ -64,7 +64,8 @@ module cache_way (
     end
 
     integer i, j;
-    always @(negedge rst_n) begin
+
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (i = 0; i < `CACHE_LINES; i = i + 1) begin
                 valid[i] <= 0;
@@ -75,10 +76,7 @@ module cache_way (
             write_back_data <= {`CACHE_LINE_WIDTH{1'bz}};
             rdata <= 32'bz;
         end
-    end
-
-    always @(posedge clk) begin
-        if(cs) begin
+        else if(cs) begin
             if (load_enable) begin
                 cache_data[index] <= write_load_data;
                 dirty[index] <= 0;
@@ -190,52 +188,7 @@ module cache_set(
 
     end
 
-    always @(posedge clk) begin
-        case (status)
-          `S_ADDR: begin
-                if(!load_enable) begin
-                    hit <= (|way_hit);
-                    way_cs[index] <= way_hit;
-                    dirty <= 1'b0;
-                end
-                else begin
-                    way_cs[index][cover_idx] <= 1'b1;
-                    dirty <= dirty_status[cover_idx];
-                end
-                status <= `S_GETHIT;
-                status_ready <= 1'b1;
-            end
-            `S_GETHIT: begin
-                if(!load_enable) begin
-                    if(hit) begin
-                        // 常规读写命中时，更新
-                        for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
-                            if (way_cs[index][i]) begin
-                                write_cs[index][i] <= 1'b1;
-                                last_acc_idx <= i[2:0];
-                            end
-                        end
-                    end
-                    status <= `S_IDLE;
-                end
-                else begin
-                    status <= `S_WRITELOAD;
-                end
-            end
-            `S_WRITELOAD: begin
-                if (!begin_save && load_enable) begin
-                    save_ready <= 1'b0;
-                    status <= status;
-                end
-                else begin
-                    status <= `S_IDLE;
-                    save_ready <= 1'b1;
-                end
-            end
-        endcase
-    end
-
-    always @(negedge rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for(j=0;j<`CACHE_LINES;j=j+1) begin
                 write_cs[j] <= {`CACHE_WAYS{1'b0}};
@@ -247,6 +200,50 @@ module cache_set(
             hit <= 1'b0;
             last_acc_idx <= 3'd0;
             status_ready <= 1'b0;
+        end
+        else begin
+            case (status)
+            `S_ADDR: begin
+                    if(!load_enable) begin
+                        hit <= (|way_hit);
+                        way_cs[index] <= way_hit;
+                        dirty <= 1'b0;
+                    end
+                    else begin
+                        way_cs[index][cover_idx] <= 1'b1;
+                        dirty <= dirty_status[cover_idx];
+                    end
+                    status <= `S_GETHIT;
+                    status_ready <= 1'b1;
+                end
+                `S_GETHIT: begin
+                    if(!load_enable) begin
+                        if(hit) begin
+                            // 常规读写命中时，更新
+                            for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
+                                if (way_cs[index][i]) begin
+                                    write_cs[index][i] <= 1'b1;
+                                    last_acc_idx <= i[2:0];
+                                end
+                            end
+                        end
+                        status <= `S_IDLE;
+                    end
+                    else begin
+                        status <= `S_WRITELOAD;
+                    end
+                end
+                `S_WRITELOAD: begin
+                    if (!begin_save && load_enable) begin
+                        save_ready <= 1'b0;
+                        status <= status;
+                    end
+                    else begin
+                        status <= `S_IDLE;
+                        save_ready <= 1'b1;
+                    end
+                end
+            endcase
         end
     end
 
