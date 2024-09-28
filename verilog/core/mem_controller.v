@@ -30,7 +30,7 @@ module mem_controller(
     input inst_read_en,
      // 指令返回通道
     output wire [31:0] inst_mem_rdata,
-    output reg inst_mem_ready,
+    output wire inst_mem_ready,
     // 数据获取通道
     input [31:0] mem_addr,
     input read_en,
@@ -80,28 +80,24 @@ module mem_controller(
     );
 
     reg [1:0] inst_offchip_status;
-    reg inst_need_load;
     reg inst_read_cache_en;
 
     always @(inst_read_en or inst_load_en) begin
         inst_read_cache_en = inst_read_en & ~inst_load_en;
     end
 
-    always @(inst_mem_addr) begin
-        inst_need_load = 1'b0;
-    end
+    assign inst_mem_ready = inst_read_cache_en & inst_status_ready & inst_data_hit;
 
     // 指令片外读取
     always @(posedge clk) begin
         if (rst) begin
             case (inst_offchip_status)
                 `OFF_STATUS_IDLE: begin
-                    if (inst_need_load && !offchip_mem_read_busy) begin
+                    if (inst_read_cache_en && inst_status_ready && (!inst_data_hit) && !offchip_mem_read_busy) begin
                         inst_offchip_status <= `OFF_STATUS_RW;
                         offchip_mem_addr <= {inst_mem_addr[31:4],4'b0000};
                         offchip_mem_read_en <= 1'b1;
                         offchip_mem_read_busy <= 1'b1;
-                        inst_need_load <= 1'b0;
                     end
                     else begin
                         inst_offchip_status <= inst_offchip_status;
@@ -128,30 +124,6 @@ module mem_controller(
                     end
                 end
             endcase
-        end
-    end
-
-    always @(posedge clk) begin
-        if (rst) begin
-            if (inst_read_cache_en) begin
-                if (inst_status_ready) begin
-                    if (inst_data_hit) begin
-                        inst_mem_ready <= 1'b1;
-                    end
-                    else begin
-                        if (!inst_need_load) begin
-                            // 需要先从片外加载缓存
-                            inst_need_load <= 1'b1;
-                        end
-                    end
-                end
-                else begin
-                    inst_mem_ready <= 1'b0;
-                end
-            end
-            else begin
-                inst_mem_ready <= 1'b0;
-            end
         end
     end
 
@@ -302,8 +274,6 @@ module mem_controller(
     always @(negedge rst) begin
         if (!rst) begin
             inst_load_en <= 1'b0;
-            inst_mem_ready <= 1'b0;
-            inst_need_load <= 1'b0;
             d_load_en <= 1'b0;
             mem_ready <= 1'b0;
             d_need_load <= 1'b0;

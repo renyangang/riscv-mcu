@@ -38,11 +38,15 @@ OBJS			:= $(SOBJS) $(COBJS)
 
 VPATH			:= $(SRCDIRS)
 
-all: boot.bin kernel.bin
+all: boot.bin kernel.bin test.bin
 
 %.bin: $(OBJDIR)/%.elf
 	$(OBJCOPY) -O binary -S $^ $@
 	
+$(OBJDIR)/test.elf: $(OBJDIR)/test.o
+	$(LD) -o $@ $^
+	$(OBJDUMP) -D $@ > $@.asm
+
 $(OBJDIR)/boot.elf: $(OBJDIR)/boot.o
 	$(LD) -T boot.ld -o $@ $^
 	$(OBJDUMP) -D $@ > $@.asm

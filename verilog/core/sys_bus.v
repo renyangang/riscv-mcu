@@ -27,8 +27,8 @@ module sys_bus(
 
     input         inst_read_en,       
     input  [31:0] inst_read_addr,
-    output reg [31:0] inst_rdata,
-    output reg    inst_read_ready,
+    output wire [31:0] inst_rdata,
+    output wire    inst_read_ready,
 
     input         read_en,       
     input  [31:0] mem_addr,
@@ -44,7 +44,7 @@ module sys_bus(
     input [31:0] inst_cur,
     input [31:0] exception_code,
     input exception_en,
-    input cur_branch_inst,
+    input cur_branch_hazard,
 
     output wire jmp_en,
     output wire [31:0] jmp_pc,
@@ -83,22 +83,14 @@ module sys_bus(
         end
     end
 
-    always @(posedge inst_read_en) begin
+    assign inst_read_ready = (inst_cur_from == `CUR_INST_CACHE) ? inst_read_ready_icache : 1'b0;
+    assign inst_rdata = (inst_cur_from == `CUR_INST_CACHE) ? inst_rdata_icache : 32'd0;
+
+    always @(posedge inst_read_en or inst_read_addr) begin
         // TODO 需要判断指令地址，决定从哪里读取，目前只有缓存
-        inst_read_en_icache <= inst_read_en;
-        inst_read_addr_icache <= inst_read_addr;
-        inst_cur_from <= `CUR_INST_CACHE;
-    end
-
-    always @(inst_read_addr) begin
-        inst_read_ready = 1'd0;
-    end
-
-    always @(posedge inst_read_ready_icache) begin
-        if (inst_cur_from == `CUR_INST_CACHE) begin
-            inst_rdata <= inst_rdata_icache;
-            inst_read_ready <= inst_read_ready_icache;
-        end
+        inst_read_en_icache = inst_read_en;
+        inst_read_addr_icache = inst_read_addr;
+        inst_cur_from = `CUR_INST_CACHE;
     end
 
     // 数据cache读取部分
@@ -158,7 +150,7 @@ module sys_bus(
         .inst_cur(inst_cur),
         .exception_code(exception_code),
         .exception_en(exception_en),
-        .cur_branch_inst(cur_branch_inst),
+        .cur_branch_hazard(cur_branch_hazard),
         .jmp_en(jmp_en),
         .jmp_pc(jmp_pc),
         .clk_timer(clk_timer),

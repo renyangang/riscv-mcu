@@ -31,9 +31,15 @@
     );
     reg [31:0] reg_file[31:0];
     integer i;
+    wire [31:0] x1_out;
+    wire [31:0] x2_out;
+
 
     assign rs1_out = (rs1_addr == 5'd0) ? 32'd0 : reg_file[rs1_addr];
     assign rs2_out = (rs2_addr == 5'd0) ? 32'd0 : reg_file[rs2_addr];
+
+    assign x1_out = reg_file[1];
+    assign x2_out = reg_file[2];
 
     always @(posedge clk) begin
         if (!rst) begin

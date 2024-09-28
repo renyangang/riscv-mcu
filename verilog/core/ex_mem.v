@@ -34,6 +34,7 @@ module ex_mem(
     input mem_write_ready,
     input [47:0] inst_flags,
 
+    output reg wb_rd_wait,
     output wire [4:0] rd_out,
     output reg rd_en,
     output reg [31:0] rd_data,
@@ -77,6 +78,7 @@ module ex_mem(
             mem_addr <= 32'd0;
             mem_write_en <= 1'b0;
             mem_read_en <= 1'b0;
+            wb_rd_wait <= 1'b0;
             state <= `IDLE;
         end
         else begin
@@ -87,30 +89,35 @@ module ex_mem(
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd1;
                         mem_read_en <= 1'b1;
+                        wb_rd_wait <= 1'b1;
                         state <= `READ;
                     end
                     else if (inst_lbu) begin
                         mem_addr <= rs1_data + {20'd0,imm_2031};
                         mem_read_en <= 1'b1;
                         byte_size <= 2'd1;
+                        wb_rd_wait <= 1'b1;
                         state <= `READ;
                     end
                     else if (inst_lh) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd2;
                         mem_read_en <= 1'b1;
+                        wb_rd_wait <= 1'b1;
                         state <= `READ;
                     end
                     else if (inst_lhu) begin
                         mem_addr <= rs1_data + {20'd0,imm_2031};
                         byte_size <= 2'd2;
                         mem_read_en <= 1'b1;
+                        wb_rd_wait <= 1'b1;
                         state <= `READ;
                     end
                     else if (inst_lw) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd0;
                         mem_read_en <= 1'b1;
+                        wb_rd_wait <= 1'b1;
                         state <= `READ;
                     end
                     else if (inst_sb) begin
@@ -118,6 +125,7 @@ module ex_mem(
                         mem_data <= {24'd0, rs2_data[7:0]};
                         mem_write_en <= 1'b1;
                         byte_size <= 2'd1;
+                        wb_rd_wait <= 1'b0;
                         state <= `WRITE;
                     end
                     else if (inst_sh) begin
@@ -126,6 +134,7 @@ module ex_mem(
                         mem_write_en <= 1'b1;
                         byte_size <= 2'd2;
                         state <= `WRITE;
+                        wb_rd_wait <= 1'b0;
                     end
                     else if (inst_sw) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
@@ -133,9 +142,11 @@ module ex_mem(
                         mem_write_en <= 1'b1;
                         byte_size <= 2'd0;
                         state <= `WRITE;
+                        wb_rd_wait <= 1'b0;
                     end
                     else begin
                         state <= `IDLE;
+                        wb_rd_wait <= 1'b0;
                     end
                 end
                 `READ: begin
@@ -152,6 +163,7 @@ module ex_mem(
                             end
                         endcase
                         rd_en <= 1;
+                        wb_rd_wait <= 1'b0;
                         state <= `IDLE;
                         mem_read_en <= 1'b0;
                     end

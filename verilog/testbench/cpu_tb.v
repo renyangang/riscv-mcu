@@ -27,11 +27,26 @@ module cpu_tb;
         .offchip_mem_addr(offchip_mem_addr)
     );
 
+    reg [7:0] memory [0:255];  // 假设要加载 256 个字节的内容
+    integer i;
+
+    initial begin
+        // 读取 hex 文件
+        $readmemh("test.hex", memory);
+
+        // // 打印每个字节以确保数据正确加载
+        // for (i = 0; i < 256; i = i + 1) begin
+        //     $display("memory[%0d] = %02x", i, memory[i]);
+        // end
+    end
+
     always @(posedge offchip_mem_read_en) begin
-        offchip_mem_data = 128'h00000000002081b30010011300000093;
-        #100;
+        for (i = 0; i < 16; i = i + 1) begin
+            offchip_mem_data[i*8 +: 8] = memory[offchip_mem_addr+i];  // 逐字节赋值
+        end
+        #50;
         offchip_mem_ready = 1'd1;
-        #100;
+        #50;
         offchip_mem_ready = 1'd0;
     end
 
@@ -47,7 +62,7 @@ module cpu_tb;
         offchip_mem_ready = 0;
         #10 rst = 1;
         
-        #1000;
+        #500;
         $finish;
     end
 

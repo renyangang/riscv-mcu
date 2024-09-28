@@ -30,7 +30,7 @@
     input [31:0] inst_cur, //当前指令
     input [31:0] exception_code,
     input exception_en,
-    input cur_branch_inst,
+    input cur_branch_hazard,
     output reg jmp_en,
     output reg [31:0] jmp_pc,
 
@@ -126,7 +126,7 @@
         else begin
             mtime <= mtime + 64'd1;
             mip[7] <= (mtime >= mtimecmp) ? 1'b1 : 1'b0;
-            if (exp_en && !cur_branch_inst) begin
+            if (exp_en && !cur_branch_hazard) begin
                 mstatus <= {mstatus[31:8],mstatus[3],mstatus[6:4],1'b0,mstatus[2:0]};
                 jmp_en <= 1'b1;
                 if (exception_en) begin
