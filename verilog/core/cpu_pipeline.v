@@ -404,7 +404,7 @@ module cpu_pipeline(
             end
     endtask
 
-    // 控制冒险失败，中断发生时，冲刷流水线
+    // 控制冒险失败或者中断发生时，冲刷流水线
     assign pipe_flush = int_jmp_en | (branch_jmp_en & id_ex_control_hazard);
     assign fetch_en = ~ex_stop;
 
