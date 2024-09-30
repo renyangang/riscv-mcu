@@ -312,67 +312,78 @@ module cpu_pipeline(
 
     task check_data_hazard(
         input check_rs1, check_rs2, check_rd,
-        output reg need_stop
+        input ex_stop_check
     );
-        if (check_rs1 || check_rs2 || check_rd) begin
-            rs1_forward = (rs1 == wb_rd && wb_rd_en);
-            rs1_forward_last = (rs1 == wb_rd_last && wb_rd_en_last);
-            rs2_forward = (rs2 == wb_rd && wb_rd_en);
-            rs2_forward_last = (rs2 == wb_rd_last && wb_rd_en_last);
-            need_stop = ((check_rd && rd != 5'd0) && ((rd == mem_rd_out && wb_rd_wait) || (rd == wb_rd && wb_rd_en)))
-            || (check_rs1 && rs1 != 5'd0 && rs1 == mem_rd_out && wb_rd_wait)
-            || (check_rs2 && rs2 != 5'd0 && rs2 == mem_rd_out && wb_rd_wait);
+
+        if (ex_stop_check) begin
+            if (check_rs1 || check_rs2 || check_rd) begin
+                ex_stop = ex_stop_check && (((check_rd && rd != 5'd0) && ((rd == mem_rd_out && wb_rd_wait) || (rd == wb_rd && wb_rd_en)))
+                || (check_rs1 && rs1 != 5'd0 && rs1 == mem_rd_out && wb_rd_wait)
+                || (check_rs2 && rs2 != 5'd0 && rs2 == mem_rd_out && wb_rd_wait));
+            end
+            else begin
+                ex_stop = 1'b0;
+            end
         end
         else begin
-            rs1_forward = 1'b0;
-            rs2_forward = 1'b0;
-            rs1_forward_last = 1'b0;
-            rs2_forward_last = 1'b0;
-            need_stop = 1'b0;
+            if (check_rs1 || check_rs2 || check_rd) begin
+                rs1_forward = (rs1 == wb_rd && wb_rd_en);
+                rs1_forward_last = (rs1 == wb_rd_last && wb_rd_en_last);
+                rs2_forward = (rs2 == wb_rd && wb_rd_en);
+                rs2_forward_last = (rs2 == wb_rd_last && wb_rd_en_last);
+            end
+            else begin
+                rs1_forward = 1'b0;
+                rs2_forward = 1'b0;
+                rs1_forward_last = 1'b0;
+                rs2_forward_last = 1'b0;
+            end
         end
     endtask
 
-    task check_inst();
+    task check_inst(
+        input ex_stop_check
+    );
         if (inst_decode_out[5:0] != 6'd0) begin
             // branch
-            check_data_hazard(1'b1, 1'b1, 1'b0, ex_stop);
+            check_data_hazard(1'b1, 1'b1, 1'b0, ex_stop_check);
         end
         else if (inst_decode_out[7:6] != 2'd0) begin
             // jalr 需要校验rs1
-            check_data_hazard(inst_decode_out[6],1'b0,1'b1,ex_stop);
+            check_data_hazard(inst_decode_out[6],1'b0,1'b1,ex_stop_check);
         end
         else if (inst_decode_out[27:9] != 19'd0) begin
             // alu
             if (inst_decode_out[20:18] != 3'd0 || inst_decode_out[23:22] != 2'd0 || inst_decode_out[27:26] != 2'd0) begin
-                check_data_hazard(1'b1, 1'b1, 1'b1, ex_stop);
+                check_data_hazard(1'b1, 1'b1, 1'b1, ex_stop_check);
             end
             else begin
-                check_data_hazard(1'b1, 1'b0, 1'b1, ex_stop);
+                check_data_hazard(1'b1, 1'b0, 1'b1, ex_stop_check);
             end
         end
         else if (inst_decode_out[36:29] != 8'd0) begin
             // mem
-            if (inst_mem_busy) begin
+            if (inst_mem_busy & ex_stop_check) begin
                 ex_stop = 1'b1;
             end
             else if (inst_decode_out[36:34] != 3'd0) begin
-                check_data_hazard(1'b1, 1'b0, 1'b0, ex_stop);
+                check_data_hazard(1'b1, 1'b0, 1'b0, ex_stop_check);
             end
             else begin
-                check_data_hazard(1'b1, 1'b1, 1'b1, ex_stop);
+                check_data_hazard(1'b1, 1'b1, 1'b1, ex_stop_check);
             end
         end
         else if (inst_decode_out[42:37] != 7'd0) begin
             // csr
             if (inst_decode_out[37] || inst_decode_out[39] || inst_decode_out[41]) begin
-                check_data_hazard(1'b1, 1'b0, 1'b1, ex_stop);
+                check_data_hazard(1'b1, 1'b0, 1'b1, ex_stop_check);
             end
             else begin
-                check_data_hazard(1'b0, 1'b0, 1'b1, ex_stop);
+                check_data_hazard(1'b0, 1'b0, 1'b1, ex_stop_check);
             end
         end
         else begin
-            check_data_hazard(1'b0, 1'b0, 1'b0, ex_stop);
+            check_data_hazard(1'b0, 1'b0, 1'b0, ex_stop_check);
         end
     endtask
 
@@ -407,13 +418,18 @@ module cpu_pipeline(
     // 控制冒险失败或者中断发生时，冲刷流水线
     assign pipe_flush = int_jmp_en | (branch_jmp_en & id_ex_control_hazard);
     assign fetch_en = ~ex_stop;
+    // assign decoder_en = ~ex_stop;
 
-    always @(mem_rd_en or branch_rd_out_en or alu_rd_out_en or csr_rd_out_en) begin
-        wb_rd_last = wb_rd;
-        wb_rd_data_last = wb_rd_data;
-        wb_rd_en_last = wb_rd_en;
-        wb_task();
+    always @(inst_mem_busy or wb_rd_wait or mem_rd_out) begin
+        check_inst(1'b1);
     end
+
+    // always @(mem_rd_en or branch_rd_out_en or alu_rd_out_en or csr_rd_out_en) begin
+    //     wb_rd_last = wb_rd;
+    //     wb_rd_data_last = wb_rd_data;
+    //     wb_rd_en_last = wb_rd_en;
+    //     wb_task();
+    // end
 
     task jmp_task();
         if (int_jmp_en) begin
@@ -432,10 +448,6 @@ module cpu_pipeline(
         end
     endtask
 
-    always @(inst_decode_out) begin
-        check_inst();
-    end
-
     // if to id
     always @(posedge clk) begin
         if (rst) begin
@@ -449,26 +461,27 @@ module cpu_pipeline(
     // id to ex
     always @(posedge clk) begin
         if (rst) begin
+            wb_rd_last = wb_rd;
+            wb_rd_data_last = wb_rd_data;
+            wb_rd_en_last = wb_rd_en;
             jmp_task();
-            // wb_task();
+            wb_task();
+            check_inst(1'b0);
             // 取指或者执行停顿都会导致取指停顿
-            // if (ex_stop) begin
-            //     check_inst();
-            //     id_ex_control_hazard <= id_ex_control_hazard;
-            //     id_ex_pc_cur <= id_ex_pc_cur;
-            //     id_ex_pc_next <= id_ex_pc_next;
-            //     id_ex_inst_flags <= id_ex_inst_flags;
-            //     id_ex_rd <= id_ex_rd;
-            //     id_ex_imm_1231 <= id_ex_imm_1231;
-            //     id_ex_rs1_data <= id_ex_rs1_data;
-            //     id_ex_rs2_data <= id_ex_rs2_data;
-            //     id_ex_rs1 <= id_ex_rs1;
-            //     id_ex_rs2 <= id_ex_rs2;
-            //     id_ex_cur_inst_code <= id_ex_cur_inst_code;
-            // end
-            // else 
-            if (ex_stop || pipe_flush) begin
-                check_inst();
+            if (ex_stop) begin
+                id_ex_control_hazard <= id_ex_control_hazard;
+                id_ex_pc_cur <= id_ex_pc_cur;
+                id_ex_pc_next <= id_ex_pc_next;
+                id_ex_inst_flags <= id_ex_inst_flags;
+                id_ex_rd <= id_ex_rd;
+                id_ex_imm_1231 <= id_ex_imm_1231;
+                id_ex_rs1_data <= id_ex_rs1_data;
+                id_ex_rs2_data <= id_ex_rs2_data;
+                id_ex_rs1 <= id_ex_rs1;
+                id_ex_rs2 <= id_ex_rs2;
+                id_ex_cur_inst_code <= id_ex_cur_inst_code;
+            end
+            else if (pipe_flush) begin
                 // 冲刷流水线
                 id_ex_inst_flags <= 48'd0;
                 id_ex_pc_cur <= 32'd0;

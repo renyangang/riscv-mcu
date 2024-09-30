@@ -127,6 +127,12 @@ module inst_decoder(
     wire [6:2] opcode;
     wire [2:0] funct3;
 
+    // reg [31:0] instruction_code;
+
+    // always @(in_instruction_code) begin
+    //     instruction_code = en? in_instruction_code : instruction_code;
+    // end
+
     assign opcode = instruction_code[6:2];
     assign funct3 = instruction_code[14:12];
     assign imm_1231 = en ? instruction_code[31:12] : 19'b0;
