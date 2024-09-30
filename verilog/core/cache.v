@@ -112,7 +112,7 @@ module cache_set(
     output wire [31:0] rdata,
     output wire [(`CACHE_LINE_SIZE*8)-1:0] write_back_data, 
     output reg dirty,
-    output reg hit
+    output wire hit
 );
 
     wire [`CACHE_WAYS-1:0] way_hit;
@@ -125,6 +125,7 @@ module cache_set(
     wire [5:0] index;
     reg found;
     assign index = addr[9:4];
+    assign hit = (|way_hit);
 
     reg [1:0]status;
 
@@ -152,7 +153,6 @@ module cache_set(
 
     task update_hitstatus();
         if (read_enable || write_enable) begin
-            hit = (|way_hit);
             way_cs[index] = way_hit;
             dirty = 1'b0;
             if(|way_hit) begin
@@ -204,7 +204,6 @@ module cache_set(
             end
             status <= `S_IDLE;
             dirty <= 1'b0;
-            hit <= 1'b0;
             last_acc_idx <= 3'd0;
             status_ready <= 1'b0;
         end

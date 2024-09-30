@@ -36,8 +36,8 @@ module sys_bus(
     input         write_en,
     input  [31:0] wdata,     
     input  [1:0]  byte_size,
-    output reg    mem_busy,
-    output reg    mem_ready,
+    output wire    mem_busy,
+    output wire    mem_ready,
 
     input [31:0] pc,
     input [31:0] pc_next,
@@ -80,6 +80,7 @@ module sys_bus(
     always @(negedge rst) begin
         if (!rst) begin
             inst_read_en_icache = 1'd0;
+            d_read_en_dcache = 1'd0;
         end
     end
 
@@ -94,13 +95,27 @@ module sys_bus(
     end
 
     // 数据cache读取部分
-    reg         read_en_dcache;       
-    reg  [31:0] mem_addr_dcache;
-    wire [31:0] rdata_dcache;
-    wire        mem_ready_dcache;
-    reg         write_en_dcache;
-    wire  [31:0] wdata_dcache;   
-    wire [1:0]   byte_size_dcache;
+    reg         d_read_en_dcache;       
+    reg  [31:0] d_mem_addr_dcache;
+    wire [31:0] d_rdata_dcache;
+    wire        d_mem_ready_dcache;
+    reg         d_write_en_dcache;
+    reg  [31:0] d_wdata_dcache;   
+    wire [1:0]   d_byte_size_dcache;
+
+    reg [1:0] d_cur_from; // 指令来源，0表示来自指令cache，1表示来自flash
+
+    assign mem_ready = (d_cur_from == `CUR_INST_CACHE) ? d_mem_ready_dcache : 1'b0;
+    assign rdata = (d_cur_from == `CUR_INST_CACHE) ? d_rdata_dcache : 32'd0;
+
+    always @(posedge read_en or mem_addr or posedge write_en) begin
+        // TODO 需要判断数据地址，决定从哪里读取，目前只有缓存
+        d_read_en_dcache = read_en;
+        d_mem_addr_dcache = mem_addr;
+        d_cur_from = `CUR_INST_CACHE;
+        d_write_en_dcache = write_en;
+        d_wdata_dcache = wdata;
+    end
 
     mem_controller d_cache(
         .clk(clk),
@@ -110,13 +125,13 @@ module sys_bus(
         .inst_mem_rdata(inst_rdata_icache),
         .inst_mem_ready(inst_read_ready_icache),
 
-        .mem_addr(mem_addr_dcache),
-        .read_en(read_en_dcache),
-        .write_en(write_en_dcache),
-        .byte_size(byte_size_dcache),
-        .mem_wdata(wdata_dcache),
-        .mem_rdata(rdata_dcache),
-        .mem_ready(mem_ready_dcache),
+        .mem_addr(d_mem_addr_dcache),
+        .read_en(d_read_en_dcache),
+        .write_en(d_write_en_dcache),
+        .byte_size(d_byte_size_dcache),
+        .mem_wdata(d_wdata_dcache),
+        .mem_rdata(d_rdata_dcache),
+        .mem_ready(d_mem_ready_dcache),
 
         // 片外内存获取通道
         .offchip_mem_data(offchip_mem_data),

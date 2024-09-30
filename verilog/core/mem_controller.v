@@ -39,7 +39,7 @@ module mem_controller(
     input [31:0] mem_wdata,
     // 数据返回通道
     output wire [31:0] mem_rdata,
-    output reg mem_ready,
+    output wire mem_ready,
 
     // 片外内存获取通道
     input [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_data,
@@ -157,7 +157,6 @@ module mem_controller(
     );
 
     reg [1:0] d_offchip_status;
-    reg d_need_load;
     reg d_read_cache_en;
     reg d_write_cache_en;
 
@@ -170,16 +169,17 @@ module mem_controller(
     end
 
     always @(mem_addr) begin
-        d_need_load = 1'b0;
         d_save_ready = 1'b0;
     end
+
+    assign mem_ready = (d_read_cache_en | d_write_cache_en) & d_status_ready & d_data_hit;
 
     // 数据片外读写
     always @(posedge clk) begin
         if (rst) begin
             case (d_offchip_status)
                 `OFF_STATUS_IDLE: begin
-                    if (d_need_load && !offchip_mem_read_busy) begin
+                    if ((d_read_cache_en || d_write_cache_en) && d_status_ready && (!d_data_hit) && !offchip_mem_read_busy) begin
                         d_offchip_status <= `OFF_STATUS_RW;
                         offchip_mem_addr <= {mem_addr[31:4],4'b0000};
                         offchip_mem_read_en <= 1'b1;
@@ -232,51 +232,11 @@ module mem_controller(
         end
     end
 
-    always @(posedge clk) begin
-        if (rst) begin
-            if (d_read_cache_en) begin
-                if (d_status_ready) begin
-                    if (d_data_hit) begin
-                        mem_ready <= 1'b1;
-                    end
-                    else begin
-                        // 需要先从片外加载缓存
-                        d_need_load <= 1'b1;
-                        mem_ready <= 1'b0;
-                    end
-                end
-                else begin
-                    mem_ready <= 1'b0;
-                end
-            end
-            else if (d_write_cache_en) begin
-                if (d_status_ready) begin
-                    if (d_data_hit) begin
-                        mem_ready <= 1'b1;
-                    end
-                    else begin
-                        // 需要先从片外加载缓存
-                        d_need_load <= 1'b1;
-                        mem_ready <= 1'b0;
-                    end
-                end
-                else begin
-                    mem_ready <= 1'b0;
-                end
-            end
-            else begin
-                mem_ready <= 1'b0;
-            end
-        end
-    end
-
     // 复位初始化
     always @(negedge rst) begin
         if (!rst) begin
             inst_load_en <= 1'b0;
             d_load_en <= 1'b0;
-            mem_ready <= 1'b0;
-            d_need_load <= 1'b0;
             d_save_ready <= 1'b0;
             offchip_mem_addr <= 32'b0;
             offchip_mem_read_busy <= 1'b0;

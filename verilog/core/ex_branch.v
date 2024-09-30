@@ -29,6 +29,7 @@ module ex_branch(
     output reg jmp_en,
     output reg [4:0] rd_out,
     output reg [31:0] rd_data_out,
+    output reg b_n_jmp, // 用于标记未达成跳转条件的指令
     output reg rd_out_en
 );
 
@@ -59,31 +60,37 @@ module ex_branch(
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
             jmp_en = (rs1_data == rs2_data) ? 1'b1 : 1'b0;
             rd_out_en = 1'b0;
+            b_n_jmp = ~jmp_en;
         end
         else if (inst_bge) begin
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
             jmp_en = ($signed(rs1_data) >= $signed(rs2_data)) ? 1'b1 : 1'b0;
             rd_out_en = 1'b0;
+            b_n_jmp = ~jmp_en;
         end
         else if (inst_bgeu) begin
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
             jmp_en = (rs1_data >= rs2_data) ? 1'b1 : 1'b0;
             rd_out = 5'b0;
+            b_n_jmp = ~jmp_en;
         end
         else if (inst_blt) begin
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
             jmp_en = ($signed(rs1_data) < $signed(rs2_data)) ? 1'b1 : 1'b0;
             rd_out_en = 1'b0;
+            b_n_jmp = ~jmp_en;
         end
         else if (inst_bltu) begin
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
             jmp_en = (rs1_data < rs2_data) ? 1'b1 : 1'b0;
             rd_out_en = 1'b0;
+            b_n_jmp = ~jmp_en;
         end
         else if (inst_bne) begin
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
             jmp_en = (rs1_data != rs2_data) ? 1'b1 : 1'b0;
             rd_out_en = 1'b0;
+            b_n_jmp = ~jmp_en;
         end
         else if (inst_jalr) begin
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, imm_1231[19:8]});
@@ -92,6 +99,7 @@ module ex_branch(
             rd_out = rd;
             rd_data_out = pc_next;
             rd_out_en = 1'b1;
+            b_n_jmp = 1'b0;
         end
         else if (inst_jal) begin
             pc_next_out = (pc_cur + {{13{imm_1231[19]}}, imm_1231[7:1], imm_1231[8], imm_1231[18:9], 1'b0});
@@ -99,17 +107,20 @@ module ex_branch(
             rd_out = rd;
             rd_data_out = pc_next;
             rd_out_en = 1'b1;
+            b_n_jmp = 1'b0;
         end
         else if (inst_auipc) begin
             rd_data_out = pc_cur + ({{12{imm_1231[19]}}, imm_1231[19:0]} << 12);
             jmp_en = 1'b0;
             rd_out_en = 1'b1;
             rd_out = rd;
+            b_n_jmp = 1'b0;
         end
         else begin
             pc_next_out = pc_next;
             jmp_en = 1'b0;
             rd_out_en = 1'b0;
+            b_n_jmp = 1'b0;
         end
     end
 
@@ -120,6 +131,7 @@ module ex_branch(
             rd_out <= 5'b0;
             rd_data_out <= 32'b0;
             rd_out_en <= 1'b0;
+            b_n_jmp <= 1'b0;
         end
     end
 

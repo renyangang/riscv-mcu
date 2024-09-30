@@ -35,7 +35,7 @@ module ex_mem(
     input [47:0] inst_flags,
 
     output reg wb_rd_wait,
-    output wire [4:0] rd_out,
+    output reg [4:0] rd_out,
     output reg rd_en,
     output reg [31:0] rd_data,
 
@@ -57,7 +57,6 @@ module ex_mem(
     wire inst_sh;
     wire inst_sw;
 
-    assign rd_out = rd;
     assign inst_lb = inst_flags[29];
     assign inst_lbu = inst_flags[30];
     assign inst_lh = inst_flags[31];
@@ -68,6 +67,25 @@ module ex_mem(
     assign inst_sw = inst_flags[36];
 
     assign busy_flag = (state == `IDLE) ? 1'b0 : 1'b1;
+
+    task mem_read_set();
+        if (clk) begin
+            mem_read_en <= 1'b1;
+            state <= `READ;
+        end
+    endtask
+
+    task mem_write_set();
+        if (clk) begin
+            mem_write_en <= 1'b1;
+            state <= `WRITE;
+        end
+    endtask
+
+    always @(inst_flags) begin
+        rd_out = (state == `READ) ? rd_out : (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)? rd : 5'd0;
+        wb_rd_wait = (state == `READ) ? 1'b1 : (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw) ? 1'b1 : 1'b0;
+    end
 
     always @(posedge clk or posedge rst) begin
         if (!rst) begin
@@ -80,6 +98,7 @@ module ex_mem(
             mem_read_en <= 1'b0;
             wb_rd_wait <= 1'b0;
             state <= `IDLE;
+            rd_out <= 5'd0;
         end
         else begin
             case (state)
@@ -88,65 +107,50 @@ module ex_mem(
                     if (inst_lb) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd1;
-                        mem_read_en <= 1'b1;
-                        wb_rd_wait <= 1'b1;
-                        state <= `READ;
+                        mem_read_set();
                     end
                     else if (inst_lbu) begin
                         mem_addr <= rs1_data + {20'd0,imm_2031};
-                        mem_read_en <= 1'b1;
                         byte_size <= 2'd1;
-                        wb_rd_wait <= 1'b1;
-                        state <= `READ;
+                        mem_read_set();
                     end
                     else if (inst_lh) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd2;
-                        mem_read_en <= 1'b1;
-                        wb_rd_wait <= 1'b1;
-                        state <= `READ;
+                        mem_read_set();
                     end
                     else if (inst_lhu) begin
                         mem_addr <= rs1_data + {20'd0,imm_2031};
                         byte_size <= 2'd2;
-                        mem_read_en <= 1'b1;
-                        wb_rd_wait <= 1'b1;
-                        state <= `READ;
+                        mem_read_set();
                     end
                     else if (inst_lw) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         byte_size <= 2'd0;
-                        mem_read_en <= 1'b1;
-                        wb_rd_wait <= 1'b1;
-                        state <= `READ;
+                        mem_read_set();
                     end
                     else if (inst_sb) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         mem_data <= {24'd0, rs2_data[7:0]};
-                        mem_write_en <= 1'b1;
                         byte_size <= 2'd1;
-                        wb_rd_wait <= 1'b0;
-                        state <= `WRITE;
                     end
                     else if (inst_sh) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         mem_data <= {16'd0, rs2_data[15:0]};
-                        mem_write_en <= 1'b1;
                         byte_size <= 2'd2;
-                        state <= `WRITE;
-                        wb_rd_wait <= 1'b0;
+                        mem_write_set();
                     end
                     else if (inst_sw) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
                         mem_data <= rs2_data;
-                        mem_write_en <= 1'b1;
                         byte_size <= 2'd0;
-                        state <= `WRITE;
-                        wb_rd_wait <= 1'b0;
+                        mem_write_set();
                     end
                     else begin
                         state <= `IDLE;
-                        wb_rd_wait <= 1'b0;
+                        mem_write_en <= 1'b0;
+                        mem_read_en <= 1'b0;
+                        rd_en <= 1'b0;
                     end
                 end
                 `READ: begin

@@ -77,10 +77,11 @@ module cpu_pipeline(
     wire inst_ready;
     reg [31:0] jmp_pc;
     reg jmp_en;
-    reg fetch_en;
+    wire fetch_en;
     wire [31:0] inst_data;
     wire inst_mem_ready;
     wire fetch_hazard;
+    wire b_n_jmp; // 用于标记未达成跳转条件的指令
 
     // decode
     reg decoder_en;
@@ -140,6 +141,7 @@ module cpu_pipeline(
         .inst_data(inst_data),
         .inst_mem_ready(inst_mem_ready),
         .inst_mem_read_en(inst_read_en),
+        .b_n_jmp(b_n_jmp),
 
         .cur_inst_addr(cur_inst_addr),
         .next_inst_addr(next_inst_addr),
@@ -192,6 +194,7 @@ module cpu_pipeline(
         .rd_out(branch_rd_out),
         .rd_out_en(branch_rd_out_en),
         .rd_data_out(branch_rd_data_out),
+        .b_n_jmp(b_n_jmp),
         .pc_next_out(branch_pc_next_out),
         .jmp_en(branch_jmp_en)
     );
@@ -303,7 +306,7 @@ module cpu_pipeline(
     reg [31:0] wb_rd_data;
 
     reg ex_mem_rd_wait; // 执行阶段访存写回依赖标记
-    reg pipe_flush; // 流水线冲刷标记
+    wire pipe_flush; // 流水线冲刷标记
     reg ex_stop; // 执行停止标记
     reg rs1_forward, rs2_forward, rs1_forward_last, rs2_forward_last;  // 寄存器数据前递标记
 
@@ -316,20 +319,9 @@ module cpu_pipeline(
             rs1_forward_last = (rs1 == wb_rd_last && wb_rd_en_last);
             rs2_forward = (rs2 == wb_rd && wb_rd_en);
             rs2_forward_last = (rs2 == wb_rd_last && wb_rd_en_last);
-            need_stop = 1'b0;
-            if (check_rd && rd != 5'd0) begin
-                need_stop = (rd == mem_rd_out && wb_rd_wait) || (rd == wb_rd && wb_rd_en);
-            end
-            if ((!need_stop) && (check_rs1 && rs1 != 5'd0)) begin
-                if (rs1 == mem_rd_out && wb_rd_wait) begin
-                    need_stop = 1'b1;
-                end
-            end
-            if ((!need_stop) && check_rs2 && rs2 != 5'd0) begin
-                if (rs2 == mem_rd_out && wb_rd_wait) begin
-                    need_stop = 1'b1;
-                end
-            end
+            need_stop = ((check_rd && rd != 5'd0) && ((rd == mem_rd_out && wb_rd_wait) || (rd == wb_rd && wb_rd_en)))
+            || (check_rs1 && rs1 != 5'd0 && rs1 == mem_rd_out && wb_rd_wait)
+            || (check_rs2 && rs2 != 5'd0 && rs2 == mem_rd_out && wb_rd_wait);
         end
         else begin
             rs1_forward = 1'b0;
@@ -385,10 +377,6 @@ module cpu_pipeline(
     endtask
 
     task wb_task();
-        if (clk) begin
-            wb_rd_last = wb_rd;
-            wb_rd_data_last = wb_rd_data;
-            wb_rd_en_last = wb_rd_en;
             if (mem_rd_en) begin
                 wb_rd = mem_rd_out;
                 wb_rd_data = mem_rd_data;
@@ -414,33 +402,38 @@ module cpu_pipeline(
                 wb_rd = 5'd0;
                 wb_rd_data = 32'd0;
             end
-        end
     endtask
+
+    // 控制冒险失败，中断发生时，冲刷流水线
+    assign pipe_flush = int_jmp_en | (branch_jmp_en & id_ex_control_hazard);
+    assign fetch_en = ~ex_stop;
+
+    always @(mem_rd_en or branch_rd_out_en or alu_rd_out_en or csr_rd_out_en) begin
+        wb_rd_last = wb_rd;
+        wb_rd_data_last = wb_rd_data;
+        wb_rd_en_last = wb_rd_en;
+        wb_task();
+    end
 
     task jmp_task();
         if (int_jmp_en) begin
             jmp_en = 1'b1;
             jmp_pc = int_jmp_pc;
             // 中断发生时，通过冲刷清理掉未执行的指令
-            pipe_flush = 1'b1;
         end
         else if (branch_jmp_en) begin
             jmp_en = 1'b1;
             jmp_pc = branch_pc_next_out;
             pc_next = branch_pc_next_out;
-            if (id_ex_control_hazard) begin
-                // 控制冒险失败，冲刷流水线
-                pipe_flush = 1'b1;
-            end
+        end
+        else begin
+            jmp_en = 1'b0;
+            jmp_pc = 32'd0;
         end
     endtask
 
-    always @(if_id_control_hazard or id_ex_control_hazard) begin
-        cur_branch_hazard = if_id_control_hazard | id_ex_control_hazard;
-    end
-
-    always @(ex_stop) begin
-        fetch_en = ~ex_stop;
+    always @(inst_decode_out) begin
+        check_inst();
     end
 
     // if to id
@@ -457,23 +450,25 @@ module cpu_pipeline(
     always @(posedge clk) begin
         if (rst) begin
             jmp_task();
-            wb_task();
-            check_inst();
+            // wb_task();
             // 取指或者执行停顿都会导致取指停顿
-            if (ex_stop) begin
-                id_ex_control_hazard <= id_ex_control_hazard;
-                id_ex_pc_cur <= id_ex_pc_cur;
-                id_ex_pc_next <= id_ex_pc_next;
-                id_ex_inst_flags <= id_ex_inst_flags;
-                id_ex_rd <= id_ex_rd;
-                id_ex_imm_1231 <= id_ex_imm_1231;
-                id_ex_rs1_data <= id_ex_rs1_data;
-                id_ex_rs2_data <= id_ex_rs2_data;
-                id_ex_rs1 <= id_ex_rs1;
-                id_ex_rs2 <= id_ex_rs2;
-                id_ex_cur_inst_code <= id_ex_cur_inst_code;
-            end
-            else if (pipe_flush) begin
+            // if (ex_stop) begin
+            //     check_inst();
+            //     id_ex_control_hazard <= id_ex_control_hazard;
+            //     id_ex_pc_cur <= id_ex_pc_cur;
+            //     id_ex_pc_next <= id_ex_pc_next;
+            //     id_ex_inst_flags <= id_ex_inst_flags;
+            //     id_ex_rd <= id_ex_rd;
+            //     id_ex_imm_1231 <= id_ex_imm_1231;
+            //     id_ex_rs1_data <= id_ex_rs1_data;
+            //     id_ex_rs2_data <= id_ex_rs2_data;
+            //     id_ex_rs1 <= id_ex_rs1;
+            //     id_ex_rs2 <= id_ex_rs2;
+            //     id_ex_cur_inst_code <= id_ex_cur_inst_code;
+            // end
+            // else 
+            if (ex_stop || pipe_flush) begin
+                check_inst();
                 // 冲刷流水线
                 id_ex_inst_flags <= 48'd0;
                 id_ex_pc_cur <= 32'd0;
@@ -491,8 +486,8 @@ module cpu_pipeline(
                 id_ex_inst_flags <= inst_decode_out;
                 id_ex_rd <= rd;
                 id_ex_imm_1231 <= imm_1231;
-                id_ex_rs1_data <= rs1_forward? wb_rd_data : (rs1_forward_last? wb_rd_data_last : rs1_out);
-                id_ex_rs2_data <= rs2_forward? wb_rd_data : (rs2_forward_last? wb_rd_data_last : rs2_out);
+                id_ex_rs1_data <= rs1_forward? wb_rd_data : rs1_forward_last? wb_rd_data_last : rs1_out;
+                id_ex_rs2_data <= rs2_forward? wb_rd_data : rs2_forward_last? wb_rd_data_last : rs2_out;
                 id_ex_rs1 <= rs1;
                 id_ex_rs2 <= rs2;
                 id_ex_pc_cur <= if_id_pc_cur;
@@ -506,11 +501,9 @@ module cpu_pipeline(
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
             jmp_en <= 1'd0;
-            fetch_en <= 1'd1;
             decoder_en <= 1'd1;
             cur_branch_hazard <= 1'b0;
             ex_stop <= 1'b0;
-            pipe_flush <= 1'b0;
             wb_rd_en <= 1'b0;
             wb_rd_data <= 32'd0;
             wb_rd <= 5'd0;

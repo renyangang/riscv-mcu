@@ -44,9 +44,8 @@ module cpu_tb;
         for (i = 0; i < 16; i = i + 1) begin
             offchip_mem_data[i*8 +: 8] = memory[offchip_mem_addr+i];  // 逐字节赋值
         end
-        #50;
         offchip_mem_ready = 1'd1;
-        #50;
+        #20;
         offchip_mem_ready = 1'd0;
     end
 

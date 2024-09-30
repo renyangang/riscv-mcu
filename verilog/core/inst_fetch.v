@@ -23,6 +23,7 @@
     input rst,
     input [31:0] jmp_pc,
     input jmp_en,
+    input b_n_jmp, // 用于标记跳转指令，并没有发生跳转，在fetch_stop状态下用于解除指令冻结
     input next_en,
     // 指令返回通道
     input [31:0] inst_data,
@@ -37,8 +38,9 @@
  );
 
     reg fetch_stop;
+    reg stop_f;
 
-    assign inst_ready = inst_mem_ready;
+    assign inst_ready = stop_f ? 1'b0 : inst_mem_ready;
     assign inst_code = (inst_data !== 32'hz) ? inst_data : 32'd0;
 
 
@@ -52,7 +54,14 @@
         else if (inst_data[6:0] == 7'b1101111 || inst_data[6:0] == 7'b1100111) begin
             fetch_stop = 1'b1; // 等待跳转
         end
+        else begin
+            control_hazard = 1'b0;
+        end
     endtask
+
+    always @(inst_data) begin
+        branch_prediction();
+    end
 
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
@@ -61,32 +70,51 @@
             inst_mem_read_en <= 1'b0;
             fetch_stop <= 1'b0;
             control_hazard <= 1'b0;
-        end
-        else if (inst_mem_ready) begin
-            branch_prediction();
-            cur_inst_addr <= next_inst_addr;
-            if (next_en && !fetch_stop) begin
-                if (jmp_en) begin
-                    // 跳转情况下，已读取的指令已经无意义
-                    next_inst_addr <= jmp_pc;
-                end
-                else begin
-                    next_inst_addr <= next_inst_addr + 4;
-                end
-                inst_mem_read_en <= 1'b1;
-            end
-            else begin
-                inst_mem_read_en <= 1'b0;
-            end
-        end
-        else if (fetch_stop && jmp_en) begin
-            next_inst_addr <= jmp_pc;
-            fetch_stop <= 1'b0; // 等到跳转指令，停顿结束
-            inst_mem_read_en <= 1'b1;
+            stop_f <= 1'b0;
         end
         else begin
-            inst_mem_read_en <= 1'b1;
+            if (fetch_stop) begin
+                if (jmp_en) begin
+                    cur_inst_addr <= jmp_pc;
+                    next_inst_addr <= jmp_pc + 4;
+                    fetch_stop <= 1'b0; // 等到跳转指令，停顿结束
+                    inst_mem_read_en <= 1'b1;
+                    stop_f <= 1'b0;
+                end
+                else if (b_n_jmp) begin
+                    fetch_stop <= 1'b0;
+                    cur_inst_addr <= next_inst_addr;
+                    next_inst_addr <= next_inst_addr + 4;
+                    stop_f <= 1'b0;
+                    inst_mem_read_en <= 1'b1;
+                end
+                else if(inst_mem_ready) begin
+                     stop_f <= 1'b1;
+                end
+            end
+            else if (inst_mem_ready) begin
+                if (fetch_stop) begin
+                    stop_f <= 1'b1;
+                end
+                if (next_en && !fetch_stop) begin
+                    if (jmp_en) begin
+                        // 跳转情况下，已读取的指令已经无意义
+                        cur_inst_addr <= jmp_pc;
+                        next_inst_addr <= jmp_pc + 4;
+                    end
+                    else begin
+                        cur_inst_addr <= next_inst_addr;
+                        next_inst_addr <= next_inst_addr + 4;
+                    end
+                    inst_mem_read_en <= 1'b1;
+                end
+                else begin
+                    inst_mem_read_en <= 1'b0;
+                end
+            end
+            else begin
+                inst_mem_read_en <= 1'b1;
+            end
         end
     end
-
  endmodule
