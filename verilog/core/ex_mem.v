@@ -42,7 +42,7 @@ module ex_mem(
     output reg [1:0] byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     output reg [31:0] mem_data,
     output reg [31:0] mem_addr,
-    output wire busy_flag,
+    output reg busy_flag,
     output reg mem_write_en,
     output reg mem_read_en
 );
@@ -66,7 +66,7 @@ module ex_mem(
     assign inst_sh = inst_flags[35];
     assign inst_sw = inst_flags[36];
 
-    assign busy_flag = (state == `IDLE) ? 1'b0 : 1'b1;
+    // assign busy_flag = ((state == `IDLE) && (inst_flags[36:29] == 8'd0)) ? 1'b0 : 1'b1;
 
     task mem_read_set();
         if (clk) begin
@@ -82,9 +82,10 @@ module ex_mem(
         end
     endtask
 
-    always @(inst_flags) begin
-        rd_out = (state == `READ) ? rd_out : (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)? rd : 5'd0;
-        wb_rd_wait = (state == `READ) ? 1'b1 : (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw) ? 1'b1 : 1'b0;
+    always @(inst_flags or state) begin
+        busy_flag = (((state == `IDLE) && (inst_flags[36:29] == 8'd0)) || state == `DONE) ? 1'b0 : 1'b1;
+        rd_out = (state != `IDLE) ? rd_out : (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)? rd : 5'd0;
+        wb_rd_wait = (state == `READ) ? 1'b1 : ((state == `IDLE) && (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)) ? 1'b1 : 1'b0;
     end
 
     always @(posedge clk or posedge rst) begin
@@ -99,6 +100,7 @@ module ex_mem(
             wb_rd_wait <= 1'b0;
             state <= `IDLE;
             rd_out <= 5'd0;
+            busy_flag <= 1'b0;
         end
         else begin
             case (state)
@@ -168,8 +170,9 @@ module ex_mem(
                         endcase
                         rd_en <= 1;
                         wb_rd_wait <= 1'b0;
-                        state <= `IDLE;
+                        state <= `DONE;
                         mem_read_en <= 1'b0;
+                        busy_flag <= 1'b0;
                     end
                     else begin
                         state <= state;
@@ -177,12 +180,17 @@ module ex_mem(
                 end
                 `WRITE: begin
                     if (mem_write_ready) begin
-                        state <= `IDLE;
+                        state <= `DONE;
                         mem_write_en <= 1'b0;
+                        busy_flag <= 1'b0;
                     end
                     else begin
                         state <= state;
                     end
+                end
+                `DONE: begin
+                    rd_en <= 1'b0;
+                    state <= `IDLE;
                 end
                 default: begin
                     state <= `IDLE;

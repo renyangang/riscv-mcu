@@ -301,6 +301,7 @@ module cpu_pipeline(
     reg wb_rd_en_last;
     reg [31:0] wb_rd_data_last;
 
+    reg wb_hazard; // 寄存器结构冒险标记，在内存指令操作同时可以执行计算指令，在写回时需要处理顺序
     reg [4:0] wb_rd;
     reg wb_rd_en;
     reg [31:0] wb_rd_data;
@@ -420,8 +421,11 @@ module cpu_pipeline(
     assign fetch_en = ~ex_stop;
     // assign decoder_en = ~ex_stop;
 
-    always @(inst_mem_busy or wb_rd_wait or mem_rd_out) begin
+    always @(inst_mem_busy or wb_rd_wait or mem_rd_out or inst_decode_out) begin
         check_inst(1'b1);
+        if (inst_mem_busy & ~ex_stop) begin
+            wb_hazard = 1'b1;
+        end
     end
 
     // always @(mem_rd_en or branch_rd_out_en or alu_rd_out_en or csr_rd_out_en) begin
@@ -451,10 +455,10 @@ module cpu_pipeline(
     // if to id
     always @(posedge clk) begin
         if (rst) begin
-            if_id_control_hazard <= ex_stop ? if_id_control_hazard : ((~pipe_flush & inst_ready) ? fetch_hazard : 1'b0);
-            if_id_pc_cur <= ex_stop ? if_id_pc_cur : ((~pipe_flush & inst_ready) ? cur_inst_addr : 32'd0);
-            if_id_pc_next <= ex_stop ? if_id_pc_next : ((~pipe_flush & inst_ready) ? next_inst_addr : 32'd0);
-            if_id_inst_code <= ex_stop ? if_id_inst_code : ((~pipe_flush & inst_ready) ? inst_code : 32'd0);
+            if_id_control_hazard <= (ex_stop || (mem_rd_en & wb_hazard)) ? if_id_control_hazard : ((~pipe_flush & inst_ready) ? fetch_hazard : 1'b0);
+            if_id_pc_cur <= (ex_stop || (mem_rd_en & wb_hazard)) ? if_id_pc_cur : ((~pipe_flush & inst_ready) ? cur_inst_addr : 32'd0);
+            if_id_pc_next <= (ex_stop || (mem_rd_en & wb_hazard)) ? if_id_pc_next : ((~pipe_flush & inst_ready) ? next_inst_addr : 32'd0);
+            if_id_inst_code <= (ex_stop || (mem_rd_en & wb_hazard)) ? if_id_inst_code : ((~pipe_flush & inst_ready) ? inst_code : 32'd0);
         end
     end
 
@@ -468,7 +472,11 @@ module cpu_pipeline(
             wb_task();
             check_inst(1'b0);
             // 取指或者执行停顿都会导致取指停顿
-            if (ex_stop) begin
+            if (ex_stop || (mem_rd_en & wb_hazard)) begin
+                if (wb_hazard) begin
+                    // 结构冒险标志清理
+                    wb_hazard = 1'b0;
+                end
                 id_ex_control_hazard <= id_ex_control_hazard;
                 id_ex_pc_cur <= id_ex_pc_cur;
                 id_ex_pc_next <= id_ex_pc_next;
@@ -515,6 +523,7 @@ module cpu_pipeline(
         if (!rst) begin
             jmp_en <= 1'd0;
             decoder_en <= 1'd1;
+            wb_hazard <= 1'b0;
             cur_branch_hazard <= 1'b0;
             ex_stop <= 1'b0;
             wb_rd_en <= 1'b0;

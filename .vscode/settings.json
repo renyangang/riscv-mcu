@@ -1,12 +1,9 @@
 {
     "files.associations": {
         "*.ejs": "html",
-        "timer.h": "c",
-        "gpio.h": "c",
-        "interrupt.h": "c",
-        "types.h": "c",
-        "common.h": "c",
-        "uart.h": "c"
+        "*.h": "c",
+        "*.v": "verilog",
+        "*.s": "assembly"
     },
     "verilog.linting.linter": "iverilog",
     "verilog.linting.iverilog.includePath": ["verilog","verilog/core","verilog/soc"],
