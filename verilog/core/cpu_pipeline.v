@@ -306,10 +306,9 @@ module cpu_pipeline(
     reg wb_rd_en;
     reg [31:0] wb_rd_data;
 
-    reg ex_mem_rd_wait; // 执行阶段访存写回依赖标记
     wire pipe_flush; // 流水线冲刷标记
     reg ex_stop; // 执行停止标记
-    reg rs1_forward, rs2_forward, rs1_forward_last, rs2_forward_last;  // 寄存器数据前递标记
+    reg rs1_forward, rs2_forward, rs1_forward_last, rs2_forward_last;  // 寄存器数据旁路标记
 
     task check_data_hazard(
         input check_rs1, check_rs2, check_rd,

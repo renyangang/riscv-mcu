@@ -81,19 +81,22 @@ module mem_controller(
 
     reg [1:0] inst_offchip_status;
     reg inst_read_cache_en;
+    wire inst_cache_load_en;
 
     always @(inst_read_en or inst_load_en) begin
         inst_read_cache_en = inst_read_en & ~inst_load_en;
     end
 
     assign inst_mem_ready = inst_read_cache_en & inst_status_ready & inst_data_hit;
+    assign inst_cache_load_en = inst_read_cache_en && inst_status_ready && (!inst_data_hit) && !offchip_mem_read_busy;
+
 
     // 指令片外读取
     always @(posedge clk) begin
         if (rst) begin
             case (inst_offchip_status)
                 `OFF_STATUS_IDLE: begin
-                    if (inst_read_cache_en && inst_status_ready && (!inst_data_hit) && !offchip_mem_read_busy) begin
+                    if (inst_cache_load_en) begin
                         inst_offchip_status <= `OFF_STATUS_RW;
                         offchip_mem_addr <= {inst_mem_addr[31:4],4'b0000};
                         offchip_mem_read_en <= 1'b1;
@@ -159,6 +162,7 @@ module mem_controller(
     reg [1:0] d_offchip_status;
     reg d_read_cache_en;
     reg d_write_cache_en;
+    wire d_cache_load_en;
 
     always @(read_en or d_load_en) begin
         d_read_cache_en = read_en & ~d_load_en;
@@ -173,13 +177,14 @@ module mem_controller(
     end
 
     assign mem_ready = (d_read_cache_en | d_write_cache_en) & d_status_ready & d_data_hit;
+    assign d_cache_load_en = (!inst_cache_load_en) && ((d_read_cache_en || d_write_cache_en) && d_status_ready && (!d_data_hit) && !offchip_mem_read_busy);
 
     // 数据片外读写
     always @(posedge clk) begin
         if (rst) begin
             case (d_offchip_status)
                 `OFF_STATUS_IDLE: begin
-                    if ((d_read_cache_en || d_write_cache_en) && d_status_ready && (!d_data_hit) && !offchip_mem_read_busy) begin
+                    if (d_cache_load_en) begin
                         d_offchip_status <= `OFF_STATUS_RW;
                         offchip_mem_addr <= {mem_addr[31:4],4'b0000};
                         offchip_mem_read_en <= 1'b1;
