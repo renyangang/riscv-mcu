@@ -16,7 +16,8 @@
  Description: global configuration and macros
 
  */
-
+`define XLEN 32
+`define MAX_BIT_POS (`XLEN-1)
 `define CACHE_LINES 64
 `define CACHE_LINE_SIZE 16
 `define CACHE_LINE_WIDTH (`CACHE_LINE_SIZE*8)

@@ -19,20 +19,20 @@
     根据mip和mie实现中断寄存器设置和跳转pc计算
     定时器寄存器，以及中断触发
  */
-
+`include "config.v"
  module registers_csr(
     input wire clk,
     input wire rst,
 
     // 中断信号
-    input [31:0] pc,
-    input [31:0] pc_next,
-    input [31:0] inst_cur, //当前指令
-    input [31:0] exception_code,
+    input [`MAX_BIT_POS:0] pc,
+    input [`MAX_BIT_POS:0] pc_next,
+    input [`MAX_BIT_POS:0] inst_cur, //当前指令
+    input [`MAX_BIT_POS:0] exception_code,
     input exception_en,
     input cur_branch_hazard,
     output reg jmp_en,
-    output reg [31:0] jmp_pc,
+    output reg [`MAX_BIT_POS:0] jmp_pc,
 
     input peripheral_int,
     input [7:0]peripheral_int_code,
@@ -42,31 +42,31 @@
 
     // 定时器处理
     input wire clk_timer,
-    input wire [31:0] mtimecmp_low,
-    input wire [31:0] mtimecmp_high,
-    output wire [31:0] mtime_low,
-    output wire [31:0] mtime_high,
+    input wire [`MAX_BIT_POS:0] mtimecmp_low,
+    input wire [`MAX_BIT_POS:0] mtimecmp_high,
+    output wire [`MAX_BIT_POS:0] mtime_low,
+    output wire [`MAX_BIT_POS:0] mtime_high,
 
     input wire [11:0] csr_read_addr,
     input wire [11:0] csrw_addr,
-    input wire [31:0] w_data,
+    input wire [`MAX_BIT_POS:0] w_data,
     input wire write_en,
-    output reg [31:0] csr_out
+    output reg [`MAX_BIT_POS:0] csr_out
     );
     
-    reg [31:0] mstatus; // 12'h300
-    reg [31:0] misa; // 12'h301
-    reg [31:0] mie; // 12'h304
-    reg [31:0] mtvec; // 12'h305
-    reg [31:0] mscratch; // 12'h340
-    reg [31:0] mepc; // 12'h341
-    reg [31:0] mcause; // 12'h342
-    reg [31:0] mtval; // 12'h343
-    reg [31:0] mip; // 12'h344
-    reg [31:0] mvendorid; // 12'hF11
-    reg [31:0] marchid; // 12'hF12
-    reg [31:0] mimpid; // 12'hF13
-    reg [31:0] mhartid; // 12'hF14
+    reg [`MAX_BIT_POS:0] mstatus; // 12'h300
+    reg [`MAX_BIT_POS:0] misa; // 12'h301
+    reg [`MAX_BIT_POS:0] mie; // 12'h304
+    reg [`MAX_BIT_POS:0] mtvec; // 12'h305
+    reg [`MAX_BIT_POS:0] mscratch; // 12'h340
+    reg [`MAX_BIT_POS:0] mepc; // 12'h341
+    reg [`MAX_BIT_POS:0] mcause; // 12'h342
+    reg [`MAX_BIT_POS:0] mtval; // 12'h343
+    reg [`MAX_BIT_POS:0] mip; // 12'h344
+    reg [`MAX_BIT_POS:0] mvendorid; // 12'hF11
+    reg [`MAX_BIT_POS:0] marchid; // 12'hF12
+    reg [`MAX_BIT_POS:0] mimpid; // 12'hF13
+    reg [`MAX_BIT_POS:0] mhartid; // 12'hF14
 
     reg [63:0] mtime;
     reg [63:0] mtimecmp;
@@ -81,7 +81,7 @@
 
     task get_csr_value;
         input [11:0] addr;
-        output [31:0] value;
+        output [`MAX_BIT_POS:0] value;
         begin
             case (addr)
                 12'h300: value = mstatus;

@@ -5,8 +5,8 @@ module cache_tb();
 
     reg clk;
     reg rst_n;
-    reg [31:0] addr;
-    reg [31:0] data_in;
+    reg [`MAX_BIT_POS:0] addr;
+    reg [`MAX_BIT_POS:0] data_in;
     reg write_enable;
     reg load_enable;
     reg read_enable;
@@ -17,7 +17,7 @@ module cache_tb();
     wire data_hit;
     wire status_ready;
     wire load_complate;
-    wire [31:0] data_out;
+    wire [`MAX_BIT_POS:0] data_out;
     wire [127:0] write_back_data;
 
     initial begin            
@@ -45,7 +45,7 @@ cache dut(
 );
 
     task read_and_load;
-        input [31:0] addr_read;
+        input [`MAX_BIT_POS:0] addr_read;
         input [127:0] write_load_data_read;
         begin
             read_enable = 1'b1;
@@ -75,7 +75,7 @@ cache dut(
     endtask;
 
     task read_data;
-        input [31:0] addr_read;
+        input [`MAX_BIT_POS:0] addr_read;
         begin
             read_enable = 1'b1;
             addr = addr_read;
@@ -92,8 +92,8 @@ cache dut(
     endtask;
 
     task write_data;
-        input [31:0] addr_write;
-        input [31:0] wdata_in;
+        input [`MAX_BIT_POS:0] addr_write;
+        input [`MAX_BIT_POS:0] wdata_in;
         begin
             addr = addr_write;
             data_in = wdata_in;

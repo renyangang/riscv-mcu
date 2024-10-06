@@ -1,5 +1,6 @@
 `timescale 1ps/1ps
 
+`define ABC 16
 module tt_tb;
     reg clk;
     reg rst;
@@ -34,19 +35,26 @@ module tt_tb;
 
     always #20 clk = ~clk;
 
+    reg [0:0] st;
+
     initial begin
-        clk = 1'b0;
-        rst = 1'b0;
-        sflag = 1'b0;
-        #100 rst = 1'b1;
-        #100 sflag = 1'b1;
-        #100 sflag = 1'b0;
-        #100 sflag = 1'b1;
-        #100 sflag = 1'b0;
-        #100 sflag = 1'b1;
-        #100 sflag = 1'b1;
-        #100 sflag = 1'b1;
-        #100 sflag = 1'b1;
+        // clk = 1'b0;
+        // rst = 1'b0;
+        // sflag = 1'b0;
+        // #100 rst = 1'b1;
+        // #100 sflag = 1'b1;
+        // #100 sflag = 1'b0;
+        // #100 sflag = 1'b1;
+        // #100 sflag = 1'b0;
+        // #100 sflag = 1'b1;
+        // #100 sflag = 1'b1;
+        // #100 sflag = 1'b1;
+        // #100 sflag = 1'b1;
+        st = 1'b0;
+        $display("testbench start %d", st[0]);
+        #100 st = 1'b1;
+        $display("testbench start %d", st[0]);
+        $display("testbench start %d", $clog2(4));
         $finish;
     end
 endmodule

@@ -6,11 +6,11 @@
     csr_op = 6'b0; \
     mechie_op = 8'b0; \
     invalid_instruction = 32'bz;
-
+`include "config.v"
 module instruction_decoder(
-    input [31:0] instruction_code,
+    input [`MAX_BIT_POS:0] instruction_code,
     input en,
-    output reg [31:0] invalid_instruction,
+    output reg [`MAX_BIT_POS:0] invalid_instruction,
     output reg [18:0] alu_op,
     output reg [8:0] jmp_op,
     output reg [8:0] mem_op,
@@ -124,7 +124,7 @@ module instruction_decoder(
         endcase
     endfunction
 
-    function [7:0] get_mechine_op(input [31:0] instruction_code);
+    function [7:0] get_mechine_op(input [`MAX_BIT_POS:0] instruction_code);
         case (instruction_code)
             32'h10200073: get_mechine_op = 8'b00010000; //sret
             32'h10500073: get_mechine_op = 8'b00100000; //wfi

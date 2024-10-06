@@ -16,33 +16,33 @@
  Description: interrupts bus
 中断总线
  */
-
+`include "config.v"
 `include "registers_csr.v"
 
 module int_bus(
     input  wire        clk,
     input  wire        rst,
-    input [31:0] pc,
-    input [31:0] pc_next,
-    input [31:0] inst_cur,
-    input [31:0] exception_code,
+    input [`MAX_BIT_POS:0] pc,
+    input [`MAX_BIT_POS:0] pc_next,
+    input [`MAX_BIT_POS:0] inst_cur,
+    input [`MAX_BIT_POS:0] exception_code,
     input exception_en,
     input cur_branch_hazard,
 
     output wire jmp_en,
-    output wire [31:0] jmp_pc,
+    output wire [`MAX_BIT_POS:0] jmp_pc,
 
     input wire clk_timer,
-    input wire [31:0] mtimecmp_low,
-    input wire [31:0] mtimecmp_high,
-    output wire [31:0] mtime_low,
-    output wire [31:0] mtime_high,
+    input wire [`MAX_BIT_POS:0] mtimecmp_low,
+    input wire [`MAX_BIT_POS:0] mtimecmp_high,
+    output wire [`MAX_BIT_POS:0] mtime_low,
+    output wire [`MAX_BIT_POS:0] mtime_high,
 
     input wire [11:0] csr_read_addr,
     input wire [11:0] csrw_addr,
-    input wire [31:0] w_data,
+    input wire [`MAX_BIT_POS:0] w_data,
     input wire write_en,
-    output wire [31:0] csr_out,
+    output wire [`MAX_BIT_POS:0] csr_out,
 
     input soft_int,
     input [7:0]soft_int_code,

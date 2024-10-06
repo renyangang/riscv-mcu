@@ -16,19 +16,19 @@
  Description: branch unit
     分支跳转指令执行单元
  */
-
+`include "config.v"
 module ex_branch(
     input rst,
-    input [31:0] pc_cur,pc_next,
+    input [`MAX_BIT_POS:0] pc_cur,pc_next,
     input [4:0] rd,
-    input [31:0] rs1_data, rs2_data,
+    input [`MAX_BIT_POS:0] rs1_data, rs2_data,
     input [19:0] imm_1231,
     input [47:0] inst_flags,
 
-    output reg [31:0] pc_next_out,
+    output reg [`MAX_BIT_POS:0] pc_next_out,
     output reg jmp_en,
     output reg [4:0] rd_out,
-    output reg [31:0] rd_data_out,
+    output reg [`MAX_BIT_POS:0] rd_data_out,
     output reg b_n_jmp, // 用于标记未达成跳转条件的指令
     output reg rd_out_en
 );

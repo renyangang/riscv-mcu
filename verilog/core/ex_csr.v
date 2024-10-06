@@ -16,19 +16,19 @@
  Description: ex_csr.v
     CSR寄存器执行单元
  */
-
+`include "config.v"
 module ex_csr (
     input rst,
     input [4:0] rd,
     input [4:0] imm_1519,
-    input [31:0] rs1_data, csr_data,
+    input [`MAX_BIT_POS:0] rs1_data, csr_data,
     input [11:0] imm_2031,
     input [47:0] inst_flags,
     output reg [4:0] rd_out,
     output reg out_en,
-    output reg [31:0] rd_data,
+    output reg [`MAX_BIT_POS:0] rd_data,
     output reg csr_out_en,
-    output reg [31:0] csrw_data,
+    output reg [`MAX_BIT_POS:0] csrw_data,
     output reg [11:0] csrw_addr
 );
 

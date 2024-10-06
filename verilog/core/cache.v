@@ -22,14 +22,14 @@
 module cache_way (
     input wire clk,
     input wire rst_n,
-    input wire [31:0] addr,   
-    input wire [31:0] wdata,  
+    input wire [`MAX_BIT_POS:0] addr,   
+    input wire [`MAX_BIT_POS:0] wdata,  
     input wire write_enable,
     input wire load_enable,
     input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     input wire [(`CACHE_LINE_SIZE*8)-1:0] write_load_data,
     input wire cs, // cache select
-    output wire [31:0] rdata,
+    output wire [`MAX_BIT_POS:0] rdata,
     output wire [(`CACHE_LINE_SIZE*8)-1:0] write_back_data, 
     output wire hit,
     output wire dirty_status
@@ -99,8 +99,8 @@ endmodule
 module cache_set(
     input wire clk,
     input wire rst_n,
-    input wire [31:0] addr,   
-    input wire [31:0] wdata,  
+    input wire [`MAX_BIT_POS:0] addr,   
+    input wire [`MAX_BIT_POS:0] wdata,  
     input wire write_enable,
     input wire load_enable,
     input wire read_enable,
@@ -109,7 +109,7 @@ module cache_set(
     input wire [(`CACHE_LINE_SIZE*8)-1:0] write_load_data,
     output reg status_ready,
     output reg save_ready,
-    output wire [31:0] rdata,
+    output wire [`MAX_BIT_POS:0] rdata,
     output wire [(`CACHE_LINE_SIZE*8)-1:0] write_back_data, 
     output reg dirty,
     output wire hit
@@ -119,9 +119,8 @@ module cache_set(
     reg [`CACHE_WAYS-1:0] way_cs [`CACHE_LINES-1:0];
     wire [`CACHE_WAYS-1:0] dirty_status;
     reg [`CACHE_WAYS-1:0] write_cs [`CACHE_LINES-1:0];
-    // support max way num == 4
-    reg [2:0] cover_idx;
-    reg [2:0] last_acc_idx;
+    reg [$clog2(`CACHE_WAYS)-1:0] cover_idx;
+    reg [$clog2(`CACHE_WAYS)-1:0] last_acc_idx;
     wire [5:0] index;
     reg found;
     assign index = addr[9:4];
@@ -160,7 +159,7 @@ module cache_set(
                 for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
                     if (way_hit[i]) begin
                         write_cs[index][i] <= 1'b1;
-                        last_acc_idx <= i[2:0];
+                        last_acc_idx <= i[$clog2(`CACHE_WAYS)-1:0];
                     end
                 end
             end
@@ -183,12 +182,12 @@ module cache_set(
             end
             if (&write_cs[index]) begin
                 write_cs[index] = {`CACHE_WAYS{1'b0}};
-                write_cs[last_acc_idx] = 1'b1;
+                write_cs[last_acc_idx] = 1;
             end
             found = 0;
             for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
                 if (!found && !write_cs[index][i]) begin
-                    cover_idx = i[2:0];
+                    cover_idx = i[$clog2(`CACHE_WAYS)-1:0];
                     found = 1'b1;
                 end
             end
@@ -200,11 +199,11 @@ module cache_set(
             for(j=0;j<`CACHE_LINES;j=j+1) begin
                 write_cs[j] <= {`CACHE_WAYS{1'b0}};
                 way_cs[j] <=  {`CACHE_WAYS{1'b0}};
-                cover_idx <= 3'd0;
+                cover_idx <= 0;
             end
             status <= `S_IDLE;
             dirty <= 1'b0;
-            last_acc_idx <= 3'd0;
+            last_acc_idx <= 0;
             status_ready <= 1'b0;
         end
         else begin
@@ -245,8 +244,8 @@ endmodule
 module cache(
     input wire clk,
     input wire rst_n,
-    input wire [31:0] addr,
-    input wire [31:0] data_in,
+    input wire [`MAX_BIT_POS:0] addr,
+    input wire [`MAX_BIT_POS:0] data_in,
     input wire write_enable,
     input wire read_enable,
     input wire load_enable,
@@ -257,7 +256,7 @@ module cache(
     output wire data_hit,
     output wire status_ready,
     output reg load_complate,
-    output wire [31:0] data_out,
+    output wire [`MAX_BIT_POS:0] data_out,
     output wire [(`CACHE_LINE_SIZE*8)-1:0] write_back_data
 );
 

@@ -34,51 +34,51 @@ module cpu_pipeline(
     output [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata,
     output wire offchip_mem_write_en,
     output wire offchip_mem_read_en,
-    output wire [31:0] offchip_mem_addr
+    output wire [`MAX_BIT_POS:0] offchip_mem_addr
 );
 
     wire read_en;
-    wire [31:0] mem_addr;
-    wire [31:0] rdata;
+    wire [`MAX_BIT_POS:0] mem_addr;
+    wire [`MAX_BIT_POS:0] rdata;
     wire write_en;
-    wire [31:0] wdata;
+    wire [`MAX_BIT_POS:0] wdata;
     wire [1:0] byte_size;
     wire mem_busy;
     wire mem_ready;
 
     // interrupts and exceptions
-    reg [31:0]pc_cur;
-    reg [31:0]pc_next;
-    reg [31:0]inst_cur_ex;
-    reg [31:0]exception_code;
+    reg [`MAX_BIT_POS:0]pc_cur;
+    reg [`MAX_BIT_POS:0]pc_next;
+    reg [`MAX_BIT_POS:0]inst_cur_ex;
+    reg [`MAX_BIT_POS:0]exception_code;
     reg exception_en;
-    wire [31:0] int_jmp_pc;
+    wire [`MAX_BIT_POS:0] int_jmp_pc;
     wire int_jmp_en;
 
     // csr operations
     reg [11:0] csr_read_addr;
-    wire [31:0] csr_data;
+    wire [`MAX_BIT_POS:0] csr_data;
 
     
 
     // branch instuctions
-    wire [31:0] branch_pc_next_out;
+    wire [`MAX_BIT_POS:0] branch_pc_next_out;
     wire branch_jmp_en;
     wire [4:0] branch_rd_out;
-    wire [31:0] branch_rd_data_out;
+    wire [`MAX_BIT_POS:0] branch_rd_data_out;
     wire branch_rd_out_en;
     reg cur_branch_hazard; // 标识当前是否正在执行跳转指令，如果是，中断等处理就需要等待结果
 
     // fetch
     wire inst_read_en;
-    wire [31:0] cur_inst_addr;
-    wire [31:0] next_inst_addr;
-    wire [31:0] inst_code;
+    wire [`MAX_BIT_POS:0] cur_inst_addr;
+    wire [`MAX_BIT_POS:0] next_inst_addr;
+    wire [`MAX_BIT_POS:0] inst_code;
     wire inst_ready;
-    reg [31:0] jmp_pc;
+    reg [`MAX_BIT_POS:0] jmp_pc;
     reg jmp_en;
     wire fetch_en;
-    wire [31:0] inst_data;
+    wire [`MAX_BIT_POS:0] inst_data;
     wire inst_mem_ready;
     wire fetch_hazard;
     wire b_n_jmp; // 用于标记未达成跳转条件的指令
@@ -168,7 +168,7 @@ module cpu_pipeline(
     
     wire [4:0] alu_rd_out;
     wire alu_rd_out_en;
-    wire [31:0] alu_rd_data;
+    wire [`MAX_BIT_POS:0] alu_rd_data;
 
     ex_alu alu(
         .rst(rst),
@@ -201,7 +201,7 @@ module cpu_pipeline(
 
     wire  [4:0] mem_rd_out;
     wire mem_rd_en;
-    wire [31:0] mem_rd_data;
+    wire [`MAX_BIT_POS:0] mem_rd_data;
     wire wb_rd_wait;
 
     ex_mem ex_mem(
@@ -230,7 +230,7 @@ module cpu_pipeline(
 
     wire [4:0] csr_rd_out;
     wire csr_rd_out_en;
-    wire [31:0] csr_rd_data;
+    wire [`MAX_BIT_POS:0] csr_rd_data;
     
 
     ex_csr ex_csr(
@@ -250,8 +250,8 @@ module cpu_pipeline(
     );
 
     
-    wire [31:0] rs1_out;
-    wire [31:0] rs2_out;
+    wire [`MAX_BIT_POS:0] rs1_out;
+    wire [`MAX_BIT_POS:0] rs2_out;
 
     registers registers(
         .clk(clk),
@@ -267,44 +267,44 @@ module cpu_pipeline(
 
     // pipeline regs
     reg if_id_control_hazard;
-    reg [31:0] if_id_pc_cur;
-    reg [31:0] if_id_pc_next;
-    reg [31:0] if_id_inst_code;
+    reg [`MAX_BIT_POS:0] if_id_pc_cur;
+    reg [`MAX_BIT_POS:0] if_id_pc_next;
+    reg [`MAX_BIT_POS:0] if_id_inst_code;
 
 
     reg id_ex_control_hazard;
-    reg [31:0] id_ex_pc_cur;
-    reg [31:0] id_ex_pc_next;
+    reg [`MAX_BIT_POS:0] id_ex_pc_cur;
+    reg [`MAX_BIT_POS:0] id_ex_pc_next;
     reg [47:0] id_ex_inst_flags;
     reg [4:0] id_ex_rd;
     reg [4:0] id_ex_rs1;
     reg [4:0] id_ex_rs2;
-    reg [31:0] id_ex_rs1_data;
-    reg [31:0] id_ex_rs2_data;
+    reg [`MAX_BIT_POS:0] id_ex_rs1_data;
+    reg [`MAX_BIT_POS:0] id_ex_rs2_data;
     reg [19:0] id_ex_imm_1231;
-    reg [31:0] id_ex_cur_inst_code;
+    reg [`MAX_BIT_POS:0] id_ex_cur_inst_code;
 
-    reg [31:0] ex_mem_addr;
-    reg [31:0] ex_mem_data;
+    reg [`MAX_BIT_POS:0] ex_mem_addr;
+    reg [`MAX_BIT_POS:0] ex_mem_data;
     reg [4:0] ex_mem_rd;
     reg ex_mem_rd_en;
-    reg [31:0] ex_mem_rd_data;
+    reg [`MAX_BIT_POS:0] ex_mem_rd_data;
     reg ex_mem_write_en;
     reg ex_mem_read_en;
     reg [1:0] ex_mem_byte_size;
 
     wire [11:0] wb_csr_addr;
     wire wb_csr_out_en;
-    wire [31:0] wb_csrw_data;
+    wire [`MAX_BIT_POS:0] wb_csrw_data;
 
     reg [4:0] wb_rd_last;
     reg wb_rd_en_last;
-    reg [31:0] wb_rd_data_last;
+    reg [`MAX_BIT_POS:0] wb_rd_data_last;
 
     reg wb_hazard; // 寄存器结构冒险标记，在内存指令操作同时可以执行计算指令，在写回时需要处理顺序
     reg [4:0] wb_rd;
     reg wb_rd_en;
-    reg [31:0] wb_rd_data;
+    reg [`MAX_BIT_POS:0] wb_rd_data;
 
     wire pipe_flush; // 流水线冲刷标记
     reg ex_stop; // 执行停止标记

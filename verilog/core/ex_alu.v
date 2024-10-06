@@ -16,17 +16,17 @@
  Description: ex_alu.v
     计算、逻辑执行单元
  */
-
+`include "config.v"
 module ex_alu(
     input rst,
     input [4:0] rd, 
-    input [31:0] rs1_data, rs2_data,
+    input [`MAX_BIT_POS:0] rs1_data, rs2_data,
     input [19:0] imm_1231,
     input [47:0] inst_flags,
     
     output reg [4:0] rd_out,
     output reg out_en,
-    output reg [31:0] rd_data
+    output reg [`MAX_BIT_POS:0] rd_data
 );
 
 wire inst_addi;

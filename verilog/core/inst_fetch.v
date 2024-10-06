@@ -21,18 +21,18 @@
  module inst_fetch(
     input clk,
     input rst,
-    input [31:0] jmp_pc,
+    input [`MAX_BIT_POS:0] jmp_pc,
     input jmp_en,
     input b_n_jmp, // 用于标记跳转指令，并没有发生跳转，在fetch_stop状态下用于解除指令冻结
     input next_en,
     // 指令返回通道
-    input [31:0] inst_data,
+    input [`MAX_BIT_POS:0] inst_data,
     input inst_mem_ready,
 
     output reg inst_mem_read_en,
-    output reg [31:0] cur_inst_addr,
-    output reg [31:0] next_inst_addr,
-    output wire [31:0] inst_code,
+    output reg [`MAX_BIT_POS:0] cur_inst_addr,
+    output reg [`MAX_BIT_POS:0] next_inst_addr,
+    output wire [`MAX_BIT_POS:0] inst_code,
     output reg control_hazard,
     output wire inst_ready
  );

@@ -49,9 +49,9 @@
         <entry>
           <string>Code</string>
           <string>module inst_decoder_verilog(
-    input [31:0] instruction_code,
+    input [`MAX_BIT_POS:0] instruction_code,
     input en,
-    output wire [31:0] invalid_instruction,
+    output wire [`MAX_BIT_POS:0] invalid_instruction,
     output wire [18:0] alu_op,
     output wire [8:0] jmp_op,
     output wire [8:0] mem_op,

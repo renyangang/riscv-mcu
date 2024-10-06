@@ -17,22 +17,22 @@
     寄存器文件 x0-x31, 32个32位寄存器
     写入读取都是单周期完成
  */
-
+`include "config.v"
  module registers(
     input wire clk,
     input wire rst,
     input wire [4:0] rs1_addr,
     input wire [4:0] rs2_addr,
     input wire [4:0] rd_addr,
-    input wire [31:0] rd_data,
+    input wire [`MAX_BIT_POS:0] rd_data,
     input wire rd_en,
-    output wire [31:0] rs1_out,
-    output wire [31:0] rs2_out
+    output wire [`MAX_BIT_POS:0] rs1_out,
+    output wire [`MAX_BIT_POS:0] rs2_out
     );
-    reg [31:0] reg_file[31:0];
+    reg [`MAX_BIT_POS:0] reg_file[`MAX_BIT_POS:0];
     integer i;
-    wire [31:0] x1_out;
-    wire [31:0] x2_out;
+    wire [`MAX_BIT_POS:0] x1_out;
+    wire [`MAX_BIT_POS:0] x2_out;
 
 
     assign rs1_out = (rs1_addr == 5'd0) ? 32'd0 : reg_file[rs1_addr];

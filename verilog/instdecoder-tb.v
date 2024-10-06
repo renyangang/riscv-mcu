@@ -1,10 +1,11 @@
 `timescale 1ns/1ns
+`include "config.v"
 `include "instruction_decoder.v"
 
 module instdecoder_tb();
-    reg [31:0] instruction_code;
+    reg [`MAX_BIT_POS:0] instruction_code;
     reg en;
-    wire [31:0] invalid_instruction;
+    wire [`MAX_BIT_POS:0] invalid_instruction;
     wire [18:0] alu_op;
     wire [8:0] jmp_op;
     wire [8:0] mem_op;

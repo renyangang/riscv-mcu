@@ -26,19 +26,19 @@ module mem_controller(
     input clk,
     input rst,
     // 指令获取通道
-    input [31:0] inst_mem_addr,
+    input [`MAX_BIT_POS:0] inst_mem_addr,
     input inst_read_en,
      // 指令返回通道
-    output wire [31:0] inst_mem_rdata,
+    output wire [`MAX_BIT_POS:0] inst_mem_rdata,
     output wire inst_mem_ready,
     // 数据获取通道
-    input [31:0] mem_addr,
+    input [`MAX_BIT_POS:0] mem_addr,
     input read_en,
     input write_en,
     input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
-    input [31:0] mem_wdata,
+    input [`MAX_BIT_POS:0] mem_wdata,
     // 数据返回通道
-    output wire [31:0] mem_rdata,
+    output wire [`MAX_BIT_POS:0] mem_rdata,
     output wire mem_ready,
 
     // 片外内存获取通道
@@ -47,7 +47,7 @@ module mem_controller(
     output wire [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata,
     output reg offchip_mem_write_en,
     output reg offchip_mem_read_en,
-    output reg [31:0] offchip_mem_addr,
+    output reg [`MAX_BIT_POS:0] offchip_mem_addr,
     output reg offchip_mem_read_busy,
     output reg offchip_mem_write_busy
 );

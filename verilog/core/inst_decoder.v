@@ -16,6 +16,7 @@
  Description: inst decoder
     指令解码器，将指令解码成控制信号
  */
+ `include "config.v"
 `define CLEAR_ALL_OUTPINS \
     invalid_instruction = 1'b0; \
     inst_beq = 1'b0; \
@@ -67,7 +68,7 @@
     inst_auipc = 1'b0; \
     inst_lui = 1'b0; 
 module inst_decoder(
-    input wire [31:0] instruction_code,
+    input wire [`MAX_BIT_POS:0] instruction_code,
     input en,
     output wire [4:0] rd, rs1, rs2,
     output wire [19:0] imm_1231,
@@ -127,7 +128,7 @@ module inst_decoder(
     wire [6:2] opcode;
     wire [2:0] funct3;
 
-    // reg [31:0] instruction_code;
+    // reg [`MAX_BIT_POS:0] instruction_code;
 
     // always @(in_instruction_code) begin
     //     instruction_code = en? in_instruction_code : instruction_code;

@@ -13,7 +13,7 @@ module cpu_tb;
     wire [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata;
     output wire offchip_mem_write_en;
     output wire offchip_mem_read_en;
-    output wire [31:0] offchip_mem_addr;
+    output wire [`MAX_BIT_POS:0] offchip_mem_addr;
 
     cpu_pipeline cpu_pipeline(
         .clk(clk),

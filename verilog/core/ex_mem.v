@@ -18,7 +18,7 @@
    访存指令执行
 
  */
-
+`include "config.v"
 `define IDLE 2'b00
 `define READ 2'b01
 `define WRITE 2'b10
@@ -26,10 +26,10 @@
 module ex_mem(
     input clk, rst,
     input [4:0] rd,
-    input [31:0] rs1_data, rs2_data,
+    input [`MAX_BIT_POS:0] rs1_data, rs2_data,
     input [11:0] imm_2031,
 
-    input [31:0] mem_data_in,
+    input [`MAX_BIT_POS:0] mem_data_in,
     input mem_read_ready,
     input mem_write_ready,
     input [47:0] inst_flags,
@@ -37,11 +37,11 @@ module ex_mem(
     output reg wb_rd_wait,
     output reg [4:0] rd_out,
     output reg rd_en,
-    output reg [31:0] rd_data,
+    output reg [`MAX_BIT_POS:0] rd_data,
 
     output reg [1:0] byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
-    output reg [31:0] mem_data,
-    output reg [31:0] mem_addr,
+    output reg [`MAX_BIT_POS:0] mem_data,
+    output reg [`MAX_BIT_POS:0] mem_addr,
     output reg busy_flag,
     output reg mem_write_en,
     output reg mem_read_en

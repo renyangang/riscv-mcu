@@ -26,36 +26,36 @@ module sys_bus(
     input         rst,
 
     input         inst_read_en,       
-    input  [31:0] inst_read_addr,
-    output wire [31:0] inst_rdata,
+    input  [`MAX_BIT_POS:0] inst_read_addr,
+    output wire [`MAX_BIT_POS:0] inst_rdata,
     output wire    inst_read_ready,
 
     input         read_en,       
-    input  [31:0] mem_addr,
-    output [31:0] rdata,
+    input  [`MAX_BIT_POS:0] mem_addr,
+    output [`MAX_BIT_POS:0] rdata,
     input         write_en,
-    input  [31:0] wdata,     
+    input  [`MAX_BIT_POS:0] wdata,     
     input  [1:0]  byte_size,
     output wire    mem_busy,
     output wire    mem_ready,
 
-    input [31:0] pc,
-    input [31:0] pc_next,
-    input [31:0] inst_cur,
-    input [31:0] exception_code,
+    input [`MAX_BIT_POS:0] pc,
+    input [`MAX_BIT_POS:0] pc_next,
+    input [`MAX_BIT_POS:0] inst_cur,
+    input [`MAX_BIT_POS:0] exception_code,
     input exception_en,
     input cur_branch_hazard,
 
     output wire jmp_en,
-    output wire [31:0] jmp_pc,
+    output wire [`MAX_BIT_POS:0] jmp_pc,
 
     input wire clk_timer,
 
     input wire [11:0] csr_read_addr,
     input wire [11:0] csrw_addr,
-    input wire [31:0] w_data,
+    input wire [`MAX_BIT_POS:0] w_data,
     input wire csr_write_en,
-    output wire [31:0] csr_out,
+    output wire [`MAX_BIT_POS:0] csr_out,
 
     // 片外内存与内部cache
     input [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_data,
@@ -63,7 +63,7 @@ module sys_bus(
     output [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata,
     output wire offchip_mem_write_en,
     output wire offchip_mem_read_en,
-    output wire [31:0] offchip_mem_addr
+    output wire [`MAX_BIT_POS:0] offchip_mem_addr
 );
 
     wire offchip_mem_read_busy;
@@ -71,8 +71,8 @@ module sys_bus(
 
     // 指令cache读取部分
     reg         inst_read_en_icache;      
-    reg  [31:0] inst_read_addr_icache;
-    wire [31:0] inst_rdata_icache;
+    reg  [`MAX_BIT_POS:0] inst_read_addr_icache;
+    wire [`MAX_BIT_POS:0] inst_rdata_icache;
     wire    inst_read_ready_icache;
 
     reg [1:0] inst_cur_from; // 指令来源，0表示来自指令cache，1表示来自flash
@@ -96,11 +96,11 @@ module sys_bus(
 
     // 数据cache读取部分
     reg         d_read_en_dcache;       
-    reg  [31:0] d_mem_addr_dcache;
-    wire [31:0] d_rdata_dcache;
+    reg  [`MAX_BIT_POS:0] d_mem_addr_dcache;
+    wire [`MAX_BIT_POS:0] d_rdata_dcache;
     wire        d_mem_ready_dcache;
     reg         d_write_en_dcache;
-    reg  [31:0] d_wdata_dcache;   
+    reg  [`MAX_BIT_POS:0] d_wdata_dcache;   
     wire [1:0]   d_byte_size_dcache;
 
     reg [1:0] d_cur_from; // 指令来源，0表示来自指令cache，1表示来自flash
@@ -151,10 +151,10 @@ module sys_bus(
     reg soft_int;
     reg [7:0]soft_int_code;
 
-    reg [31:0] mtimecmp_low;
-    reg [31:0] mtimecmp_high;
-    wire [31:0] mtime_low;
-    wire [31:0] mtime_high;
+    reg [`MAX_BIT_POS:0] mtimecmp_low;
+    reg [`MAX_BIT_POS:0] mtimecmp_high;
+    wire [`MAX_BIT_POS:0] mtime_low;
+    wire [`MAX_BIT_POS:0] mtime_high;
     wire [7:0] cur_int_code;
 
     int_bus int_bus(
