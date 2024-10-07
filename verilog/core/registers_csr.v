@@ -34,11 +34,9 @@
     output reg jmp_en,
     output reg [`MAX_BIT_POS:0] jmp_pc,
 
-    input peripheral_int,
-    input [7:0]peripheral_int_code,
-    input soft_int,
-    input [7:0]soft_int_code,
-    output reg [7:0] cur_int_code,
+    input [`INT_CODE_WIDTH-1:0]peripheral_int_code,
+    input [`INT_CODE_WIDTH-1:0]soft_int_code,
+    output reg [`INT_CODE_WIDTH-1:0] cur_int_code,
 
     // 定时器处理
     input wire clk_timer,
@@ -106,12 +104,12 @@
         get_csr_value(csr_read_addr, csr_out);
     end
 
-    always @(posedge peripheral_int or posedge software_int) begin
-        if (peripheral_int) begin
+    always @(peripheral_int_code or soft_int_code) begin
+        if (|(peripheral_int_code)) begin
             mip[7:0] <= {mip[31:12],1'b1,mip[10:0]};
             cur_int_code <= peripheral_int_code;
         end
-        else if (soft_int) begin
+        else if (|(soft_int_code)) begin
             mip[7:0] <= {mip[31:4],1'b1,mip[2:0]};
             cur_int_code <= soft_int_code;
         end

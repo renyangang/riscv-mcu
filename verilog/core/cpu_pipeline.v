@@ -427,13 +427,6 @@ module cpu_pipeline(
         end
     end
 
-    // always @(mem_rd_en or branch_rd_out_en or alu_rd_out_en or csr_rd_out_en) begin
-    //     wb_rd_last = wb_rd;
-    //     wb_rd_data_last = wb_rd_data;
-    //     wb_rd_en_last = wb_rd_en;
-    //     wb_task();
-    // end
-
     task jmp_task();
         if (int_jmp_en) begin
             jmp_en = 1'b1;

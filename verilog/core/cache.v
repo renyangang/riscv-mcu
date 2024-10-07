@@ -29,7 +29,7 @@ module cache_way (
     input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     input wire [(`CACHE_LINE_SIZE*8)-1:0] write_load_data,
     input wire cs, // cache select
-    output wire [`MAX_BIT_POS:0] rdata,
+    output reg [`MAX_BIT_POS:0] rdata,
     output wire [(`CACHE_LINE_SIZE*8)-1:0] write_back_data, 
     output wire hit,
     output wire dirty_status
@@ -52,9 +52,21 @@ module cache_way (
 
     assign hit = (valid[index] && (tag[index] == tag_in))? 1'b1:1'b0;
     assign dirty_status = dirty[index];
-    assign rdata = cs ? cache_data[index][(offset*8) +: 32] : 32'bz;
     assign write_back_data = cs ? cache_data[index] : {`CACHE_LINE_WIDTH{1'bz}};
 
+    always @(addr) begin
+        case(byte_size)
+            1: begin
+                rdata = cs ? {24'd0,cache_data[index][(offset*8) +: 8]} : 32'bz;
+            end
+            2: begin
+                rdata = cs ? {16'd0,cache_data[index][(offset*8) +: 16]} : 32'bz;
+            end
+            default: begin
+                rdata = cs ? cache_data[index][(offset*8) +: 32] : 32'bz;
+            end
+        endcase
+    end
     
     integer i, j;
 
