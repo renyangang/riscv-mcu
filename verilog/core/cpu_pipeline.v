@@ -26,15 +26,7 @@
 module cpu_pipeline(
     input wire clk,
     input wire rst,
-    input wire clk_timer,
-
-    // 片外内存
-    input [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_data,
-    input offchip_mem_ready,
-    output [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata,
-    output wire offchip_mem_write_en,
-    output wire offchip_mem_read_en,
-    output wire [`MAX_BIT_POS:0] offchip_mem_addr
+    input wire clk_timer
 );
 
     wire read_en;
@@ -58,6 +50,9 @@ module cpu_pipeline(
     // csr operations
     reg [11:0] csr_read_addr;
     wire [`MAX_BIT_POS:0] csr_data;
+    wire [11:0] wb_csr_addr;
+    wire wb_csr_out_en;
+    wire [`MAX_BIT_POS:0] wb_csrw_data;
 
     
 
@@ -120,15 +115,7 @@ module cpu_pipeline(
         .csrw_addr(wb_csr_addr),
         .w_data(wb_csrw_data),
         .csr_write_en(wb_csr_out_en),
-        .csr_out(csr_data),
-
-        // 片外内存获取通道
-        .offchip_mem_data(offchip_mem_data),
-        .offchip_mem_ready(offchip_mem_ready),
-        .offchip_mem_wdata(offchip_mem_wdata),
-        .offchip_mem_write_en(offchip_mem_write_en),
-        .offchip_mem_read_en(offchip_mem_read_en),
-        .offchip_mem_addr(offchip_mem_addr)
+        .csr_out(csr_data)
     );
 
     inst_fetch inst_fetch(
@@ -292,10 +279,6 @@ module cpu_pipeline(
     reg ex_mem_write_en;
     reg ex_mem_read_en;
     reg [1:0] ex_mem_byte_size;
-
-    wire [11:0] wb_csr_addr;
-    wire wb_csr_out_en;
-    wire [`MAX_BIT_POS:0] wb_csrw_data;
 
     reg [4:0] wb_rd_last;
     reg wb_rd_en_last;
