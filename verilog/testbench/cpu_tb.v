@@ -15,17 +15,17 @@ module cpu_tb;
     output wire offchip_mem_read_en;
     output wire [`MAX_BIT_POS:0] offchip_mem_addr;
 
-    cpu_pipeline cpu_pipeline(
-        .clk(clk),
-        .rst(rst),
-        .clk_timer(clk_timer),
-        .offchip_mem_data(offchip_mem_data),
-        .offchip_mem_ready(offchip_mem_ready),
-        .offchip_mem_wdata(offchip_mem_wdata),
-        .offchip_mem_write_en(offchip_mem_write_en),
-        .offchip_mem_read_en(offchip_mem_read_en),
-        .offchip_mem_addr(offchip_mem_addr)
-    );
+    // cpu_pipeline cpu_pipeline(
+    //     .clk(clk),
+    //     .rst(rst),
+    //     .clk_timer(clk_timer),
+    //     .offchip_mem_data(offchip_mem_data),
+    //     .offchip_mem_ready(offchip_mem_ready),
+    //     .offchip_mem_wdata(offchip_mem_wdata),
+    //     .offchip_mem_write_en(offchip_mem_write_en),
+    //     .offchip_mem_read_en(offchip_mem_read_en),
+    //     .offchip_mem_addr(offchip_mem_addr)
+    // );
 
     reg [7:0] memory [0:255];  // 假设要加载 256 个字节的内容
     integer i;

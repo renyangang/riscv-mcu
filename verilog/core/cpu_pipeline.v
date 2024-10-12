@@ -26,35 +26,52 @@
 module cpu_pipeline(
     input wire clk,
     input wire rst,
-    input wire clk_timer
-);
 
-    wire read_en;
-    wire [`MAX_BIT_POS:0] mem_addr;
-    wire [`MAX_BIT_POS:0] rdata;
-    wire write_en;
-    wire [`MAX_BIT_POS:0] wdata;
-    wire [1:0] byte_size;
-    wire mem_busy;
-    wire mem_ready;
+    output wire read_en,
+    output wire [`MAX_BIT_POS:0] mem_addr,
+    input wire [`MAX_BIT_POS:0] rdata,
+    output wire write_en,
+    output wire [`MAX_BIT_POS:0] wdata,
+    output wire [1:0] byte_size,
+    output wire mem_busy,
+    input wire mem_ready,
 
     // interrupts and exceptions
-    reg [`MAX_BIT_POS:0]pc_cur;
-    reg [`MAX_BIT_POS:0]pc_next;
-    reg [`MAX_BIT_POS:0]inst_cur_ex;
-    reg [`MAX_BIT_POS:0]exception_code;
-    reg exception_en;
-    wire [`MAX_BIT_POS:0] int_jmp_pc;
-    wire int_jmp_en;
+    output reg [`MAX_BIT_POS:0]pc_cur,
+    output reg [`MAX_BIT_POS:0]pc_next,
+    output reg [`MAX_BIT_POS:0]inst_cur_ex,
+    output reg [`MAX_BIT_POS:0]exception_code,
+    output reg exception_en,
+    input wire [`MAX_BIT_POS:0] int_jmp_pc,
+    input wire int_jmp_en,
 
     // csr operations
-    reg [11:0] csr_read_addr;
-    wire [`MAX_BIT_POS:0] csr_data;
-    wire [11:0] wb_csr_addr;
-    wire wb_csr_out_en;
-    wire [`MAX_BIT_POS:0] wb_csrw_data;
+    output reg [11:0] csr_read_addr,
+    input wire [`MAX_BIT_POS:0] csr_data,
+    output wire [11:0] wb_csr_addr,
+    output wire wb_csr_out_en,
+    output wire [`MAX_BIT_POS:0] wb_csrw_data,
 
-    
+    // fetch
+    output wire inst_read_en,
+    output wire [`MAX_BIT_POS:0] cur_inst_addr,
+    output wire [`MAX_BIT_POS:0] next_inst_addr,
+    output wire inst_ready,
+    output reg [`MAX_BIT_POS:0] jmp_pc,
+    output reg jmp_en,
+    output wire fetch_en,
+    input wire [`MAX_BIT_POS:0] inst_data,
+    input wire inst_mem_ready,
+
+    output wire [`MAX_BIT_POS:0] id_ex_pc_cur_out,
+    output wire [`MAX_BIT_POS:0] id_ex_pc_next_out,
+    output wire [`MAX_BIT_POS:0] id_ex_cur_inst_code_out
+);
+
+    // fetch
+    wire [`MAX_BIT_POS:0] inst_code;
+    wire fetch_hazard;
+    wire b_n_jmp; // 用于标记未达成跳转条件的指令
 
     // branch instuctions
     wire [`MAX_BIT_POS:0] branch_pc_next_out;
@@ -64,20 +81,6 @@ module cpu_pipeline(
     wire branch_rd_out_en;
     reg cur_branch_hazard; // 标识当前是否正在执行跳转指令，如果是，中断等处理就需要等待结果
 
-    // fetch
-    wire inst_read_en;
-    wire [`MAX_BIT_POS:0] cur_inst_addr;
-    wire [`MAX_BIT_POS:0] next_inst_addr;
-    wire [`MAX_BIT_POS:0] inst_code;
-    wire inst_ready;
-    reg [`MAX_BIT_POS:0] jmp_pc;
-    reg jmp_en;
-    wire fetch_en;
-    wire [`MAX_BIT_POS:0] inst_data;
-    wire inst_mem_ready;
-    wire fetch_hazard;
-    wire b_n_jmp; // 用于标记未达成跳转条件的指令
-
     // decode
     reg decoder_en;
     wire [47:0] inst_decode_out;
@@ -86,37 +89,7 @@ module cpu_pipeline(
     // memory instructions
     wire inst_mem_busy; // 访存指令忙
 
-     sys_bus sys_bus(
-        .clk(clk),
-        .rst(rst),
-        .inst_read_en(inst_read_en),       
-        .inst_read_addr(cur_inst_addr),
-        .inst_rdata(inst_data),
-        .inst_read_ready(inst_mem_ready),
-        .read_en(read_en),       
-        .mem_addr(mem_addr),
-        .rdata(rdata),
-        .write_en(write_en),
-        .wdata(wdata),     
-        .byte_size(byte_size),
-        .mem_busy(mem_busy),
-        .mem_ready(mem_ready),
-        .pc(id_ex_pc_cur),
-        .pc_next(id_ex_pc_next),
-        .inst_cur(id_ex_cur_inst_code),
-        .exception_code(exception_code),
-        .cur_branch_hazard(cur_branch_hazard),
-        .exception_en(exception_en),
-        .jmp_en(int_jmp_en),
-        .jmp_pc(int_jmp_pc),
-        .clk_timer(clk_timer),
-        
-        .csr_read_addr(csr_read_addr),
-        .csrw_addr(wb_csr_addr),
-        .w_data(wb_csrw_data),
-        .csr_write_en(wb_csr_out_en),
-        .csr_out(csr_data)
-    );
+    
 
     inst_fetch inst_fetch(
         .clk(clk),
@@ -260,8 +233,6 @@ module cpu_pipeline(
 
 
     reg id_ex_control_hazard;
-    reg [`MAX_BIT_POS:0] id_ex_pc_cur;
-    reg [`MAX_BIT_POS:0] id_ex_pc_next;
     reg [47:0] id_ex_inst_flags;
     reg [4:0] id_ex_rd;
     reg [4:0] id_ex_rs1;
@@ -269,7 +240,10 @@ module cpu_pipeline(
     reg [`MAX_BIT_POS:0] id_ex_rs1_data;
     reg [`MAX_BIT_POS:0] id_ex_rs2_data;
     reg [19:0] id_ex_imm_1231;
+    reg [`MAX_BIT_POS:0] id_ex_pc_cur;
+    reg [`MAX_BIT_POS:0] id_ex_pc_next;
     reg [`MAX_BIT_POS:0] id_ex_cur_inst_code;
+    
 
     reg [`MAX_BIT_POS:0] ex_mem_addr;
     reg [`MAX_BIT_POS:0] ex_mem_data;
@@ -292,6 +266,10 @@ module cpu_pipeline(
     wire pipe_flush; // 流水线冲刷标记
     reg ex_stop; // 执行停止标记
     reg rs1_forward, rs2_forward, rs1_forward_last, rs2_forward_last;  // 寄存器数据旁路标记
+
+    assign id_ex_pc_cur_out = id_ex_pc_cur;
+    assign id_ex_pc_next_out = id_ex_pc_next;
+    assign id_ex_inst_code_out = id_ex_cur_inst_code;
 
     task check_data_hazard(
         input check_rs1, check_rs2, check_rd,
@@ -494,7 +472,7 @@ module cpu_pipeline(
         end
     end
 
-    always @(posedge clk or negedge rst) begin
+    always @(negedge rst) begin
         if (!rst) begin
             jmp_en <= 1'd0;
             decoder_en <= 1'd1;
@@ -520,6 +498,19 @@ module cpu_pipeline(
             id_ex_rs2_data <= 32'd0;
             id_ex_imm_1231 <= 20'd0;
             id_ex_cur_inst_code <= 32'd0;
+
+            exception_en <= 1'b0;
+        end
+    end
+
+    always @(invalid_instruction) begin
+        if (invalid_instruction) begin
+            exception_en = 1'b1;
+            exception_code = `EXCEPT_ILLEGAL_INSTR;
+        end
+        else begin
+            exception_en = 1'b0;
+            exception_code = `XLEN'd0;
         end
     end
 

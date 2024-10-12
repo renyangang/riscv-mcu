@@ -27,7 +27,7 @@
     // 中断信号
     input [`MAX_BIT_POS:0] pc,
     input [`MAX_BIT_POS:0] pc_next,
-    input [`MAX_BIT_POS:0] inst_cur, //当前指令
+    input [`MAX_BIT_POS:0] exp_val, //异常数据值
     input [`MAX_BIT_POS:0] exception_code,
     input exception_en,
     input cur_branch_hazard,
@@ -42,6 +42,8 @@
     input wire clk_timer,
     input wire [`MAX_BIT_POS:0] mtimecmp_low,
     input wire [`MAX_BIT_POS:0] mtimecmp_high,
+    input wire set_mtimecmp_low,
+    input wire set_mtimecmp_high,
     output wire [`MAX_BIT_POS:0] mtime_low,
     output wire [`MAX_BIT_POS:0] mtime_high,
 
@@ -115,22 +117,38 @@
         end
     end
 
-    always @(posedge clk or negedge rst) begin
+    always @(posedge set_mtimecmp_low or posedge set_mtimecmp_high) begin
+        if (set_mtimecmp_low) begin
+            mtimecmp[31:0] <= mtimecmp_low;
+        end
+        else if (set_mtimecmp_high) begin
+            mtimecmp[63:32] <= mtimecmp_high;
+        end
+    end
+
+    always @(posedge clk_timer or negedge rst) begin
         if (!rst) begin
-            jmp_en <= 1'b0;
             mtime <= 64'd0;
             mtimecmp <= ~64'd0;
         end
         else begin
             mtime <= mtime + 64'd1;
             mip[7] <= (mtime >= mtimecmp) ? 1'b1 : 1'b0;
+        end
+    end
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            jmp_en <= 1'b0;
+        end
+        else begin
             if (exp_en && !cur_branch_hazard) begin
                 mstatus <= {mstatus[31:8],mstatus[3],mstatus[6:4],1'b0,mstatus[2:0]};
                 jmp_en <= 1'b1;
                 if (exception_en) begin
                     mcause <= exception_code;
                     mepc <= pc;
-                    mtval <= inst_cur;
+                    mtval <= exp_val;
                     jmp_pc <= {mtvec[31:2],2'b00};
                 end
                 else begin

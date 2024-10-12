@@ -132,18 +132,18 @@ module ex_mem(
                         mem_read_set();
                     end
                     else if (inst_sb) begin
-                        mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
+                        mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031[11:5],rd};
                         mem_data <= {24'd0, rs2_data[7:0]};
                         byte_size <= 2'd1;
                     end
                     else if (inst_sh) begin
-                        mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
+                        mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031[11:5],rd};
                         mem_data <= {16'd0, rs2_data[15:0]};
                         byte_size <= 2'd2;
                         mem_write_set();
                     end
                     else if (inst_sw) begin
-                        mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031};
+                        mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031[11:5],rd};
                         mem_data <= rs2_data;
                         byte_size <= 2'd0;
                         mem_write_set();

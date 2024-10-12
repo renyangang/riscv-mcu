@@ -31,7 +31,7 @@ module digital_ram(
     output reg mem_io_ready,
 
     //digital外部接口
-    output wire digital_mem_addr,
+    output wire [`MAX_BIT_POS:0] digital_mem_addr,
     output reg digital_mem_write_en,
     output reg digital_mem_read_en,
     output reg [3:0] digital_mem_byte_size,

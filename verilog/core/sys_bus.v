@@ -22,6 +22,7 @@
 `define CUR_IDLE 2'b00
 `define CUR_CACHE 2'b01
 `define CUR_PERIPHERALS 2'b10
+`define CUR_TIMER 2'b11
 `define S_IDLE 2'b00
 `define S_WAIT_PERIO 2'b01
 `define S_READ_CACHE_LOAD_DATA 2'b10
@@ -62,81 +63,42 @@ module sys_bus(
     input wire csr_write_en,
     output wire [`MAX_BIT_POS:0] csr_out,
 
-    output wire  digital_flash_addr,
-    output wire  digital_flash_write_en,
-    output wire  digital_flash_read_en,
-    output wire  [2:0] digital_flash_byte_size,
-    output wire  [7:0] digital_flash_wdata,
-    output wire [7:0] digital_flash_data,
-    output wire  digital_mem_addr,
-    output wire  digital_mem_write_en,
-    output wire  digital_mem_read_en,
-    output wire  [3:0] digital_mem_byte_size,
-    output wire  [`MAX_BIT_POS:0] digital_mem_wdata,
-    output wire [`MAX_BIT_POS:0] digital_mem_data,
-    output wire [`GPIO_NUMS-1:0] gpio_values
+    output reg [`MAX_BIT_POS:0] io_addr,
+    output reg io_read,
+    output reg io_write,
+    output reg burst,
+    output reg [2:0] burst_size,
+    output reg read_ready,
+    output reg [`MAX_BIT_POS:0] io_wdata,
+    output reg [1:0] io_byte_size,
+    input wire  [`MAX_BIT_POS:0] io_rdata,
+    input wire  io_ready,
+    input wire [`INT_CODE_WIDTH-1:0]peripheral_int_code
 );
-
-    reg [`MAX_BIT_POS:0] io_addr;
-    reg io_read;
-    reg io_write;
-    reg burst;
-    reg [2:0] burst_size;
-    reg read_ready;
-    reg [`MAX_BIT_POS:0] io_wdata;
-    reg [1:0] io_byte_size;
-    wire  [`MAX_BIT_POS:0] io_rdata;
-    wire  io_ready;
-    wire [`INT_CODE_WIDTH-1:0]peripheral_int_code;
-
-    peripherals_bus peripherals_bus(
-        .pclk(clk),
-        .rst_n(rst),
-        .io_addr(io_addr),
-        .io_read(io_read),
-        .io_write(io_write),
-        .burst(burst),
-        .burst_size(burst_size),
-        .read_ready(read_ready),
-        .io_wdata(io_wdata),
-        .io_byte_size(io_byte_size),
-        .io_rdata(io_rdata),
-        .io_ready(io_ready),
-        .digital_flash_addr(digital_flash_addr),
-        .digital_flash_write_en(digital_flash_write_en),
-        .digital_flash_read_en(digital_flash_read_en),
-        .digital_flash_byte_size(digital_flash_byte_size),
-        .digital_flash_wdata(digital_flash_wdata),
-        .digital_flash_data(digital_flash_data),
-        .digital_mem_addr(digital_mem_addr),
-        .digital_mem_write_en(digital_mem_write_en),
-        .digital_mem_read_en(digital_mem_read_en),
-        .digital_mem_byte_size(digital_mem_byte_size),
-        .digital_mem_wdata(digital_mem_wdata),
-        .digital_mem_data(digital_mem_data),
-        .gpio_values(gpio_values),
-        .peripheral_int_code(peripheral_int_code)
-    );
 
     wire offchip_mem_read_busy;
     wire offchip_mem_write_busy;
 
     // 指令cache读取部分
-    reg         inst_read_en_icache;      
+    reg  inst_read_en_icache;      
     reg  [`MAX_BIT_POS:0] inst_read_addr_icache;
     wire [`MAX_BIT_POS:0] inst_rdata_icache;
-    wire    inst_read_ready_icache;
+    wire inst_read_ready_icache;
+    reg  inst_addr_exception;
 
     reg [1:0] inst_cur_from; // 指令来源，0表示来自指令cache，1表示来自flash
 
-    assign inst_read_ready = (inst_cur_from == `CUR_CACHE) ? inst_read_ready_icache : 1'b0;
+    assign inst_read_ready = (inst_cur_from == `CUR_CACHE && !inst_addr_exception) ? inst_read_ready_icache : 1'b0;
     assign inst_rdata = (inst_cur_from == `CUR_CACHE) ? inst_rdata_icache : 32'd0;
 
     always @(posedge inst_read_en or inst_read_addr) begin
-        // TODO 需要判断指令地址，决定从哪里读取，目前只有缓存
-        inst_read_en_icache = inst_read_en;
-        inst_read_addr_icache = inst_read_addr;
-        inst_cur_from = `CUR_CACHE;
+        // 低两位不为0，指令地址非对齐异常
+        inst_addr_exception = |(inst_read_addr[1:0]);
+        if (!inst_addr_exception) begin
+            inst_read_en_icache = inst_read_en;
+            inst_read_addr_icache = inst_read_addr;
+            inst_cur_from = `CUR_CACHE;
+        end
     end
 
     // 数据cache读取部分
@@ -157,14 +119,17 @@ module sys_bus(
     reg [$clog2(`CACHE_LINE_SIZE/(`XLEN/8))-1:0] offchip_mem_byte_counter;
 
     reg [1:0] d_cur_from; // 指令来源，1表示来自cache，2表示来自外设
-
     reg [1:0] d_status;
+    reg d_time_write_status;
+    reg [`MAX_BIT_POS:0] mtime_rdata;
+    reg mtime_ready;
+    reg pending_mem_op;
 
-    assign mem_ready = (d_cur_from == `CUR_CACHE) ? d_mem_ready_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_ready : 1'b0;
-    assign rdata = (d_cur_from == `CUR_CACHE) ? d_rdata_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_rdata : 32'd0;
+    assign mem_ready = (d_cur_from == `CUR_CACHE) ? d_mem_ready_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_ready : (d_cur_from == `CUR_TIMER) ? mtime_ready : 1'b0;
+    assign rdata = (d_cur_from == `CUR_CACHE) ? d_rdata_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_rdata : (d_cur_from == `CUR_TIMER) ? mtime_rdata : 32'd0;
     assign d_byte_size_dcache = byte_size;
 
-    always @(offchip_mem_write_en or offchip_mem_write_en) begin
+    always @(offchip_mem_read_en or offchip_mem_write_en or offchip_mem_addr) begin
         offchip_mem_byte_counter = 0;
         offchip_mem_ready = 1'b0;
         if ((offchip_mem_write_en || offchip_mem_read_en) && d_status == `S_IDLE) begin
@@ -178,26 +143,33 @@ module sys_bus(
     end
 
     always @(posedge read_en or mem_addr or posedge write_en) begin
-        if (mem_addr >= `SDRAM_ADDR_BASE && mem_addr <= `SDRAM_ADDR_END) begin
-            // RAM从cache读取
-            d_read_en_dcache = read_en;
-            d_mem_addr_dcache = mem_addr;
-            d_cur_from = `CUR_CACHE;
-            d_write_en_dcache = write_en;
-            d_wdata_dcache = wdata;
-            io_byte_size = 2'd0;
-        end
-        else if (!offchip_mem_read_busy && !offchip_mem_write_busy) begin
-            d_cur_from = `CUR_PERIPHERALS;
-            io_read = read_en;
-            io_write = write_en;
-            io_addr = mem_addr;
-            io_wdata = wdata;
-            io_byte_size = byte_size;
-            d_status <= `S_PERIO_BUSY;
-        end
-        else begin
-            d_status <= `S_WAIT_PERIO;
+        if (rst) begin
+            if (mem_addr >= `SDRAM_ADDR_BASE && mem_addr <= `SDRAM_ADDR_END) begin
+                // RAM从cache读取
+                d_read_en_dcache = read_en;
+                d_mem_addr_dcache = mem_addr;
+                d_cur_from = `CUR_CACHE;
+                d_write_en_dcache = write_en;
+                d_wdata_dcache = wdata;
+                io_byte_size = 2'd0;
+            end
+            else if (mem_addr >= `TIMER_ADDR_BASE && mem_addr <= `TIMER_ADDR_END) begin
+                // 时间相关寄存器读写
+                d_cur_from = `CUR_TIMER;
+                time_operation();
+            end
+            else if (!offchip_mem_read_busy && !offchip_mem_write_busy) begin
+                d_cur_from = `CUR_PERIPHERALS;
+                io_read = read_en;
+                io_write = write_en;
+                io_addr = mem_addr;
+                io_wdata = wdata;
+                io_byte_size = byte_size;
+                d_status = `S_PERIO_BUSY;
+            end
+            else begin
+                pending_mem_op = 1'b1;
+            end
         end
     end
 
@@ -208,6 +180,9 @@ module sys_bus(
             d_write_en_dcache <= 1'd0;
             d_cur_from <= `CUR_IDLE;
             d_status <= `S_IDLE;
+            d_time_write_status <= 1'd0;
+            offchip_mem_data <= 0;
+            pending_mem_op <= 1'b0;
         end
         else if ((offchip_mem_write_en || offchip_mem_read_en) && d_status == `S_IDLE && !offchip_mem_ready) begin
             io_read <= offchip_mem_read_en;
@@ -221,10 +196,11 @@ module sys_bus(
         end
         else if (d_status == `S_READ_CACHE_LOAD_DATA) begin
             if (io_ready) begin
-                offchip_mem_data[offchip_mem_byte_counter*8+:8] = io_rdata[7:0];
+                offchip_mem_data[offchip_mem_byte_counter*32+:32] = io_rdata;
                 if (offchip_mem_byte_counter == `CACHE_LINE_SIZE/(`XLEN/8)-1) begin
                     d_status <= `S_IDLE;
                     offchip_mem_ready <= 1'b1;
+                    offchip_mem_byte_counter <= 0;
                 end
                 else begin
                     io_addr <= io_addr + 4;
@@ -232,7 +208,7 @@ module sys_bus(
                 end
             end
         end
-        else if (d_status == `S_WAIT_PERIO && !offchip_mem_read_busy && !offchip_mem_write_busy) begin
+        else if (pending_mem_op && d_status == `S_IDLE && !offchip_mem_read_busy && !offchip_mem_write_busy) begin
             io_read <= read_en;
             io_write <= write_en;
             io_addr <= mem_addr;
@@ -240,10 +216,21 @@ module sys_bus(
             io_byte_size <= byte_size;
             d_cur_from = `CUR_PERIPHERALS;
             d_status <= `S_PERIO_BUSY;
+            pending_mem_op <= 1'b0;
         end
         else if (d_cur_from == `CUR_PERIPHERALS && io_ready) begin
             d_cur_from <= `CUR_IDLE;
             d_status <= `S_IDLE;
+            io_read <= 1'b0;
+            io_write <= 1'b0;
+        end
+        else if (d_time_write_status) begin
+            mtime_ready <= 1'b1;
+            if (mtime_ready) begin
+                d_time_write_status <= 1'b0;
+                mtime_ready <= 1'b0;
+                d_cur_from <= `CUR_IDLE;
+            end
         end
     end
 
@@ -282,16 +269,88 @@ module sys_bus(
     reg [`MAX_BIT_POS:0] mtimecmp_high;
     wire [`MAX_BIT_POS:0] mtime_low;
     wire [`MAX_BIT_POS:0] mtime_high;
+    reg set_mtimecmp_low;
+    reg set_mtimecmp_high;
+    wire [3:0]time_addr_offset;
     wire [`INT_CODE_WIDTH-1:0] cur_int_code;
+
+    assign time_addr_offset = mem_addr[3:0];
+
+    task time_operation();
+        case (time_addr_offset)
+            4'd0: begin
+                // 实时时钟低位，只支持读取
+                if (read_en) begin
+                    mtime_rdata = mtime_low;
+                    mtime_ready = 1'b1;
+                end
+            end
+            4'd4: begin
+                if (read_en) begin
+                    mtime_rdata = mtime_high;
+                    mtime_ready = 1'b1;
+                end
+            end
+            4'd8: begin
+                // mtimecmp 低位，只支持写
+                if (write_en) begin
+                    mtimecmp_low = wdata;
+                    set_mtimecmp_low = 1'b1;
+                    d_time_write_status = 1'b1;
+                end
+            end
+            4'd12: begin
+                if (write_en) begin
+                    mtimecmp_high = wdata;
+                    set_mtimecmp_high = 1'b1;
+                    d_time_write_status = 1'b1;
+                end
+            end
+            default: begin
+                // do nothing
+            end
+        endcase
+    endtask
+
+
+    reg [`MAX_BIT_POS:0] exp_val;
+    reg sys_exception_en;
+    reg [`MAX_BIT_POS:0] sys_exception_code;
+
+    always @(negedge rst) begin
+        if (!rst) begin
+            sys_exception_en <= 1'b0;
+            sys_exception_code <= 0;
+        end
+    end
+
+    always @(exception_en or inst_addr_exception) begin
+        if (rst) begin
+            if (exception_en) begin
+                sys_exception_en <= 1'b1;
+                sys_exception_code <= exception_code;
+                exp_val <= pc;
+            end
+            else if (inst_addr_exception) begin
+                sys_exception_en <= 1'b1;
+                sys_exception_code <= `EXCEPT_NONALIGNED_INST_ADDR;
+                exp_val <= inst_read_addr;
+            end
+            else begin
+                sys_exception_en <= 1'b0;
+                sys_exception_code <= 0;
+            end
+        end
+    end
 
     registers_csr registers_csr(
         .clk(clk),
         .rst(rst),
         .pc(pc),
         .pc_next(pc_next),
-        .inst_cur(inst_cur),
-        .exception_code(exception_code),
-        .exception_en(exception_en),
+        .exp_val(exp_val),
+        .exception_code(sys_exception_code),
+        .exception_en(sys_exception_en),
         .cur_branch_hazard(cur_branch_hazard),
         .peripheral_int_code(peripheral_int_code),
         .soft_int_code(soft_int_code),

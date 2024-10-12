@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>2</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>External</elementName>
+      <elementAttributes>
+        <entry>
+          <string>applicationType</string>
+          <appType>IVERILOG</appType>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>riscvmcu</string>
+        </entry>
+        <entry>
+          <string>externalInputs</string>
+          <string>clk,rst,clk_timer,digital_mem_data:32,digital_flash_data:8</string>
+        </entry>
+        <entry>
+          <string>Width</string>
+          <int>20</int>
+        </entry>
+        <entry>
+          <string>externalOutputs</string>
+          <string>digital_flash_addr:32,digital_flash_write_en,digital_flash_read_en,digital_flash_byte_size:3,digital_flash_wdata:8,digital_mem_addr:32,digital_mem_write_en,digital_mem_read_en,digital_mem_byte_size:4,digital_mem_wdata:32,gpio_values:32</string>
+        </entry>
+        <entry>
+          <string>Code</string>
+          <string>`include &quot;digital_soc.v&quot;
+module riscvmcu(
+	input  wire        clk,           // 时钟信号
+    input  wire        rst,           // 复位信号
+    input  wire        clk_timer,
+
+    output wire  [31:0] digital_flash_addr,
+    output wire  digital_flash_write_en,
+    output wire  digital_flash_read_en,
+    output wire  [2:0] digital_flash_byte_size,
+    output wire  [7:0] digital_flash_wdata,
+    input wire   [7:0] digital_flash_data,
+    output wire  [31:0] digital_mem_addr,
+    output wire  digital_mem_write_en,
+    output wire  digital_mem_read_en,
+    output wire  [3:0] digital_mem_byte_size,
+    output wire  [31:0] digital_mem_wdata,
+    input wire [31:0] digital_mem_data,
+    inout wire [31:0] gpio_values
+);
+digital_soc digital_soc(
+    .clk(clk),
+    .rst(rst),
+    .clk_timer(clk_timer),
+    .digital_flash_addr(digital_flash_addr),
+    .digital_flash_write_en(digital_flash_write_en),
+    .digital_flash_read_en(digital_flash_read_en),
+    .digital_flash_byte_size(digital_flash_byte_size),
+    .digital_flash_wdata(digital_flash_wdata),
+    .digital_flash_data(digital_flash_data),
+    .digital_mem_addr(digital_mem_addr),
+    .digital_mem_write_en(digital_mem_write_en),
+    .digital_mem_read_en(digital_mem_read_en),
+    .digital_mem_byte_size(digital_mem_byte_size),
+    .digital_mem_wdata(digital_mem_wdata),
+    .digital_mem_data(digital_mem_data),
+    .gpio_values(gpio_values)
+);
+endmodule</string>
+        </entry>
+        <entry>
+          <string>iverilogOptions</string>
+          <string>-y D:\\work\\source\\linux\\cpu-v\\verilog -y D:\\work\\source\\linux\\cpu-v\\verilog\\core -y D:\\work\\source\\linux\\cpu-v\\verilog\\testbench -y D:\\work\\source\\linux\\cpu-v\\verilog\\peripherals\\digital -y D:\\work\\source\\linux\\cpu-v\\verilog\\verilog\\soc -y D:\\work\\source\\linux\\cpu-v\\verilog\\peripherals -I D:\\work\\source\\linux\\cpu-v\\verilog\\core -I D:\\work\\source\\linux\\cpu-v\\verilog\\soc</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Clock</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>C</string>
+        </entry>
+        <entry>
+          <string>Frequency</string>
+          <int>50000</int>
+        </entry>
+        <entry>
+          <string>runRealTime</string>
+          <boolean>true</boolean>
+        </entry>
+      </elementAttributes>
+      <pos x="400" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="400" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Reset</elementName>
+      <elementAttributes/>
+      <pos x="400" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>rst</string>
+        </entry>
+      </elementAttributes>
+      <pos x="400" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>rst</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Clock</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>timeclk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="400" y="160"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>clk_timer</string>
+        </entry>
+      </elementAttributes>
+      <pos x="400" y="160"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk_timer</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>RAMDualPort</elementName>
+      <elementAttributes>
+        <entry>
+          <string>AddrBits</string>
+          <int>24</int>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1380" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>mem_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1440" y="360"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>mem_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="240"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>flash_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1440" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>flash_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>EEPROMDualPort</elementName>
+      <elementAttributes>
+        <entry>
+          <string>AddrBits</string>
+          <int>24</int>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>8</int>
+        </entry>
+        <entry>
+          <string>Data</string>
+          <data>93,2,70,0,37,3,0,c0,23,20,53,0,93,2,70,0,23,22,53,0,13,0,0,0,6f
+,f0,df,ff,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0
+,1,0,0,0,1,0,0,0,1</data>
+        </entry>
+      </elementAttributes>
+      <pos x="1380" y="140"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1380" y="200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Splitter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Input Splitting</string>
+          <string>32</string>
+        </entry>
+        <entry>
+          <string>Output Splitting</string>
+          <string>24,8</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1280" y="60"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Splitter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Input Splitting</string>
+          <string>32</string>
+        </entry>
+        <entry>
+          <string>Output Splitting</string>
+          <string>24,8</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1280" y="300"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1380" y="380"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes/>
+      <pos x="1400" y="520"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>0</red>
+            <green>0</green>
+            <blue>255</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1400" y="580"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>255</red>
+            <green>255</green>
+            <blue>0</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1400" y="640"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Splitter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Input Splitting</string>
+          <string>32</string>
+        </entry>
+        <entry>
+          <string>Output Splitting</string>
+          <string>1,1,1,29</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1220" y="540"/>
+    </visualElement>
+    <visualElement>
+      <elementName>PolarityAwareLED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>0</red>
+            <green>255</green>
+            <blue>255</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1600" y="500"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Ground</elementName>
+      <elementAttributes/>
+      <pos x="1600" y="620"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="1260" y="160"/>
+      <p2 x="1380" y="160"/>
+    </wire>
+    <wire>
+      <p1 x="1360" y="320"/>
+      <p2 x="1380" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="320"/>
+      <p2 x="1180" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="1340" y="640"/>
+      <p2 x="1400" y="640"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="260"/>
+      <p2 x="1260" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="1360" y="580"/>
+      <p2 x="1400" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="580"/>
+      <p2 x="1340" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="200"/>
+      <p2 x="1280" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="360"/>
+      <p2 x="1260" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="1320" y="360"/>
+      <p2 x="1380" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="520"/>
+      <p2 x="1340" y="520"/>
+    </wire>
+    <wire>
+      <p1 x="1340" y="520"/>
+      <p2 x="1400" y="520"/>
+    </wire>
+    <wire>
+      <p1 x="1360" y="140"/>
+      <p2 x="1380" y="140"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="300"/>
+      <p2 x="1280" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="300"/>
+      <p2 x="1360" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="300"/>
+      <p2 x="1140" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="1340" y="460"/>
+      <p2 x="1600" y="460"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="400"/>
+      <p2 x="1380" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="560"/>
+      <p2 x="1360" y="560"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="180"/>
+      <p2 x="1240" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="1280" y="180"/>
+      <p2 x="1380" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="340"/>
+      <p2 x="1380" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="280"/>
+      <p2 x="1240" y="280"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="220"/>
+      <p2 x="1380" y="220"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="60"/>
+      <p2 x="1280" y="60"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="60"/>
+      <p2 x="1360" y="60"/>
+    </wire>
+    <wire>
+      <p1 x="1140" y="380"/>
+      <p2 x="1320" y="380"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="380"/>
+      <p2 x="1120" y="380"/>
+    </wire>
+    <wire>
+      <p1 x="1120" y="540"/>
+      <p2 x="1220" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="540"/>
+      <p2 x="1300" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="1280" y="180"/>
+      <p2 x="1280" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="1360" y="60"/>
+      <p2 x="1360" y="140"/>
+    </wire>
+    <wire>
+      <p1 x="1360" y="300"/>
+      <p2 x="1360" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="1360" y="560"/>
+      <p2 x="1360" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1120" y="380"/>
+      <p2 x="1120" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="1600" y="460"/>
+      <p2 x="1600" y="500"/>
+    </wire>
+    <wire>
+      <p1 x="1600" y="580"/>
+      <p2 x="1600" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="1140" y="300"/>
+      <p2 x="1140" y="380"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="520"/>
+      <p2 x="1300" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="60"/>
+      <p2 x="1240" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="280"/>
+      <p2 x="1240" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="1320" y="360"/>
+      <p2 x="1320" y="380"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="160"/>
+      <p2 x="1260" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="340"/>
+      <p2 x="1260" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="320"/>
+      <p2 x="1180" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="1340" y="580"/>
+      <p2 x="1340" y="640"/>
+    </wire>
+    <wire>
+      <p1 x="1340" y="460"/>
+      <p2 x="1340" y="520"/>
+    </wire>
+  </wires>
+  <measurementOrdering/>
+</circuit>

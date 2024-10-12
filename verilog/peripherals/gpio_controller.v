@@ -49,6 +49,7 @@ module gpio(
     always @(negedge rst_n or posedge clk) begin
         if (!rst_n) begin
             gpio_int_set <= `GPIO_NUMS'b0;
+            gpio_out <= `GPIO_NUMS'b0;
         end
         else begin
             gpio_int_set <= gpio_out ^ (gpio_values & (~gpio_ctrl));

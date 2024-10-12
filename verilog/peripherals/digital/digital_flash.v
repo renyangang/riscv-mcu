@@ -31,7 +31,7 @@ module digital_flash(
     output reg flash_io_ready,
 
     //digital外部接口
-    output reg digital_flash_addr,
+    output reg [`MAX_BIT_POS:0] digital_flash_addr,
     output reg digital_flash_write_en,
     output reg digital_flash_read_en,
     output reg [2:0] digital_flash_byte_size,

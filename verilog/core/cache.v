@@ -54,7 +54,7 @@ module cache_way (
     assign dirty_status = dirty[index];
     assign write_back_data = cs ? cache_data[index] : {`CACHE_LINE_WIDTH{1'bz}};
 
-    always @(addr) begin
+    always @(addr or load_enable or write_enable or byte_size or cs) begin
         case(byte_size)
             1: begin
                 rdata = cs ? {24'd0,cache_data[index][(offset*8) +: 8]} : 32'bz;
@@ -130,15 +130,18 @@ module cache_set(
     wire [`CACHE_WAYS-1:0] way_hit;
     reg [`CACHE_WAYS-1:0] way_cs [`CACHE_LINES-1:0];
     wire [`CACHE_WAYS-1:0] dirty_status;
-    reg [`CACHE_WAYS-1:0] write_cs [`CACHE_LINES-1:0];
-    reg [$clog2(`CACHE_WAYS)-1:0] cover_idx;
-    reg [$clog2(`CACHE_WAYS)-1:0] last_acc_idx;
+    reg [$clog2(`CACHE_WAYS)-1:0] evict_idx;
     wire [5:0] index;
-    reg found;
     assign index = addr[9:4];
     assign hit = (|way_hit);
 
     reg [1:0]status;
+
+    // 计算树的深度
+    localparam DEPTH = $clog2(`CACHE_WAYS);
+    // 存储每个节点的方向位
+    // 总节点数为 CACHE_WAYS -1
+    reg [`CACHE_WAYS-2:0] plru_bits;
 
 
     genvar i_way;
@@ -162,6 +165,7 @@ module cache_set(
         end
     endgenerate
 
+    integer i,j,d,bit_idx;
     task update_hitstatus();
         if (read_enable || write_enable) begin
             way_cs[index] = way_hit;
@@ -170,15 +174,33 @@ module cache_set(
                 // 常规读写命中时，更新
                 for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
                     if (way_hit[i]) begin
-                        write_cs[index][i] <= 1'b1;
-                        last_acc_idx <= i[$clog2(`CACHE_WAYS)-1:0];
+                        bit_idx = 0;
+                        for (d = DEPTH - 1; d >= 0; d = d - 1) begin
+                            plru_bits[bit_idx] = i[d];
+                            if (i[d]) begin
+                                bit_idx = bit_idx * 2 + 2;
+                            end
+                            else begin
+                                bit_idx = bit_idx * 2 + 1;
+                            end
+                        end
+                        bit_idx = 0;
+                        for (d = DEPTH - 1; d >= 0; d = d - 1) begin
+                            evict_idx[d] = ~plru_bits[bit_idx];
+                            if (evict_idx[d]) begin
+                                bit_idx = bit_idx * 2 + 2;
+                            end
+                            else begin
+                                bit_idx = bit_idx * 2 + 1;
+                            end
+                        end
                     end
                 end
             end
         end
     endtask
     
-    integer i,j,n;
+    
     
     always @(addr or posedge load_enable or posedge write_enable or posedge read_enable) begin
         save_ready = 1'b0;
@@ -192,30 +214,18 @@ module cache_set(
                 status_ready = 1'b0;
                 status = `S_ADDR;
             end
-            if (&write_cs[index]) begin
-                write_cs[index] = {`CACHE_WAYS{1'b0}};
-                write_cs[last_acc_idx] = 1;
-            end
-            found = 0;
-            for (i = 0; i < `CACHE_WAYS; i = i + 1) begin
-                if (!found && !write_cs[index][i]) begin
-                    cover_idx = i[$clog2(`CACHE_WAYS)-1:0];
-                    found = 1'b1;
-                end
-            end
         end
     end
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for(j=0;j<`CACHE_LINES;j=j+1) begin
-                write_cs[j] <= {`CACHE_WAYS{1'b0}};
                 way_cs[j] <=  {`CACHE_WAYS{1'b0}};
-                cover_idx <= 0;
             end
             status <= `S_IDLE;
             dirty <= 1'b0;
-            last_acc_idx <= 0;
+            plru_bits <= {(`CACHE_WAYS-1){1'b0}};
+            evict_idx <= 0;
             status_ready <= 1'b0;
         end
         else begin
@@ -226,8 +236,8 @@ module cache_set(
                         status <= `S_IDLE;
                     end
                     else begin
-                        way_cs[index][cover_idx] <= 1'b1;
-                        dirty <= dirty_status[cover_idx];
+                        way_cs[index][evict_idx] <= 1'b1;
+                        dirty <= dirty_status[evict_idx];
                         status <= `S_WRITELOAD;
                     end
                     status_ready <= 1'b1;
