@@ -59,6 +59,7 @@ make; python3 ./mkhex.py
      >地址：[riscv-gnu-toolchain](https://gitee.com/riscv-mcu/riscv-gnu-toolchain)
 
         ```
+        sudo apt-get install autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ninja-build  
         ./configure --prefix=/opt/riscv --with-arch=rv32gc --with-abi=ilp32d   
         make linux
         ```
