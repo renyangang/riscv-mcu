@@ -25,7 +25,7 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
 4.  点击运行仿真按钮
 
 #### 运行演示
-![image](doc/image/output.gif)
+![image](image/output.gif)
 
 仿真运行后，首先加载引导程序，引导程序存放在boot-rom中，引导程序将固件程序加载从program-rom加载到内存中，然后跳转到固件程序入口地址开始执行固件程序。
 
@@ -34,9 +34,9 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
 #### 硬件架构
 系统整体包含：指令取指总线、指令解码器、指令执行单元、存储器、异常中断处理单元、外设模块、内部数据总线等模块。
 
-![image](doc/image/arch.png)
+![image](image/arch.png)
 
-![image](doc/image/modules.png)
+![image](image/modules.png)
 
 * 指令取指总线
   > 包含指令初始指令地址、地址寄存器（PC）、指令寄存器（IR）、指令访存选择四个部分。  
@@ -46,12 +46,12 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
     指令访存选择为一系列选择电路，通过指令地址高位判断指令地址，本系统中指令地址只有0x80000000和0x02000000两个其实地址，高位字节为 0x80 从boot-rom中获取指令，高位字节为0x02 从ram中获取指令。
 
 * 指令解码器
-  ![image](doc/image/instruction-decoder.png)  
+  ![image](image/instruction-decoder.png)  
 
   > 包含指令译码器（ID）支持RISCV32I整数基础指令集译码，支持50条指令，输入电路为32位指令码，解析后分别输出逻辑与计算指令、跳转指令、csr访问指令、内存加载/写入指令、机器模式指令、自定义指令6个分类，并连线到各个对应的指令执行单元，通过不同的数据线电平表示具体的指令信息。同时提前建I R S J U B 6类指令格式的各个字段数据解析，并引出数据连线，后续执行单元可以直接读取。
 
 * 指令执行单元
-    ![image](doc/image/execution.png)
+    ![image](image/execution.png)
 
   > ALU逻辑与计算单元，实现and/or/add/sub/slli等指令。  
     跳转指令单元，实现jal/bne等指令。  
@@ -61,7 +61,7 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
     自定义指令单元，当前仅实现了一条指令0x8000007F，用于实现启动模式到正常执行模式转换。  
 
 * 存储器
-  ![image](doc/image/storage.png)  
+  ![image](image/storage.png)  
   
   > 通用寄存器，实现了x0 ~ x31 共32个通用寄存器。  
     内存模块，实现了32位宽的内存，支持读写操作，通过4个block片选组合的方式，实现了非对齐字节操作，可以在单周期内实现4字节及以下的任意读写指令。  
@@ -70,19 +70,19 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
     DMA， 实现了32位宽的内存，支持外设直接读写操作，支持非对齐字节操作。0xC0000000 为DMA的其实基地址。
 
 * 异常中断处理单元
-  ![image](doc/image/exception-int.png)  
+  ![image](image/exception-int.png)  
 
   > PLIC实现了一个定时器中断源，定制器使用一个独立的时钟，并提供统一的硬件外设中断管理。  
     异常中断处理模块实现了异常中断处理，包括异常码、异常类型、中断类型、中断号、中断优先级、中断使能、中断触发、中断屏蔽、中断挂起、中断返回地址等信号，异常优先级最高，硬件中断、软件中断、时钟中断 这样的优先级次序，不支持中断嵌套。
 
 * 外设模块
-  ![image](doc/image/peripheral.png)  
+  ![image](image/peripheral.png)  
 
   > GPIO 实现了包含10个gpio口的硬件外设，支持输入输出方式配置，支持输入硬件中断触发。  
     Uart 实现了一个串口外设，支持串口数据收发。 [详细说明](doc/uart_zh.md)
 
 * 内部数据总线
-  ![image](doc/image/data-bus.png)
+  ![image](image/data-bus.png)
 
   > 包含指令取指总线、指令解码器、指令执行单元、存储器、异常中断处理单元、外设模块等模块之间的数据传输总线。
 
@@ -199,4 +199,4 @@ RISC-V为当前活跃的开源指令集，具体参见 [RISC-V](https://riscv.or
   
   生成的kernel.hex ，可以在Digital工具中导入到program-rom中。  
 
-  ![image](doc/image/load-kernel.png)
+  ![image](image/load-kernel.png)

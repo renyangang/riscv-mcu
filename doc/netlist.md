@@ -23,7 +23,7 @@ RISC-V is a currently active open-source instruction set. For more information, 
 4.  Click the run simulation button.
 
 #### preview
-![image](doc/image/output.gif)
+![image](image/output.gif)
 
 After the simulation starts, the boot program is loaded first. The boot program is stored in the boot-rom, and the boot program loads the firmware from the program-rom into memory and then jumps to the firmware entry address to start executing the firmware.
 
@@ -32,9 +32,9 @@ The example firmware controls the LED light through GPIO, controls the blinking 
 #### Hardware Architecture
 The overall system includes modules such as instruction fetch bus, instruction decoder, instruction execution unit, memory, exception interrupt handling unit, peripheral modules, and internal data bus.  
 
-![image](doc/image/arch.png)
+![image](image/arch.png)
 
-![image](doc/image/modules.png)
+![image](image/modules.png)
 
 * Instruction Fetch Bus
   > Includes instruction initial address, address register (PC), instruction register (IR), and instruction memory access selection.   
@@ -44,12 +44,12 @@ The overall system includes modules such as instruction fetch bus, instruction d
     The instruction memory access selection is a series of selection circuits. The instruction address is judged by the high-order bytes of the instruction address. In this system, there are only two starting addresses for the instruction address: 0x80000000 and 0x02000000. If the high-order byte is 0x80, the instruction is obtained from the boot-rom; if the high-order byte is 0x02, the instruction is obtained from the RAM.  
 
 * Instruction Decoder
-  ![image](doc/image/instruction-decoder.png)  
+  ![image](image/instruction-decoder.png)  
 
   > Includes the instruction decoder (ID) that supports RISCV32I integer basic instruction set decoding, supports 50 instructions, and has a 32-bit instruction code input circuit. After parsing, it outputs logical and computational instructions, jump instructions, csr access instructions, memory load/write instructions, machine mode instructions, and custom instructions. It is connected to each corresponding instruction execution unit, and the specific instruction information is represented by different data line levels. At the same time, it pre-builds the I R S J U B instruction format field data parsing and leads out data connections. The subsequent execution unit can directly read.
 
 * Instruction Execution Unit
-    ![image](doc/image/execution.png)
+    ![image](image/execution.png)
 
   > ALU logical and computational unit, implements and/or/add/sub/slli instructions.  
     Jump instruction unit, implements jal/bne instructions.  
@@ -59,7 +59,7 @@ The overall system includes modules such as instruction fetch bus, instruction d
     Custom instruction unit, currently only implements one instruction 0x8000007F, used to implement the conversion from boot mode to normal execution mode.  
 
 * Storage
-  ![image](doc/image/storage.png)  
+  ![image](image/storage.png)  
   
   > General-purpose registers, implement 32 general-purpose registers x0 ~ x31. 
     Memory module, implements 32-bit wide memory, supports read and write operations, and implements non-aligned byte operations through 4-block selection combinations. It can implement any read and write instructions of 4 bytes and below in a single cycle.  
@@ -68,19 +68,19 @@ The overall system includes modules such as instruction fetch bus, instruction d
     DMA 32-bit wide memory, supports read and write operations, and implements non-aligned byte operations through 4-block selection combinations. base address is 0xC0000000.
 
 * Exception Interrupt Handling Unit
-  ![image](doc/image/exception-int.png)  
+  ![image](image/exception-int.png)  
 
   > PLIC implements a timer interrupt source, a custom clock, and provides a unified hardware peripheral interrupt management.  
     The exception interrupt handling module implements exception interrupt handling, including exception code, exception type, interrupt type, interrupt number, interrupt priority, interrupt enable, interrupt trigger, interrupt mask, interrupt pending, and interrupt return address signals. Exceptions have the highest priority, followed by hardware interrupts, software interrupts, and clock interrupts in priority order. Nested interrupts are not supported.
 
 * Peripherals
-  ![image](doc/image/gpio.png)  
+  ![image](image/gpio.png)  
 
   > GPIO implements a hardware peripheral with 10 gpio ports, supports input/output mode configuration, and supports input hardware interrupt triggering.  
   Uart implements a serial port peripheral, which supports serial port data receiving and sending. [Detailed Description] (doc/uart.md)
 
 * Internal Data Bus
-  ![image](doc/image/data-bus.png)
+  ![image](image/data-bus.png)
 
   > Includes the data transmission bus between the instruction fetch bus, instruction decoder, instruction execution unit, memory, exception interrupt handling unit, peripheral modules, and other modules.
 
@@ -194,4 +194,4 @@ The overall system includes modules such as instruction fetch bus, instruction d
   
   The generated kernel.hex can be imported into the program-rom in the Digital tool.  
 
-  ![image](doc/image/load-kernel.png)
+  ![image](image/load-kernel.png)
