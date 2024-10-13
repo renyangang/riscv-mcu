@@ -45,3 +45,22 @@ make; python3 ./mkhex.py
 
 * 在digital软件中，打开 digital_soc/digital/digital_soc.dig文件。 
 * 执行前，需要在 riscvmcu 组件上点击右键，然后在选项卡 中的 iverilog选项中，将依赖路径修改为本机对应的路径，然后保存关闭后运行。
+
+
+**4. 开发环境安装**
+
+  1. iverilog 安装：
+     >windows下安装，[下载连接](http://bleyer.org/icarus/)  
+     linux 下安装，[参考地址](https://steveicarus.github.io/iverilog/usage/installation.html)
+
+  2. digital软件安装： [下载链接](https://github.com/hneemann/Digital)
+
+  3. riscv编译工具链安装：
+     >地址：[riscv-gnu-toolchain](https://gitee.com/riscv-mcu/riscv-gnu-toolchain)
+
+        ```
+        ./configure --prefix=/opt/riscv --with-arch=rv32gc --with-abi=ilp32d   
+        make linux
+        ```
+
+  4. FPGA开发工具Quartus安装：[下载链接](https://www.intel.com/content/www/us/en/software-kit/825278/intel-quartus-prime-lite-edition-design-software-version-23-1-1-for-windows.html)

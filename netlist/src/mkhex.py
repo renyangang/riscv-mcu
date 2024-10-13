@@ -39,14 +39,14 @@ with open('./kernel.bin',mode='rb') as f:
 with open('./kernel.hex',mode='w') as f:
     f.write(kerneltext)
 
-with open('./test.bin',mode='rb') as f:
-    bts = f.read()
-    hexs = bts.hex(' ').split(' ')
-    i = 0
-    while i < len(hexs):
-        testtext += f'{hexs[i]}\n'
-        i += 1
+# with open('./test.bin',mode='rb') as f:
+#     bts = f.read()
+#     hexs = bts.hex(' ').split(' ')
+#     i = 0
+#     while i < len(hexs):
+#         testtext += f'{hexs[i]}\n'
+#         i += 1
     
-with open('../verilog/test.hex',mode='w') as f:
-    f.write(testtext)
+# with open('../verilog/test.hex',mode='w') as f:
+#     f.write(testtext)
     
