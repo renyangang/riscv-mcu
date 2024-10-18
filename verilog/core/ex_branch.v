@@ -55,7 +55,7 @@ module ex_branch(
 	assign inst_jal = inst_flags[7];
 	assign inst_auipc = inst_flags[8];
 
-    always @(inst_beq or inst_bge or inst_bgeu or inst_blt or inst_bltu or inst_bne or inst_jalr or inst_jal or inst_auipc) begin
+    always @(*) begin
         if (inst_beq) begin
             pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
             jmp_en = (rs1_data == rs2_data) ? 1'b1 : 1'b0;
@@ -93,7 +93,7 @@ module ex_branch(
             b_n_jmp = ~jmp_en;
         end
         else if (inst_jalr) begin
-            pc_next_out = (pc_cur + {{20{imm_2531[6]}}, imm_1231[19:8]});
+            pc_next_out = (rs1_data + {{20{imm_1231[19]}}, imm_1231[19:8]});
             pc_next_out[0] = 1'b0;
             jmp_en = 1'b1;
             rd_out = rd;

@@ -83,7 +83,7 @@ module mem_controller(
     reg inst_read_cache_en;
     wire inst_cache_load_en;
 
-    always @(inst_read_en or inst_load_en) begin
+    always @(*) begin
         inst_read_cache_en = inst_read_en & ~inst_load_en;
     end
 
@@ -164,12 +164,9 @@ module mem_controller(
     reg d_write_cache_en;
     wire d_cache_load_en;
 
-    always @(read_en or d_load_en) begin
+    always @(*) begin
         d_read_cache_en = read_en & ~d_load_en;
-    end
-
-    always @(write_en or d_load_en) begin
-        d_write_cache_en = read_en & ~d_load_en;
+        d_write_cache_en = write_en & ~d_load_en;
     end
 
     always @(mem_addr) begin

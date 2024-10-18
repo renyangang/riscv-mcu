@@ -288,10 +288,10 @@ module cpu_pipeline(
         end
         else begin
             if (check_rs1 || check_rs2 || check_rd) begin
-                rs1_forward = (rs1 == wb_rd && wb_rd_en);
-                rs1_forward_last = (rs1 == wb_rd_last && wb_rd_en_last);
-                rs2_forward = (rs2 == wb_rd && wb_rd_en);
-                rs2_forward_last = (rs2 == wb_rd_last && wb_rd_en_last);
+                rs1_forward = (rs1 != 5'd0 && rs1 == wb_rd && wb_rd_en);
+                rs1_forward_last = (rs1 != 5'd0 && rs1 == wb_rd_last && wb_rd_en_last);
+                rs2_forward = (rs2 != 5'd0 && rs2 == wb_rd && wb_rd_en);
+                rs2_forward_last = (rs2 != 5'd0 && rs2 == wb_rd_last && wb_rd_en_last);
             end
             else begin
                 rs1_forward = 1'b0;
@@ -378,10 +378,10 @@ module cpu_pipeline(
 
     // 控制冒险失败或者中断发生时，冲刷流水线
     assign pipe_flush = int_jmp_en | (branch_jmp_en & id_ex_control_hazard);
-    assign fetch_en = ~ex_stop;
+    assign fetch_en = ~(ex_stop | (mem_rd_en & wb_hazard));
     // assign decoder_en = ~ex_stop;
 
-    always @(inst_mem_busy or wb_rd_wait or mem_rd_out or inst_decode_out) begin
+    always @(inst_mem_busy or wb_rd_wait or mem_rd_out or inst_decode_out or wb_rd or rd or rs1 or rs2) begin
         check_inst(1'b1);
         if (inst_mem_busy & ~ex_stop) begin
             wb_hazard = 1'b1;

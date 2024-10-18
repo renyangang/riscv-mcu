@@ -19,10 +19,11 @@
 
  `include "config.v"
 
-`define CUR_IDLE 2'b00
-`define CUR_CACHE 2'b01
-`define CUR_PERIPHERALS 2'b10
-`define CUR_TIMER 2'b11
+`define CUR_IDLE 3'b000
+`define CUR_CACHE 3'b001
+`define CUR_PERIPHERALS 3'b010
+`define CUR_TIMER 3'b011
+`define CUR_INT 3'b100
 `define S_IDLE 2'b00
 `define S_WAIT_PERIO 2'b01
 `define S_READ_CACHE_LOAD_DATA 2'b10
@@ -118,15 +119,15 @@ module sys_bus(
     wire [`MAX_BIT_POS:0] offchip_mem_addr;
     reg [$clog2(`CACHE_LINE_SIZE/(`XLEN/8))-1:0] offchip_mem_byte_counter;
 
-    reg [1:0] d_cur_from; // 指令来源，1表示来自cache，2表示来自外设
+    reg [2:0] d_cur_from; // 指令来源
     reg [1:0] d_status;
     reg d_time_write_status;
     reg [`MAX_BIT_POS:0] mtime_rdata;
     reg mtime_ready;
     reg pending_mem_op;
 
-    assign mem_ready = (d_cur_from == `CUR_CACHE) ? d_mem_ready_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_ready : (d_cur_from == `CUR_TIMER) ? mtime_ready : 1'b0;
-    assign rdata = (d_cur_from == `CUR_CACHE) ? d_rdata_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_rdata : (d_cur_from == `CUR_TIMER) ? mtime_rdata : 32'd0;
+    assign mem_ready = (d_cur_from == `CUR_CACHE) ? d_mem_ready_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_ready : (d_cur_from == `CUR_TIMER) ? mtime_ready : (d_cur_from == `CUR_INT) ? int_data_ready : 1'b0;
+    assign rdata = (d_cur_from == `CUR_CACHE) ? d_rdata_dcache : (d_cur_from == `CUR_PERIPHERALS) ? io_rdata : (d_cur_from == `CUR_TIMER) ? mtime_rdata : (d_cur_from == `CUR_INT) ? int_code_rdata : 32'd0;
     assign d_byte_size_dcache = byte_size;
 
     always @(offchip_mem_read_en or offchip_mem_write_en or offchip_mem_addr) begin
@@ -157,6 +158,10 @@ module sys_bus(
                 // 时间相关寄存器读写
                 d_cur_from = `CUR_TIMER;
                 time_operation();
+            end
+            else if (mem_addr >= `INT_ADDR_BASE && mem_addr <= `INT_ADDR_END) begin
+                d_cur_from = `CUR_INT;
+                int_operation();
             end
             else if (!offchip_mem_read_busy && !offchip_mem_write_busy) begin
                 d_cur_from = `CUR_PERIPHERALS;
@@ -307,7 +312,26 @@ module sys_bus(
                 end
             end
             default: begin
-                // do nothing
+                mtime_ready = 1'b0;
+            end
+        endcase
+    endtask
+
+    // 中断信息访存操作
+    reg [`MAX_BIT_POS:0] int_code_rdata;
+    reg int_data_ready;
+    assign int_addr_offset = mem_addr[3:0]; 
+    task int_operation();
+        case (time_addr_offset)
+            4'd0: begin
+                // 当前的中断编号，只支持读取
+                if (read_en) begin
+                    int_code_rdata = cur_int_code;
+                    int_data_ready = 1'b1;
+                end
+            end
+            default: begin
+                int_data_ready = 1'b0;
             end
         endcase
     endtask
@@ -321,6 +345,9 @@ module sys_bus(
         if (!rst) begin
             sys_exception_en <= 1'b0;
             sys_exception_code <= 0;
+            int_data_ready <= 1'b0;
+            mtime_ready <= 1'b0;
+            int_code_rdata <= 0;
         end
     end
 

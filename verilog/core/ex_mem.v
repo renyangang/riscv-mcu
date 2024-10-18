@@ -82,7 +82,7 @@ module ex_mem(
         end
     endtask
 
-    always @(inst_flags or state) begin
+    always @(*) begin
         busy_flag = (((state == `IDLE) && (inst_flags[36:29] == 8'd0)) || state == `DONE) ? 1'b0 : 1'b1;
         rd_out = (state != `IDLE) ? rd_out : (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)? rd : 5'd0;
         wb_rd_wait = (state == `READ) ? 1'b1 : ((state == `IDLE) && (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)) ? 1'b1 : 1'b0;
@@ -135,6 +135,7 @@ module ex_mem(
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031[11:5],rd};
                         mem_data <= {24'd0, rs2_data[7:0]};
                         byte_size <= 2'd1;
+                        mem_write_set();
                     end
                     else if (inst_sh) begin
                         mem_addr <= rs1_data + {{20{imm_2031[11]}},imm_2031[11:5],rd};

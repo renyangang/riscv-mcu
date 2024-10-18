@@ -54,7 +54,7 @@ module cache_way (
     assign dirty_status = dirty[index];
     assign write_back_data = cs ? cache_data[index] : {`CACHE_LINE_WIDTH{1'bz}};
 
-    always @(addr or load_enable or write_enable or byte_size or cs) begin
+    always @(*) begin
         case(byte_size)
             1: begin
                 rdata = cs ? {24'd0,cache_data[index][(offset*8) +: 8]} : 32'bz;

@@ -39,22 +39,31 @@ module cpu_tb;
         .gpio_values(gpio_values)
     );
 
-    reg [7:0] memory [0:255];  // 假设要加载 256 个字节的内容
+    reg [7:0] flash [0:4000];
+    reg [7:0] memory [0:8000];
     integer i;
 
     initial begin
         // 读取 hex 文件
-        $readmemh("../digital_soc/src/test.hex", memory);
+        $readmemh("../digital_soc/src/test.hex", flash);
 
-        // // 打印每个字节以确保数据正确加载
-        // for (i = 0; i < 256; i = i + 1) begin
-        //     $display("memory[%0d] = %02x", i, memory[i]);
-        // end
+        for(i=0;i<8000;i=i+1) begin
+            memory[i] = 0;
+        end
+    end
+
+    always @(posedge digital_mem_write_en or digital_mem_addr or posedge digital_mem_read_en) begin
+        if (digital_mem_write_en) begin
+            memory[digital_mem_addr] = digital_mem_wdata;
+        end
+        if (digital_mem_read_en) begin
+            digital_mem_data = memory[digital_mem_addr];
+        end
     end
 
     always @(posedge digital_flash_read_en or digital_flash_addr) begin
         if (digital_flash_read_en) begin
-            digital_flash_data = memory[digital_flash_addr];
+            digital_flash_data = flash[digital_flash_addr];
         end
         // offchip_mem_ready = 1'd1;
         // #20;
@@ -66,19 +75,28 @@ module cpu_tb;
         $dumpvars; // dump all vars
     end
 
+    genvar idx;
+    generate
+        for (idx = 0; idx < `GPIO_NUMS; idx = idx + 1) begin
+            pulldown(gpio_values[idx]);
+        end
+    endgenerate
+
     initial begin
         clk = 0;
         rst = 0;
         clk_timer = 0;
+        
+        
         // offchip_mem_ready = 0;
         #10 rst = 1;
         
-        #2500;
-        $finish;
+        #25000;
+        // $finish;
     end
 
     always #5 clk = ~clk;
-    always #100 clk_timer = ~clk_timer;
+    always #20 clk_timer = ~clk_timer;
 
 
 endmodule

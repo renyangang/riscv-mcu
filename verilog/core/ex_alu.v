@@ -111,8 +111,12 @@ always @(*) begin
         rd_data = rs1_data ^ {{20{imm_2031[11]}}, imm_2031};
         out_en = 1'b1;
     end
-    else if (inst_slli || inst_sll) begin
+    else if (inst_slli) begin
         rd_data = rs1_data << {imm_2031[4:0]};
+        out_en = 1'b1;
+    end
+    else if (inst_sll) begin
+        rd_data = rs1_data << {rs2_data[4:0]};
         out_en = 1'b1;
     end
     else if (inst_slti) begin
@@ -123,12 +127,20 @@ always @(*) begin
         rd_data = (rs1_data < {20'b0, imm_2031}) ? 32'd1 : 32'b0;
         out_en = 1'b1;
     end
-    else if (inst_srai || inst_sra) begin
+    else if (inst_srai) begin
         rd_data = rs1_data >>> imm_2031[4:0];
         out_en = 1'b1;
     end
-    else if (inst_srli || inst_srl) begin
+    else if (inst_sra)  begin
+        rd_data = rs1_data >>> rs2_data[4:0];
+        out_en = 1'b1;
+    end
+    else if (inst_srli) begin
         rd_data = rs1_data >> imm_2031[4:0];
+        out_en = 1'b1;
+    end
+    else if (inst_srl) begin
+        rd_data = rs1_data >> rs2_data[4:0];
         out_en = 1'b1;
     end
     else if (inst_slt) begin

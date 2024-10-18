@@ -78,6 +78,8 @@
     assign software_int = mstatus[3] & mip[3] & mie[3] & (!peripheral_int);
     assign timer_int = mstatus[3] & mip[7] & mie[7] & (!peripheral_int & !software_int);
     assign exp_en = exception_en | (peripheral_int | software_int | timer_int);
+    assign mtime_low = mtime[31:0];
+    assign mtime_high = mtime[63:32];
 
     task get_csr_value;
         input [11:0] addr;

@@ -55,6 +55,7 @@
             fetch_stop = 1'b1; // 等待跳转
         end
         else begin
+            fetch_stop = 1'b0;
             control_hazard = 1'b0;
         end
     endtask
@@ -62,6 +63,8 @@
     always @(inst_data) begin
         branch_prediction();
     end
+
+
 
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
@@ -77,25 +80,27 @@
                 if (jmp_en) begin
                     cur_inst_addr <= jmp_pc;
                     next_inst_addr <= jmp_pc + 4;
-                    fetch_stop <= 1'b0; // 等到跳转指令，停顿结束
+                    // fetch_stop <= 1'b0; // 等到跳转指令，停顿结束
                     inst_mem_read_en <= 1'b1;
                     stop_f <= 1'b0;
                 end
                 else if (b_n_jmp) begin
-                    fetch_stop <= 1'b0;
+                    // fetch_stop <= 1'b0;
                     cur_inst_addr <= next_inst_addr;
                     next_inst_addr <= next_inst_addr + 4;
-                    stop_f <= 1'b0;
                     inst_mem_read_en <= 1'b1;
+                    stop_f <= 1'b0;
                 end
-                else if(inst_mem_ready) begin
+                else if(inst_mem_ready && next_en) begin
+                    // 解决等跳转同时遇到流水线暂停的情况，需要在流水线非暂停情况下至少有一个时钟周期输出跳转指令
                      stop_f <= 1'b1;
                 end
             end
             else if (inst_mem_ready) begin
-                if (fetch_stop) begin
-                    stop_f <= 1'b1;
-                end
+                // if (fetch_stop && next_en) begin
+                //     stop_f <= 1'b1;
+                //     inst_mem_read_en <= 1'b0;
+                // end
                 if (next_en && !fetch_stop) begin
                     if (jmp_en) begin
                         // 跳转情况下，已读取的指令已经无意义
@@ -106,6 +111,7 @@
                         cur_inst_addr <= next_inst_addr;
                         next_inst_addr <= next_inst_addr + 4;
                     end
+                    stop_f <= 1'b0;
                     inst_mem_read_en <= 1'b1;
                 end
                 else begin

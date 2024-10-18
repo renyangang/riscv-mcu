@@ -38,7 +38,7 @@ OBJS			:= $(SOBJS) $(COBJS)
 
 VPATH			:= $(SRCDIRS)
 
-all: boot.bin
+all: boot.bin kernel.bin
 
 %.bin: $(OBJDIR)/%.elf
 	$(OBJCOPY) -O binary -S $^ $@
@@ -46,14 +46,18 @@ all: boot.bin
 $(OBJDIR)/boot.elf: $(OBJDIR)/boot.o
 	$(LD) -T boot.ld -o $@ $^
 	$(OBJDUMP) -D $@ > $@.asm
+
+$(OBJDIR)/kernel.elf: $(OBJDIR)/start.o $(COBJS)
+	$(LD) -T kernel.ld -o $@ $^
+	$(OBJDUMP) -D $@ > $@.asm
 	
 $(OBJDIR)/%.o: %.s
 	mkdir -p $(OBJDIR)
 	$(AS) -march=rv32i -mabi=ilp32 $(INCLUDE) -o $@ $^
 
-# $(COBJS) : $(OBJDIR)/%.o: %.c
-# 	mkdir -p $(OBJDIR)
-# 	$(CC) -march=rv32i -mabi=ilp32 -Wall -nostdlib -fno-builtin-memset $(INCLUDE) -c -O2 -o $@ $<
+$(COBJS) : $(OBJDIR)/%.o: %.c
+	mkdir -p $(OBJDIR)
+	$(CC) -march=rv32i -mabi=ilp32 -Wall -nostdlib -fno-builtin-memset $(INCLUDE) -c -O2 -o $@ $<
 
 .PHONY: clean
 clean:

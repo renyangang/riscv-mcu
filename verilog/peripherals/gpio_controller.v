@@ -53,7 +53,7 @@ module gpio(
         end
         else begin
             gpio_int_set <= gpio_out ^ (gpio_values & (~gpio_ctrl));
-            gpio_out <= gpio_out | (gpio_values & (~gpio_ctrl));
+            gpio_out <= (gpio_out & gpio_ctrl) | (gpio_values & (~gpio_ctrl));
         end
     end
 
@@ -62,7 +62,7 @@ module gpio(
     end
 
     always @(gpio_set) begin
-        gpio_out = gpio_out | (gpio_set & gpio_ctrl);
+        gpio_out = (gpio_out & (~gpio_ctrl)) | (gpio_set & gpio_ctrl);
     end
 
 endmodule
@@ -139,6 +139,10 @@ module gpio_controller(
         else if (io_read) begin
             int_clear <= 1'b0;
             case (addr_offset)
+                `GPIO_CONFIG_OFFSET: begin
+                    io_rdata <= gpio_ctrl;
+                    io_ready <= 1'b1;
+                end
                 `GPIO_READ_OFFSET: begin
                     io_rdata <= gpio_values;
                     io_ready <= 1'b1;
