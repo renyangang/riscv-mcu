@@ -37,6 +37,7 @@ module digital_flash(
     output reg [2:0] digital_flash_byte_size,
     output reg [7:0] digital_flash_wdata,
     input wire [7:0] digital_flash_data
+    // input wire digital_flash_ready
 );
     reg [1:0] byte_count;
     wire [1:0] byte_size;
