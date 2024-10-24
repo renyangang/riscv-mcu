@@ -21,7 +21,7 @@
 // cache_way with 64*16 bytes
 module cache_way (
     input wire clk,
-    input wire rst_n,
+    input wire rst,
     input wire [`MAX_BIT_POS:0] addr,   
     input wire [`MAX_BIT_POS:0] wdata,  
     input wire write_enable,
@@ -57,21 +57,21 @@ module cache_way (
     always @(*) begin
         case(byte_size)
             1: begin
-                rdata = cs ? {24'd0,cache_data[index][(offset*8) +: 8]} : 32'bz;
+                rdata = hit ? {24'd0,cache_data[index][(offset*8) +: 8]} : 32'bz;
             end
             2: begin
-                rdata = cs ? {16'd0,cache_data[index][(offset*8) +: 16]} : 32'bz;
+                rdata = hit ? {16'd0,cache_data[index][(offset*8) +: 16]} : 32'bz;
             end
             default: begin
-                rdata = cs ? cache_data[index][(offset*8) +: 32] : 32'bz;
+                rdata = hit ? cache_data[index][(offset*8) +: 32] : 32'bz;
             end
         endcase
     end
     
     integer i, j;
 
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
             for (i = 0; i < `CACHE_LINES; i = i + 1) begin
                 valid[i] <= 0;
                 tag[i] <= 0;
@@ -104,13 +104,10 @@ module cache_way (
     end
 endmodule
 
-`define S_IDLE 2'b00
-`define S_ADDR 2'b01
-`define S_GETHIT 2'b10
-`define S_WRITELOAD 2'b11
+
 module cache_set(
     input wire clk,
-    input wire rst_n,
+    input wire rst,
     input wire [`MAX_BIT_POS:0] addr,   
     input wire [`MAX_BIT_POS:0] wdata,  
     input wire write_enable,
@@ -135,7 +132,8 @@ module cache_set(
     assign index = addr[9:4];
     assign hit = (|way_hit);
 
-    reg [1:0]status;
+    reg [1:0]state;
+    reg [1:0]next_state;
 
     // 计算树的深度
     localparam DEPTH = $clog2(`CACHE_WAYS);
@@ -143,13 +141,14 @@ module cache_set(
     // 总节点数为 CACHE_WAYS -1
     reg [`CACHE_WAYS-2:0] plru_bits;
 
+    localparam S_IDLE = 2'b00, S_ADDR = 2'b01, S_GETHIT = 2'b10, S_WRITELOAD = 2'b11;
 
     genvar i_way;
     generate
         for (i_way = 0; i_way < `CACHE_WAYS; i_way = i_way + 1) begin : cache_way_gen
             cache_way cache_way_inst (
                 .clk(clk),
-                .rst_n(rst_n),
+                .rst(rst),
                 .addr(addr),
                 .wdata(wdata),
                 .write_enable(write_enable),
@@ -200,57 +199,70 @@ module cache_set(
         end
     endtask
     
-    
-    
-    always @(addr or posedge load_enable or posedge write_enable or posedge read_enable) begin
-        save_ready = 1'b0;
-        if (status == `S_IDLE) begin
-            if (read_enable) begin
-                // 读取状态下直接返回，不要等待状态
-                status_ready = 1'b1;
-                update_hitstatus();
-            end
-            else begin
-                status_ready = 1'b0;
-                status = `S_ADDR;
-            end
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            state <= S_IDLE;
+        end
+        else begin
+            state <= next_state;
         end
     end
 
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always @(addr) begin
+        if (read_enable || write_enable) begin
+            update_hitstatus();
+        end
+    end
+    
+    always @(*) begin
+        if (!rst) begin
             for(j=0;j<`CACHE_LINES;j=j+1) begin
-                way_cs[j] <=  {`CACHE_WAYS{1'b0}};
+                way_cs[j] =  {`CACHE_WAYS{1'b0}};
             end
-            status <= `S_IDLE;
-            dirty <= 1'b0;
-            plru_bits <= {(`CACHE_WAYS-1){1'b0}};
-            evict_idx <= 0;
-            status_ready <= 1'b0;
+            dirty = 1'b0;
+            evict_idx = 0;
+            status_ready = 1'b0;
+            plru_bits = {(`CACHE_WAYS-1){1'b0}};
+            next_state = S_IDLE;
         end
         else begin
-            case (status)
-                `S_ADDR: begin
+            case (state)
+                S_IDLE: begin
+                    if (read_enable) begin
+                        // 读取状态下直接返回，不要等待状态
+                        status_ready = 1'b1;
+                        update_hitstatus();
+                    end
+                    else if (load_enable || write_enable) begin
+                        status_ready = 1'b0;
+                        next_state = S_ADDR;
+                    end
+                end
+                S_ADDR: begin
+                    save_ready = 1'b0;
                     if(!load_enable) begin
                         update_hitstatus();
-                        status <= `S_IDLE;
+                        next_state = S_IDLE;
                     end
                     else begin
-                        way_cs[index][evict_idx] <= 1'b1;
-                        dirty <= dirty_status[evict_idx];
-                        status <= `S_WRITELOAD;
+                        way_cs[index][evict_idx] = 1'b1;
+                        dirty = dirty_status[evict_idx];
+                        next_state = S_WRITELOAD;
                     end
-                    status_ready <= 1'b1;
+                    status_ready = 1'b1;
                 end
-                `S_WRITELOAD: begin
+                S_WRITELOAD: begin
                     if (!begin_save && load_enable) begin
-                        save_ready <= 1'b0;
-                        status <= status;
+                        save_ready = 1'b0;
+                        next_state = state;
                     end
                     else begin
-                        status <= `S_IDLE;
-                        save_ready <= 1'b1;
+                        next_state = S_IDLE;
+                        save_ready = 1'b1;
                     end
+                end
+                default: begin
+                    next_state = S_IDLE;
                 end
             endcase
         end
@@ -258,14 +270,10 @@ module cache_set(
 
 endmodule
 
-`define IDLE 3'd0
-`define WAIT_HIT 3'd1
-`define DO_READ_OR_WRITE 3'd2
-`define WAIT_WRITE_2_MEM 3'd3
-`define WAIT_LOAD_SAVE 3'd4
+
 module cache(
     input wire clk,
-    input wire rst_n,
+    input wire rst,
     input wire [`MAX_BIT_POS:0] addr,
     input wire [`MAX_BIT_POS:0] data_in,
     input wire write_enable,
@@ -283,14 +291,18 @@ module cache(
 );
 
     wire dirty;
-    reg [2:0] status;
+    reg [2:0] state;
+    reg [2:0] next_state;
+    /* verilator lint_off UNOPTFLAT */
     reg begin_load;
     wire load_save_ready;
+
+    localparam IDLE = 3'd0, WAIT_HIT = 3'd1, DO_READ_OR_WRITE = 3'd2, WAIT_WRITE_2_MEM = 3'd3, WAIT_LOAD_SAVE = 3'd4;
 
     
     cache_set cache_set_inst(
         .clk(clk),
-        .rst_n(rst_n),
+        .rst(rst),
         .addr(addr),
         .wdata(data_in),
         .write_enable(write_enable),
@@ -307,61 +319,68 @@ module cache(
         .status_ready(status_ready)
     );
 
-    always @(posedge status_ready) begin
-        if (load_enable) begin
-            if (dirty) begin
-                status <= `WAIT_WRITE_2_MEM; // 进入等待写入内存状态
-                save_data <= 1'b1;
-                begin_load <= 1'b0;
-            end
-            else begin
-                status <= `WAIT_LOAD_SAVE; // 进入等待加载状态
-                save_data <= 1'b0;
-                begin_load <= 1'b1;
-            end
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            state <= IDLE;
         end
         else begin
-            status <= `IDLE;
+            state <= next_state;
         end
     end
 
-    
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            save_data <= 0;
-            load_complate <= 0;
-            begin_load <= 0;
-            status <= `IDLE;
+    always @(*) begin
+        if (!rst) begin
+            next_state = IDLE;
+            save_data = 0;
+            load_complate = 0;
+            begin_load = 0;
         end
         else begin
-            case (status)
-                `IDLE: begin
-                    load_complate <= 0;
-                    begin_load <= 0;
-                end
-                `WAIT_WRITE_2_MEM: begin // 等待写入内存
-                    if (save_ready) begin
-                        status <= `WAIT_LOAD_SAVE; // 保存内存完毕，进入等待加载状态
-                        save_data <= 1'b0;
-                        begin_load <= 1'b1;
-                    end
-                    else begin // 否则继续等待
-                        status <= status;
-                    end
-                end
-                `WAIT_LOAD_SAVE: begin // 等待加载
-                    if (load_save_ready) begin
-                        load_complate <= 1'b1;
-                        begin_load <= 1'b0;
-                        status <= `IDLE; // 保存cache到内存，返回空闲状态
+            case (state)
+                IDLE: begin
+                    begin_load = 1'b0;
+                    load_complate = 0;
+                    if (status_ready && load_enable) begin
+                        if (dirty) begin
+                            next_state = WAIT_WRITE_2_MEM; // 进入等待写入内存状态
+                            save_data = 1'b1;
+                            begin_load = 1'b0;
+                        end
+                        else begin
+                            next_state = WAIT_LOAD_SAVE; // 进入等待加载状态
+                            save_data = 1'b0;
+                            begin_load = 1'b1;
+                        end
                     end
                     else begin
-                        status <= status;
+                        next_state = state;
                     end
+                end
+                WAIT_WRITE_2_MEM: begin // 等待写入内存
+                    if (save_ready) begin
+                        next_state = WAIT_LOAD_SAVE; // 保存内存完毕，进入等待加载状态
+                        save_data = 1'b0;
+                        begin_load = 1'b1;
+                    end
+                    else begin // 否则继续等待
+                        next_state = state;
+                    end
+                end
+                WAIT_LOAD_SAVE: begin // 等待加载
+                    if (load_save_ready) begin
+                        load_complate = 1'b1;
+                        begin_load = 1'b0;
+                        next_state = IDLE; // 保存cache到内存，返回空闲状态
+                    end
+                    else begin
+                        next_state = state;
+                    end
+                end
+                default: begin
+                    next_state = IDLE;
                 end
             endcase
         end
     end
-
 
 endmodule

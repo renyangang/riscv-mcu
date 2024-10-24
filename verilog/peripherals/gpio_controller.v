@@ -21,8 +21,7 @@ GPIO 控制模块
 `include "config.v"
 
 module gpio(
-    input wire clk,
-    input wire rst_n,
+    input wire rst,
     // 用于CPU设置GPIO值
     input  wire       [`GPIO_NUMS-1:0] gpio_set,
     // 用于清除GPIO中断
@@ -35,7 +34,7 @@ module gpio(
     output reg        [`GPIO_NUMS-1:0] gpio_int_set,
     output wire        gpio_int
 );
-
+    /* verilator lint_off UNOPTFLAT */
     reg        [`GPIO_NUMS-1:0] gpio_out;
     genvar i;
     generate
@@ -46,23 +45,19 @@ module gpio(
 
     assign gpio_int = |gpio_int_set;
 
-    always @(negedge rst_n or posedge clk) begin
-        if (!rst_n) begin
-            gpio_int_set <= `GPIO_NUMS'b0;
-            gpio_out <= `GPIO_NUMS'b0;
+    always @(*) begin
+        if (rst) begin
+            if (int_clear) begin
+                gpio_int_set = gpio_int_set & (~gpio_int_clear_set);
+            end
+            gpio_out = (gpio_out & (~gpio_ctrl)) | (gpio_set & gpio_ctrl);
+            gpio_int_set = gpio_out ^ (gpio_values & (~gpio_ctrl));
+            gpio_out = (gpio_out & gpio_ctrl) | (gpio_values & (~gpio_ctrl));
         end
         else begin
-            gpio_int_set <= gpio_out ^ (gpio_values & (~gpio_ctrl));
-            gpio_out <= (gpio_out & gpio_ctrl) | (gpio_values & (~gpio_ctrl));
+            gpio_int_set = `GPIO_NUMS'b0;
+            gpio_out = `GPIO_NUMS'b0;
         end
-    end
-
-    always @(posedge int_clear) begin
-        gpio_int_set = gpio_int_set & (~gpio_int_clear_set);
-    end
-
-    always @(gpio_set) begin
-        gpio_out = (gpio_out & (~gpio_ctrl)) | (gpio_set & gpio_ctrl);
     end
 
 endmodule
@@ -74,7 +69,7 @@ endmodule
 `define GPIO_INT_CLEAR_OFFSET 6'd16
 module gpio_controller(
     input wire gpio_clk,
-    input wire rst_n,
+    input wire rst,
     input wire [`MAX_BIT_POS:0] io_addr,
     input wire io_read,
     input wire io_write,
@@ -94,13 +89,14 @@ module gpio_controller(
     reg      [`GPIO_NUMS-1:0] gpio_set;
     reg      int_clear;
     reg      [`GPIO_NUMS-1:0] gpio_int_clear_set;
+    /* verilator lint_off UNOPTFLAT */
     wire     [`GPIO_NUMS-1:0] gpio_int_set;
     reg      [`GPIO_NUMS-1:0] gpio_ctrl;
     
 
 
     gpio gpio(
-        .rst_n(rst_n),
+        .rst(rst),
         .gpio_set(gpio_set),
         .int_clear(int_clear),
         .gpio_values(gpio_values),
@@ -110,12 +106,13 @@ module gpio_controller(
         .gpio_int_clear_set(gpio_int_clear_set)
     );
 
-    always @(posedge gpio_clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always @(posedge gpio_clk or negedge rst) begin
+        if (!rst) begin
             io_ready <= 1'b0;
-            io_rdata <= `XLEN'dz;
+            gpio_set <= `GPIO_NUMS'b0;
+            gpio_ctrl <= `GPIO_NUMS'b0;
+            int_clear <= 1'b0;
         end else if(io_write) begin
-            io_rdata <= `XLEN'dz;
             case (addr_offset)
                 `GPIO_CONFIG_OFFSET: begin
                     gpio_ctrl <= io_wdata[`GPIO_NUMS-1:0];
@@ -158,7 +155,6 @@ module gpio_controller(
         end
         else begin
             io_ready <= 1'b0;
-            io_rdata <= `XLEN'dz;
             int_clear <= 1'b0;
         end
     end

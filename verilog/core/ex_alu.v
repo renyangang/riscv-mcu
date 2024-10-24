@@ -74,98 +74,98 @@ assign inst_xor = inst_flags[27];
 assign inst_lui = inst_flags[28];
 
 always @(*) begin
-    rd_out = rd;
-    if (inst_addi) begin
-        rd_data = rs1_data + {{20{imm_2031[11]}}, imm_2031};
-        out_en = 1'b1;
-    end
-    else if (inst_add) begin
-        rd_data = rs1_data + rs2_data;
-        out_en = 1'b1;
-    end
-    else if (inst_sub) begin
-        rd_data = rs1_data - rs2_data;
-        out_en = 1'b1;
-    end
-    else if (inst_andi) begin
-        rd_data = rs1_data & {{20{imm_2031[11]}}, imm_2031};
-        out_en = 1'b1;
-    end
-    else if (inst_and) begin
-        rd_data = rs1_data & rs2_data;
-        out_en = 1'b1;
-    end
-    else if (inst_ori) begin
-        rd_data = rs1_data | {{20{imm_2031[11]}}, imm_2031};
-        out_en = 1'b1;
-    end
-    else if (inst_or) begin
-        rd_data = rs1_data | rs2_data;
-        out_en = 1'b1;
-    end
-    else if (inst_xor) begin
-        rd_data = rs1_data ^ rs2_data;
-        out_en = 1'b1;
-    end
-    else if (inst_xori) begin
-        rd_data = rs1_data ^ {{20{imm_2031[11]}}, imm_2031};
-        out_en = 1'b1;
-    end
-    else if (inst_slli) begin
-        rd_data = rs1_data << {imm_2031[4:0]};
-        out_en = 1'b1;
-    end
-    else if (inst_sll) begin
-        rd_data = rs1_data << {rs2_data[4:0]};
-        out_en = 1'b1;
-    end
-    else if (inst_slti) begin
-        rd_data = ($signed(rs1_data) < {{20{imm_2031[11]}}, imm_2031}) ? 32'd1 : 32'b0;
-        out_en = 1'b1;
-    end
-    else if (inst_sltiu) begin
-        rd_data = (rs1_data < {20'b0, imm_2031}) ? 32'd1 : 32'b0;
-        out_en = 1'b1;
-    end
-    else if (inst_srai) begin
-        rd_data = rs1_data >>> imm_2031[4:0];
-        out_en = 1'b1;
-    end
-    else if (inst_sra)  begin
-        rd_data = rs1_data >>> rs2_data[4:0];
-        out_en = 1'b1;
-    end
-    else if (inst_srli) begin
-        rd_data = rs1_data >> imm_2031[4:0];
-        out_en = 1'b1;
-    end
-    else if (inst_srl) begin
-        rd_data = rs1_data >> rs2_data[4:0];
-        out_en = 1'b1;
-    end
-    else if (inst_slt) begin
-        rd_data = ($signed(rs1_data) < $signed(rs2_data)) ? 32'd1 : 32'b0;
-        out_en = 1'b1;
-    end
-    else if (inst_sltu) begin
-        rd_data = (rs1_data < rs2_data) ? 32'd1 : 32'b0;
-        out_en = 1'b1;
-    end
-    else if (inst_lui) begin
-        rd_data = {{12{imm_1231[19]}}, imm_1231, 12'b0};
-        out_en = 1'b1;
+    if (rst) begin
+        rd_out = rd;
+        if (inst_addi) begin
+            rd_data = rs1_data + {{20{imm_2031[11]}}, imm_2031};
+            out_en = 1'b1;
+        end
+        else if (inst_add) begin
+            rd_data = rs1_data + rs2_data;
+            out_en = 1'b1;
+        end
+        else if (inst_sub) begin
+            rd_data = rs1_data - rs2_data;
+            out_en = 1'b1;
+        end
+        else if (inst_andi) begin
+            rd_data = rs1_data & {{20{imm_2031[11]}}, imm_2031};
+            out_en = 1'b1;
+        end
+        else if (inst_and) begin
+            rd_data = rs1_data & rs2_data;
+            out_en = 1'b1;
+        end
+        else if (inst_ori) begin
+            rd_data = rs1_data | {{20{imm_2031[11]}}, imm_2031};
+            out_en = 1'b1;
+        end
+        else if (inst_or) begin
+            rd_data = rs1_data | rs2_data;
+            out_en = 1'b1;
+        end
+        else if (inst_xor) begin
+            rd_data = rs1_data ^ rs2_data;
+            out_en = 1'b1;
+        end
+        else if (inst_xori) begin
+            rd_data = rs1_data ^ {{20{imm_2031[11]}}, imm_2031};
+            out_en = 1'b1;
+        end
+        else if (inst_slli) begin
+            rd_data = rs1_data << {imm_2031[4:0]};
+            out_en = 1'b1;
+        end
+        else if (inst_sll) begin
+            rd_data = rs1_data << {rs2_data[4:0]};
+            out_en = 1'b1;
+        end
+        else if (inst_slti) begin
+            rd_data = ($signed(rs1_data) < {{20{imm_2031[11]}}, imm_2031}) ? 32'd1 : 32'b0;
+            out_en = 1'b1;
+        end
+        else if (inst_sltiu) begin
+            rd_data = (rs1_data < {20'b0, imm_2031}) ? 32'd1 : 32'b0;
+            out_en = 1'b1;
+        end
+        else if (inst_srai) begin
+            rd_data = rs1_data >>> imm_2031[4:0];
+            out_en = 1'b1;
+        end
+        else if (inst_sra)  begin
+            rd_data = rs1_data >>> rs2_data[4:0];
+            out_en = 1'b1;
+        end
+        else if (inst_srli) begin
+            rd_data = rs1_data >> imm_2031[4:0];
+            out_en = 1'b1;
+        end
+        else if (inst_srl) begin
+            rd_data = rs1_data >> rs2_data[4:0];
+            out_en = 1'b1;
+        end
+        else if (inst_slt) begin
+            rd_data = ($signed(rs1_data) < $signed(rs2_data)) ? 32'd1 : 32'b0;
+            out_en = 1'b1;
+        end
+        else if (inst_sltu) begin
+            rd_data = (rs1_data < rs2_data) ? 32'd1 : 32'b0;
+            out_en = 1'b1;
+        end
+        else if (inst_lui) begin
+            rd_data = {imm_1231, 12'b0};
+            out_en = 1'b1;
+        end
+        else begin
+            out_en = 1'b0;
+            rd_out = 0;
+            rd_data = 0;
+        end
     end
     else begin
-        out_en = 1'b0;
-    end
-end
-
-
-always @(posedge rst) begin
-    if (!rst) begin
-        out_en <= 0;
-        rd_out <= 0;
-        rd_data <= 0;
+        out_en = 0;
+        rd_out = 0;
+        rd_data = 0;
     end
 end
 

@@ -46,55 +46,55 @@ module ex_csr (
     assign inst_csrrw = inst_flags[41];
     assign inst_csrrwi = inst_flags[42];
 
+/* verilator lint_off LATCH */
 always @(*) begin
-    rd_out = rd;
-    csrw_addr = imm_2031;
-    if (inst_csrrc) begin
-        out_en <= 1'b1;
-        csr_out_en <= 1'b1;
-        rd_data <= csr_data;
-        csrw_data <= csr_data & ~rs1_data;
-    end
-    else if (inst_csrrci) begin
-        out_en <= 1'b1;
-        csr_out_en <= 1'b1;
-        rd_data <= csr_data;
-        csrw_data <= csr_data & ~{27'b0,imm_1519};
-    end
-    else if (inst_csrrsi) begin
-        out_en <= 1'b1;
-        csr_out_en <= 1'b1;
-        csrw_data <= csr_data & {27'b0,imm_1519};
-        rd_data <= csr_data;
-    end
-    else if (inst_csrrs) begin
-        out_en <= 1'b1;
-        csr_out_en <= 1'b1;
-        csrw_data <= csr_data & rs1_data;
-        rd_data <= csr_data;
-    end
-    else if (inst_csrrwi) begin
-        out_en <= 1'b1;
-        csr_out_en <= 1'b1;
-        csrw_data <= {27'b0,imm_1519};
-        rd_data <= csr_data;
-    end
-    else if (inst_csrrw) begin
-        out_en <= 1'b1;
-        csr_out_en <= 1'b1;
-        csrw_data <= rs1_data;
-        rd_data <= csr_data;
+    if (rst) begin
+        rd_out = rd;
+        csrw_addr = imm_2031;
+        if (inst_csrrc) begin
+            out_en = 1'b1;
+            csr_out_en = 1'b1;
+            rd_data = csr_data;
+            csrw_data = csr_data & ~rs1_data;
+        end
+        else if (inst_csrrci) begin
+            out_en = 1'b1;
+            csr_out_en = 1'b1;
+            rd_data = csr_data;
+            csrw_data = csr_data & ~{27'b0,imm_1519};
+        end
+        else if (inst_csrrsi) begin
+            out_en = 1'b1;
+            csr_out_en = 1'b1;
+            csrw_data = csr_data & {27'b0,imm_1519};
+            rd_data = csr_data;
+        end
+        else if (inst_csrrs) begin
+            out_en = 1'b1;
+            csr_out_en = 1'b1;
+            csrw_data = csr_data & rs1_data;
+            rd_data = csr_data;
+        end
+        else if (inst_csrrwi) begin
+            out_en = 1'b1;
+            csr_out_en = 1'b1;
+            csrw_data = {27'b0,imm_1519};
+            rd_data = csr_data;
+        end
+        else if (inst_csrrw) begin
+            out_en = 1'b1;
+            csr_out_en = 1'b1;
+            csrw_data = rs1_data;
+            rd_data = csr_data;
+        end
+        else begin
+            out_en = 1'b0;
+            csr_out_en = 1'b0;
+        end
     end
     else begin
         out_en = 1'b0;
         csr_out_en = 1'b0;
-    end
-end
-
-always @(posedge rst) begin
-    if (!rst) begin
-        out_en <= 0;
-        csr_out_en <= 1'b0;
     end
 end
 

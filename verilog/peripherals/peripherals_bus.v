@@ -45,6 +45,7 @@ module peripherals_bus(
     output wire [2:0] digital_flash_byte_size,
     output wire [7:0] digital_flash_wdata,
     input wire [7:0] digital_flash_data,
+    input wire digital_flash_ready,
     //digital外部接口
     output wire [`MAX_BIT_POS:0] digital_mem_addr,
     output wire digital_mem_write_en,
@@ -52,11 +53,13 @@ module peripherals_bus(
     output wire [3:0] digital_mem_byte_size,
     output wire [`MAX_BIT_POS:0] digital_mem_wdata,
     input wire [`MAX_BIT_POS:0] digital_mem_data,
+    input wire digital_mem_ready,
     inout wire [`GPIO_NUMS-1:0] gpio_values,
     output reg [`INT_CODE_WIDTH-1:0]peripheral_int_code
 );
 
 task addr_mapping();
+    /* verilator lint_off UNSIGNED */
     if (io_addr >= `FLASH_ADDR_BASE && io_addr <= `FLASH_ADDR_END) begin
         flash_io_read = io_read;
         flash_io_write = io_write;
@@ -77,7 +80,8 @@ task addr_mapping();
     end
 endtask
 
-assign io_rdata = (gpio_read || gpio_write) ? gpio_rdata : (flash_io_read || flash_io_write) ? flash_io_rdata : (mem_io_read || mem_io_write) ? mem_io_rdata : `XLEN'dz;
+/* verilator lint_off UNOPTFLAT */
+assign io_rdata = (gpio_read || gpio_write) ? gpio_rdata : (flash_io_read || flash_io_write) ? flash_io_rdata : (mem_io_read || mem_io_write) ? mem_io_rdata : `XLEN'd0;
 assign io_ready = (gpio_read || gpio_write) ? gpio_ready : (flash_io_read || flash_io_write) ? flash_io_ready : (mem_io_read || mem_io_write) ? mem_io_ready : 1'b0;
 
 always @(io_addr or io_read or io_write) begin
@@ -88,7 +92,6 @@ end
 always @(negedge rst_n) begin
     if (!rst_n) begin
         `INIT_ENS
-        peripheral_int_code <= `INT_CODE_WIDTH'd0;
     end
 end
 
@@ -110,7 +113,7 @@ wire gpio_ready;
 
 gpio_controller gpio_controller_inst(
     .gpio_clk(pclk),
-    .rst_n(rst_n),
+    .rst(rst_n),
     .io_addr(io_addr),
     .io_read(gpio_read),
     .io_write(gpio_write),
@@ -143,7 +146,8 @@ digital_ram ram(
     .digital_mem_read_en(digital_mem_read_en),
     .digital_mem_byte_size(digital_mem_byte_size),
     .digital_mem_wdata(digital_mem_wdata),
-    .digital_mem_data(digital_mem_data)
+    .digital_mem_data(digital_mem_data),
+    .digital_mem_ready(digital_mem_ready)
 );
 
     reg flash_io_read;
@@ -167,7 +171,8 @@ digital_flash flash(
     .digital_flash_read_en(digital_flash_read_en),
     .digital_flash_byte_size(digital_flash_byte_size),
     .digital_flash_wdata(digital_flash_wdata),
-    .digital_flash_data(digital_flash_data)
+    .digital_flash_data(digital_flash_data),
+    .digital_flash_ready(digital_flash_ready)
 );
 
 endmodule

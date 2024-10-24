@@ -4,7 +4,10 @@
 module digital_soc_top;
     reg clk;
     wire rst;
-    wire clk_timer;
+    reg clk_timer;
+    wire clk_r;
+    reg digital_flash_ready;
+    reg digital_mem_ready;
 
     reg [42:0] input_sig;
     wire [146:0] output_sig;
@@ -27,8 +30,9 @@ module digital_soc_top;
     // digital_mem_addr[31:0],digital_mem_write_en,digital_mem_read_en,digital_mem_byte_size[3:0],digital_mem_wdata[31:0],gpio_values[31:0]};
     assign output_sig = {gpio_values[31:0],digital_mem_wdata[31:0],digital_mem_byte_size[3:0],digital_mem_read_en,digital_mem_write_en,digital_mem_addr[31:0],digital_flash_wdata[7:0],digital_flash_byte_size[2:0],digital_flash_read_en,digital_flash_write_en,digital_flash_addr[31:0]};
     // assign output_sig = {32'd1,32'd2,4'd0,1'b1,1'b1,32'd2,8'd1,3'd0,1'b0,1'b0,32'd2};
+    assign clk_r = input_sig[0];
     assign rst = input_sig[1];
-    assign clk_timer = input_sig[2];
+    // assign clk_timer = input_sig[2];
     assign digital_flash_data = input_sig[10:3];
     assign digital_mem_data = input_sig[42:11];
 
@@ -38,7 +42,7 @@ module digital_soc_top;
     end
 
     digital_soc digital_soc(
-        .clk(input_sig[0]),
+        .clk(clk),
         .rst(rst),
         .clk_timer(clk_timer),
         .digital_flash_addr(digital_flash_addr),
@@ -47,21 +51,23 @@ module digital_soc_top;
         .digital_flash_byte_size(digital_flash_byte_size),
         .digital_flash_wdata(digital_flash_wdata),
         .digital_flash_data(digital_flash_data),
+        .digital_flash_ready(digital_flash_ready),
         .digital_mem_addr(digital_mem_addr),
         .digital_mem_write_en(digital_mem_write_en),
         .digital_mem_read_en(digital_mem_read_en),
         .digital_mem_byte_size(digital_mem_byte_size),
         .digital_mem_wdata(digital_mem_wdata),
         .digital_mem_data(digital_mem_data),
+        .digital_mem_ready(digital_mem_ready),
         .gpio_values(gpio_values)
     );
 
     initial begin
         clk = 0;
         input_sig = 0;
-        $setSignalNames("digital_soc_top.input_sig", "digital_soc_top.output_sig");
+        // $setSignalNames("digital_soc_top.input_sig", "digital_soc_top.output_sig");
         // rst = 0;
-        // clk_timer = 0;
+        clk_timer = 0;
         // // offchip_mem_ready = 0;
         // #10 rst = 1;
         
@@ -74,13 +80,28 @@ module digital_soc_top;
         end
     endgenerate
 
-    always @(posedge clk) begin
-        $refresh;
-        // $display("input_sig = %b, output_sig = %b", input_sig, output_sig);
+    // always @(posedge clk) begin
+    //     $refresh;
+    //     // $display("input_sig = %b, output_sig = %b", input_sig, output_sig);
+    // end
+
+    always @(posedge clk_r) begin
+        if (rst) begin
+            digital_flash_ready <= 1'b1;
+            digital_mem_ready <= 1'b1;
+        end
     end
 
-    always #50 clk = ~clk;
-    // always #100 clk_timer = ~clk_timer;
+    always @(digital_flash_addr or digital_flash_write_en or digital_flash_read_en) begin
+        digital_flash_ready <= 1'b0;
+    end
+
+    always @(digital_mem_addr or digital_mem_write_en or digital_mem_read_en) begin
+        digital_mem_ready <= 1'b0;
+    end
+
+    // always #50 clk = ~clk;
+    // always #1000000 clk_timer = ~clk_timer;
 
 
 endmodule

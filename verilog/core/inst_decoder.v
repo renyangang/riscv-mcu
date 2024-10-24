@@ -125,7 +125,7 @@ module inst_decoder(
 	reg inst_sret;
 	reg inst_wfi;
 
-    wire [6:2] opcode;
+    wire [4:0] opcode;
     wire [2:0] funct3;
 
     // reg [`MAX_BIT_POS:0] instruction_code;
@@ -136,7 +136,7 @@ module inst_decoder(
 
     assign opcode = instruction_code[6:2];
     assign funct3 = instruction_code[14:12];
-    assign imm_1231 = en ? instruction_code[31:12] : 19'b0;
+    assign imm_1231 = en ? instruction_code[31:12] : 20'b0;
     assign rd = en ? instruction_code[11:7] : 5'b0;
     assign rs1 = en ? instruction_code[19:15] : 5'b0;
     assign rs2 = en ? instruction_code[24:20] : 5'b0;
@@ -255,40 +255,41 @@ module inst_decoder(
         if (en) begin
             `CLEAR_ALL_OUTPINS;
             if(instruction_code[1:0] != 2'b11) begin
-                invalid_instruction = 1'd1;
+                // 全0指令为特殊用途，非异常指令
+                invalid_instruction = (instruction_code == 32'd0) ? 1'd0 : 1'd1;
             end
             else begin
                 case (opcode)
-                    7'b11000: begin
+                    5'b11000: begin
                         get_jmp_op();
                     end
-                    7'b11001: begin
+                    5'b11001: begin
                         if (funct3 == 3'b000) begin //jalr
                             inst_jalr = 1'b1;
                         end
                     end
-                    7'b11011: begin // jal
+                    5'b11011: begin // jal
                         inst_jal = 1'b1;
                     end
-                    7'b00101: begin
+                    5'b00101: begin
                         inst_auipc = 1'b1; //auipc
                     end
-                    7'b00100: begin
+                    5'b00100: begin
                         get_alu1_op();
                     end
-                    7'b01100: begin
+                    5'b01100: begin
                         get_alu_op();
                     end
-                    7'b01101: begin
+                    5'b01101: begin
                         inst_lui = 1'b1; //lui
                     end
-                    7'b00000: begin
+                    5'b00000: begin
                         get_mem_load_op();
                     end
-                    7'b01000: begin
+                    5'b01000: begin
                         get_mem_store_op();
                     end
-                    7'b11100: begin
+                    5'b11100: begin
                         if (funct3 == 3'b000) begin
                             get_mechine_op();
                         end
@@ -297,7 +298,8 @@ module inst_decoder(
                         end
                     end
                     default: begin
-                        invalid_instruction = 1'd1;
+                        // 全0指令为特殊用途，非异常指令
+                        invalid_instruction = (instruction_code == 32'd0) ? 1'd0 : 1'd1;
                     end
                 endcase
             end

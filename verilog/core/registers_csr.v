@@ -108,34 +108,41 @@
         get_csr_value(csr_read_addr, csr_out);
     end
 
-    always @(peripheral_int_code or soft_int_code) begin
+    /* verilator lint_off LATCH */
+    always @(*) begin
         if (|(peripheral_int_code)) begin
-            mip[7:0] <= {mip[31:12],1'b1,mip[10:0]};
-            cur_int_code <= peripheral_int_code;
+            mip[11] = 1'b1;
+            cur_int_code = peripheral_int_code;
         end
-        else if (|(soft_int_code)) begin
-            mip[7:0] <= {mip[31:4],1'b1,mip[2:0]};
-            cur_int_code <= soft_int_code;
+        if (|(soft_int_code)) begin
+            mip[3] = 1'b1;
+            cur_int_code = soft_int_code;
+        end
+        if (mtime >= mtimecmp) begin
+            mip[7] =  1'b1;
         end
     end
 
     always @(posedge set_mtimecmp_low or posedge set_mtimecmp_high) begin
-        if (set_mtimecmp_low) begin
-            mtimecmp[31:0] <= mtimecmp_low;
+        if (!rst) begin
+            mtimecmp = ~64'd0;
         end
-        else if (set_mtimecmp_high) begin
-            mtimecmp[63:32] <= mtimecmp_high;
+        else begin
+            if (set_mtimecmp_low) begin
+                mtimecmp[31:0] = mtimecmp_low;
+            end
+            else if (set_mtimecmp_high) begin
+                mtimecmp[63:32] = mtimecmp_high;
+            end
         end
     end
 
     always @(posedge clk_timer or negedge rst) begin
         if (!rst) begin
             mtime <= 64'd0;
-            mtimecmp <= ~64'd0;
         end
         else begin
             mtime <= mtime + 64'd1;
-            mip[7] <= (mtime >= mtimecmp) ? 1'b1 : 1'b0;
         end
     end
 
@@ -156,15 +163,15 @@
                 else begin
                     mepc <= pc_next;
                     if(peripheral_int) begin
-                        mcause <= {1'd1,30'd11};
+                        mcause <= {1'd1,31'd11};
                         jmp_pc <= mtvec[0] ? ({mtvec[31:2],2'b00} + (4*11)):{mtvec[31:2],2'b00};
                     end
                     else if(software_int) begin
-                        mcause <= {1'd1,30'd3};
+                        mcause <= {1'd1,31'd3};
                         jmp_pc <= mtvec[0] ? ({mtvec[31:2],2'b00} + (4*3)):{mtvec[31:2],2'b00};
                     end
                     else if(timer_int) begin
-                        mcause <= {1'd1,30'd7};
+                        mcause <= {1'd1,31'd7};
                         jmp_pc <= mtvec[0] ? ({mtvec[31:2],2'b00} + (4*7)):{mtvec[31:2],2'b00};
                     end
                 end
@@ -179,11 +186,12 @@
                     12'h341: mepc <= w_data;
                     12'h342: mcause <= w_data;
                     12'h343: mtval <= w_data;
-                    12'h344: mip <= w_data;
+                    // 12'h344: mip <= w_data;
                     12'hF11: mvendorid <= w_data;
                     12'hF12: marchid <= w_data;
                     12'hF13: mimpid <= w_data;
                     12'hF14: mhartid <= w_data;
+                    default: ;
                 endcase
                 jmp_en <= 1'b0;
             end

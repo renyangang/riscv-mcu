@@ -97,10 +97,7 @@ module ex_mem(
             mem_addr <= 32'd0;
             mem_write_en <= 1'b0;
             mem_read_en <= 1'b0;
-            wb_rd_wait <= 1'b0;
             state <= `IDLE;
-            rd_out <= 5'd0;
-            busy_flag <= 1'b0;
         end
         else begin
             case (state)
@@ -168,12 +165,13 @@ module ex_mem(
                             2'd2: begin
                                 rd_data <= {16'd0, mem_data_in[15:0]};
                             end
+                            default: begin
+                                rd_data <= 32'd0;
+                            end
                         endcase
                         rd_en <= 1;
-                        wb_rd_wait <= 1'b0;
                         state <= `DONE;
                         mem_read_en <= 1'b0;
-                        busy_flag <= 1'b0;
                     end
                     else begin
                         state <= state;
@@ -183,7 +181,6 @@ module ex_mem(
                     if (mem_write_ready) begin
                         state <= `DONE;
                         mem_write_en <= 1'b0;
-                        busy_flag <= 1'b0;
                     end
                     else begin
                         state <= state;

@@ -10,7 +10,7 @@ _start:
     li t3,0x1808
     csrrw t2,mstatus,t3
     # set sp
-    li sp, 0x01000000
+    li sp, 0x3f000000
     # goto c main
     call main
 

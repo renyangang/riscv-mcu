@@ -18,10 +18,7 @@
  */
  `include "config.v"
 
-`define OFF_STATUS_IDLE 2'b00
-`define OFF_STATUS_RW 2'b01
-`define OFF_STATUS_WRITEBACK 2'b10
-`define OFF_STATUS_WRITECACHE 2'b11
+
 module mem_controller(
     input clk,
     input rst,
@@ -47,22 +44,12 @@ module mem_controller(
     output wire [(`CACHE_LINE_SIZE*8)-1:0] offchip_mem_wdata,
     output reg offchip_mem_write_en,
     output reg offchip_mem_read_en,
-    output reg [`MAX_BIT_POS:0] offchip_mem_addr,
-    output reg offchip_mem_read_busy,
-    output reg offchip_mem_write_busy
+    output reg [`MAX_BIT_POS:0] offchip_mem_addr
 );
-
-    // 指令读取相关
-    reg inst_load_en;
-    wire inst_save_data;
-    wire inst_data_hit;
-    wire inst_status_ready;
-    wire inst_load_complate;
-
     // 指令缓存
     cache i_cache(
         .clk(clk),
-        .rst_n(rst),
+        .rst(rst),
         .addr(inst_mem_addr),
         .data_in(),
         .write_enable(1'b0),
@@ -79,77 +66,17 @@ module mem_controller(
         .write_back_data()
     );
 
-    reg [1:0] inst_offchip_status;
-    reg inst_read_cache_en;
-    wire inst_cache_load_en;
-
-    always @(*) begin
-        inst_read_cache_en = inst_read_en & ~inst_load_en;
-    end
-
-    assign inst_mem_ready = inst_read_cache_en & inst_status_ready & inst_data_hit;
-    assign inst_cache_load_en = inst_read_cache_en && inst_status_ready && (!inst_data_hit) && !offchip_mem_read_busy;
-
-
-    // 指令片外读取
-    always @(posedge clk) begin
-        if (rst) begin
-            case (inst_offchip_status)
-                `OFF_STATUS_IDLE: begin
-                    if (inst_cache_load_en) begin
-                        inst_offchip_status <= `OFF_STATUS_RW;
-                        offchip_mem_addr <= {inst_mem_addr[31:4],4'b0000};
-                        offchip_mem_read_en <= 1'b1;
-                        offchip_mem_read_busy <= 1'b1;
-                    end
-                    else begin
-                        inst_offchip_status <= inst_offchip_status;
-                    end
-                end
-                `OFF_STATUS_RW: begin // 等待片外读取完毕
-                    if (offchip_mem_ready) begin
-                        inst_offchip_status <= `OFF_STATUS_WRITECACHE;
-                        inst_load_en <= 1'b1;
-                    end
-                    else begin
-                        inst_offchip_status <= inst_offchip_status;
-                    end
-                end
-                `OFF_STATUS_WRITECACHE: begin // 写入缓存
-                    if (inst_load_complate) begin
-                        inst_load_en <= 1'b0;
-                        offchip_mem_read_busy <= 1'b0;
-                        offchip_mem_read_en <= 1'b0;
-                        inst_offchip_status <= `OFF_STATUS_IDLE;
-                    end
-                    else begin
-                        inst_offchip_status <= inst_offchip_status;
-                    end
-                end
-            endcase
-        end
-    end
-
-    // 数据读写相关
-    reg d_load_en;
-    reg [(`CACHE_LINE_SIZE*8)-1:0] d_write_load_data;
-    wire d_save_data;
-    reg d_save_ready;
-    wire d_data_hit;
-    wire d_status_ready;
-    wire d_load_complate;
-
     // 数据缓存
     cache d_cache(
         .clk(clk),
-        .rst_n(rst),
+        .rst(rst),
         .addr(mem_addr),
         .data_in(mem_wdata),
         .write_enable(d_write_cache_en),
         .load_enable(d_load_en),
         .read_enable(d_read_cache_en),
         .byte_size(byte_size),
-        .write_load_data(d_write_load_data),
+        .write_load_data(offchip_mem_data),
         .save_ready(d_save_ready),
         .save_data(d_save_data),
         .data_hit(d_data_hit),
@@ -159,94 +86,198 @@ module mem_controller(
         .write_back_data(offchip_mem_wdata)
     );
 
+    // 指令读取相关
+    reg inst_load_en;
+    wire inst_save_data;
+    wire inst_data_hit;
+    wire inst_status_ready;
+    /* verilator lint_off UNOPTFLAT */
+    wire inst_load_complate;
+
+    wire inst_read_cache_en;
+    /* verilator lint_off UNOPTFLAT */
+    wire inst_cache_load_en;
+
+    
+    
+    assign inst_read_cache_en = inst_read_en & ~inst_load_en;
+    assign inst_mem_ready = inst_read_cache_en & inst_status_ready & inst_data_hit;
+    assign inst_cache_load_en = inst_read_cache_en && inst_status_ready && (!inst_data_hit);
+
+
+
+    // 数据读写相关
+    reg d_load_en;
+    /* verilator lint_off UNOPTFLAT */
+    wire d_save_data;
+    /* verilator lint_off UNOPTFLAT */
+    reg d_save_ready;
+    wire d_data_hit;
+    wire d_status_ready;
+    wire d_load_complate;
+
     reg [1:0] d_offchip_status;
-    reg d_read_cache_en;
-    reg d_write_cache_en;
+    wire d_read_cache_en;
+    wire d_write_cache_en;
     wire d_cache_load_en;
 
-    always @(*) begin
-        d_read_cache_en = read_en & ~d_load_en;
-        d_write_cache_en = write_en & ~d_load_en;
-    end
-
-    always @(mem_addr) begin
-        d_save_ready = 1'b0;
-    end
-
+    assign d_read_cache_en = read_en & ~d_load_en;
+    assign d_write_cache_en = write_en & ~d_load_en;
     assign mem_ready = (d_read_cache_en | d_write_cache_en) & d_status_ready & d_data_hit;
-    assign d_cache_load_en = (!inst_cache_load_en) && ((d_read_cache_en || d_write_cache_en) && d_status_ready && (!d_data_hit) && !offchip_mem_read_busy);
+    assign d_cache_load_en = (d_read_cache_en || d_write_cache_en) && d_status_ready && (!d_data_hit);
 
-    // 数据片外读写
-    always @(posedge clk) begin
-        if (rst) begin
-            case (d_offchip_status)
-                `OFF_STATUS_IDLE: begin
-                    if (d_cache_load_en) begin
-                        d_offchip_status <= `OFF_STATUS_RW;
+    localparam OFF_STATUS_IDLE = 0, OFF_STATUS_RW = 1, OFF_STATUS_WRITEBACK = 2, OFF_STATUS_WRITECACHE = 3, OFF_STATUS_WAITIDLE = 4;
+    localparam CUR_LOAD_IDLE = 0, CUR_INST_LOAD = 1, CUR_DATA_LOAD = 2;
+
+    reg [2:0] offship_state;
+    reg [2:0] next_offship_state;
+    /* verilator lint_off UNOPTFLAT */
+    reg [1:0]cur_load_type; // 0: inst, 1: data
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            offship_state <= OFF_STATUS_IDLE;
+        end
+        else begin
+            offship_state <= next_offship_state;
+        end
+    end
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            offchip_mem_read_en <= 1'b0;
+            offchip_mem_write_en <= 1'b0;
+            cur_load_type <= CUR_LOAD_IDLE;
+            d_save_ready <= 1'b0;
+            inst_load_en <= 1'b0;
+            d_load_en <= 1'b0;
+        end
+        else begin
+            case (offship_state)
+                OFF_STATUS_IDLE: begin
+                    if (inst_cache_load_en && cur_load_type == CUR_LOAD_IDLE) begin
+                        offchip_mem_addr <= {inst_mem_addr[31:4],4'b0000};
+                        offchip_mem_read_en <= 1'b1;
+                        cur_load_type <= CUR_INST_LOAD;
+                    end
+                    else if (d_cache_load_en && cur_load_type == CUR_LOAD_IDLE) begin
                         offchip_mem_addr <= {mem_addr[31:4],4'b0000};
                         offchip_mem_read_en <= 1'b1;
-                        offchip_mem_read_busy <= 1'b1;
-                        d_load_en <= 1'b0;
+                        cur_load_type <= CUR_DATA_LOAD;
                     end
-                    else begin
-                        d_offchip_status <= d_offchip_status;
-                    end
+                    inst_load_en <= 1'b0;
+                    d_load_en <= 1'b0;
+                    d_save_ready <= 1'b0;
                 end
-                `OFF_STATUS_RW: begin // 等待片外读取完毕
+                OFF_STATUS_RW: begin // 等待片外读取完毕
                     if (offchip_mem_ready) begin
-                        d_write_load_data <= offchip_mem_data;
-                        d_offchip_status <= `OFF_STATUS_WRITECACHE;
-                        d_load_en <= 1'b1;
-                    end
-                    else begin
-                        d_offchip_status <= d_offchip_status;
+                        if (cur_load_type == CUR_INST_LOAD) begin
+                            inst_load_en <= 1'b1;
+                        end
+                        else begin
+                            d_load_en <= 1'b1;
+                        end
                     end
                 end
-                `OFF_STATUS_WRITECACHE: begin // 写入缓存
-                    if (d_save_data && !d_save_ready) begin
+                OFF_STATUS_WRITECACHE: begin // 写入缓存
+                    if (inst_load_complate && cur_load_type == CUR_INST_LOAD) begin
+                        inst_load_en <= 1'b0;
+                        offchip_mem_read_en <= 1'b0;
+                        if (!inst_cache_load_en) begin
+                            cur_load_type <= CUR_LOAD_IDLE;
+                        end
+                    end
+                    else if (d_load_complate && cur_load_type == CUR_DATA_LOAD) begin
+                        d_load_en <= 1'b0;
+                        offchip_mem_read_en <= 1'b0;
+                        if (!d_cache_load_en) begin
+                            cur_load_type <= CUR_LOAD_IDLE;
+                        end
+                    end
+                    else if (d_save_data && !d_save_ready && cur_load_type == CUR_DATA_LOAD) begin
                         // 待覆盖缓存行存在脏数据，需要先写回到外部
                         offchip_mem_write_en <= 1'b1;
-                        offchip_mem_write_busy <= 1'b1;
-                        d_offchip_status <= `OFF_STATUS_WRITEBACK;
-                    end
-                    else if (d_load_complate) begin
-                        d_load_en <= 1'b0;
-                        offchip_mem_read_busy <= 1'b0;
-                        offchip_mem_read_en <= 1'b0;
-                        d_offchip_status <= `OFF_STATUS_IDLE;
-                    end
-                    else begin
-                        d_offchip_status <= d_offchip_status;
                     end
                 end
-                `OFF_STATUS_WRITEBACK: begin // 写回外部
+                OFF_STATUS_WRITEBACK: begin // 写回外部
                     if (offchip_mem_ready) begin
                         offchip_mem_write_en <= 1'b0;
-                        offchip_mem_write_busy <= 1'b0;
                         d_save_ready <= 1'b1;
-                        d_offchip_status <= `OFF_STATUS_WRITECACHE;
                     end
-                    else begin
-                        d_offchip_status <= d_offchip_status;
+                end
+                OFF_STATUS_WAITIDLE: begin
+                    if (cur_load_type == CUR_INST_LOAD && !inst_cache_load_en) begin
+                        cur_load_type <= CUR_LOAD_IDLE;
                     end
+                    else if (cur_load_type == CUR_DATA_LOAD && !d_cache_load_en) begin
+                        cur_load_type <= CUR_LOAD_IDLE;
+                    end
+                end
+                default: begin
+                    // nothing
                 end
             endcase
         end
     end
 
-    // 复位初始化
-    always @(negedge rst) begin
+    /* verilator lint_off LATCH */
+    always @(*) begin
         if (!rst) begin
-            inst_load_en <= 1'b0;
-            d_load_en <= 1'b0;
-            d_save_ready <= 1'b0;
-            offchip_mem_addr <= 32'b0;
-            offchip_mem_read_busy <= 1'b0;
-            offchip_mem_write_busy <= 1'b0;
-            offchip_mem_read_en <= 1'b0;
-            offchip_mem_write_en <= 1'b0;
-            inst_offchip_status <= `OFF_STATUS_IDLE;
-            d_offchip_status <= `OFF_STATUS_IDLE;
+            next_offship_state = OFF_STATUS_IDLE;
+        end
+        else begin
+            case (offship_state)
+                OFF_STATUS_IDLE: begin
+                    if (cur_load_type != CUR_LOAD_IDLE) begin
+                        next_offship_state = OFF_STATUS_RW;
+                    end
+                    else begin
+                        next_offship_state = OFF_STATUS_IDLE;
+                    end
+                end
+                OFF_STATUS_RW: begin // 等待片外读取完毕
+                    if (inst_load_en || d_load_en) begin
+                        next_offship_state = OFF_STATUS_WRITECACHE;
+                    end
+                    else begin
+                        next_offship_state = OFF_STATUS_RW;
+                    end
+                end
+                OFF_STATUS_WRITECACHE: begin // 写入缓存
+                    if (!inst_load_en && !d_load_en) begin
+                        next_offship_state = OFF_STATUS_WAITIDLE;
+                        if (cur_load_type == CUR_LOAD_IDLE) begin
+                            next_offship_state = OFF_STATUS_IDLE;
+                        end
+                    end
+                    else if (offchip_mem_write_en) begin
+                        // 待覆盖缓存行存在脏数据，需要先写回到外部
+                        next_offship_state = OFF_STATUS_WRITEBACK;
+                    end
+                    else begin
+                        next_offship_state = OFF_STATUS_WRITECACHE;
+                    end
+                end
+                OFF_STATUS_WRITEBACK: begin // 写回外部
+                    if (!offchip_mem_write_en) begin
+                        next_offship_state = OFF_STATUS_WRITECACHE;
+                    end
+                    else begin
+                        next_offship_state = OFF_STATUS_WRITEBACK;
+                    end
+                end
+                OFF_STATUS_WAITIDLE: begin
+                    if (cur_load_type == CUR_LOAD_IDLE) begin
+                        next_offship_state = OFF_STATUS_IDLE;
+                    end
+                    else begin
+                        next_offship_state = OFF_STATUS_WAITIDLE;
+                    end
+                end
+                default: begin
+                    // nothing
+                end
+            endcase
         end
     end
 
