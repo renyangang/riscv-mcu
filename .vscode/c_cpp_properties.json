@@ -4,7 +4,10 @@
             "name": "Win64",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/src/bsp/**"
+                "d:/soft/msys64/mingw64/include/**",
+                "d:/soft/verilator/include/**",
+                "${workspaceFolder}/digital_soc/src/bsp/**",
+                "${workspaceFolder}/digital_soc/verilog/obj_dir/**"
             ],
             "defines": [
                 "_DEBUG",

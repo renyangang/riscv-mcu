@@ -3,7 +3,8 @@
         "*.ejs": "html",
         "*.h": "c",
         "*.v": "verilog",
-        "*.s": "assembly"
+        "*.s": "assembly",
+        "typeinfo": "c"
     },
     "verilog.linting.linter": "iverilog",
     "verilog.linting.iverilog.includePath": ["verilog","verilog/core","verilog/soc"],

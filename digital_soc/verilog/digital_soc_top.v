@@ -1,16 +1,15 @@
-`timescale 1ns/1ns
 `include "config.v"
 
-module digital_soc_top;
-    reg clk;
+module digital_soc_top(
+    input [42:0] input_sig,
+    output [146:0] output_sig
+);
+    // reg clk;
     wire rst;
-    reg clk_timer;
+    wire clk_timer;
     wire clk_r;
     reg digital_flash_ready;
     reg digital_mem_ready;
-
-    reg [42:0] input_sig;
-    wire [146:0] output_sig;
 
     wire  [`MAX_BIT_POS:0] digital_flash_addr;
     wire  digital_flash_write_en;
@@ -32,17 +31,17 @@ module digital_soc_top;
     // assign output_sig = {32'd1,32'd2,4'd0,1'b1,1'b1,32'd2,8'd1,3'd0,1'b0,1'b0,32'd2};
     assign clk_r = input_sig[0];
     assign rst = input_sig[1];
-    // assign clk_timer = input_sig[2];
+    assign clk_timer = input_sig[2];
     assign digital_flash_data = input_sig[10:3];
     assign digital_mem_data = input_sig[42:11];
 
     initial begin
-        $dumpfile("digital.vcd");
+        $dumpfile("D:\\work\\source\\linux\\cpu-v\\digital_soc\\verilog\\digital.vcd");
         $dumpvars(0, digital_soc_top);
     end
 
     digital_soc digital_soc(
-        .clk(clk),
+        .clk(clk_r),
         .rst(rst),
         .clk_timer(clk_timer),
         .digital_flash_addr(digital_flash_addr),
@@ -63,11 +62,11 @@ module digital_soc_top;
     );
 
     initial begin
-        clk = 0;
-        input_sig = 0;
+        // clk = 0;
+        // input_sig = 0;
         // $setSignalNames("digital_soc_top.input_sig", "digital_soc_top.output_sig");
         // rst = 0;
-        clk_timer = 0;
+        // clk_timer = 0;
         // // offchip_mem_ready = 0;
         // #10 rst = 1;
         
@@ -85,19 +84,32 @@ module digital_soc_top;
     //     // $display("input_sig = %b, output_sig = %b", input_sig, output_sig);
     // end
 
+    reg digital_flash_ready_r;
+    reg digital_mem_ready_r;
+
     always @(posedge clk_r) begin
         if (rst) begin
-            digital_flash_ready <= 1'b1;
-            digital_mem_ready <= 1'b1;
+            digital_flash_ready_r <= (~digital_flash_ready) ? 1'b1 : digital_flash_ready;
+            digital_mem_ready_r <= (~digital_mem_ready) ? 1'b1 : digital_mem_ready;
+        end
+        else begin
+            digital_mem_ready_r <= 1'b0;
+            digital_flash_ready_r <= 1'b0;
         end
     end
 
-    always @(digital_flash_addr or digital_flash_write_en or digital_flash_read_en) begin
-        digital_flash_ready <= 1'b0;
+    always @(digital_flash_addr or digital_flash_write_en or digital_flash_read_en or digital_flash_ready_r) begin
+        digital_flash_ready = 1'b0;
+        if (digital_flash_ready_r) begin
+            digital_flash_ready = 1'b1;
+        end
     end
 
-    always @(digital_mem_addr or digital_mem_write_en or digital_mem_read_en) begin
-        digital_mem_ready <= 1'b0;
+    always @(digital_mem_addr or digital_mem_write_en or digital_mem_read_en or digital_mem_ready_r) begin
+        digital_mem_ready = 1'b0;
+        if (digital_mem_ready_r) begin
+            digital_mem_ready = 1'b1;
+        end
     end
 
     // always #50 clk = ~clk;

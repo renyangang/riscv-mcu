@@ -564,11 +564,6 @@ endmodule</string>
       </elementAttributes>
       <pos x="540" y="200"/>
     </visualElement>
-    <visualElement>
-      <elementName>Terminal</elementName>
-      <elementAttributes/>
-      <pos x="400" y="340"/>
-    </visualElement>
   </visualElements>
   <wires>
     <wire>
