@@ -24,6 +24,7 @@ module ex_branch(
     input [`MAX_BIT_POS:0] rs1_data, rs2_data,
     input [19:0] imm_1231,
     input [47:0] inst_flags,
+    input branch_hazard, // 是否冒险标记，如果当前指令为冒险，则不跳转信号不必输出
 
     output reg [`MAX_BIT_POS:0] pc_next_out,
     output reg jmp_en,
@@ -62,37 +63,37 @@ module ex_branch(
                 pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
                 jmp_en = (rs1_data == rs2_data) ? 1'b1 : 1'b0;
                 rd_out_en = 1'b0;
-                b_n_jmp = ~jmp_en;
+                b_n_jmp = branch_hazard ? 0 : (~jmp_en);
             end
             else if (inst_bge) begin
                 pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
                 jmp_en = ($signed(rs1_data) >= $signed(rs2_data)) ? 1'b1 : 1'b0;
                 rd_out_en = 1'b0;
-                b_n_jmp = ~jmp_en;
+                b_n_jmp = branch_hazard ? 0 : ~jmp_en;
             end
             else if (inst_bgeu) begin
                 pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
                 jmp_en = (rs1_data >= rs2_data) ? 1'b1 : 1'b0;
                 rd_out = 5'b0;
-                b_n_jmp = ~jmp_en;
+                b_n_jmp = branch_hazard ? 0 : ~jmp_en;
             end
             else if (inst_blt) begin
                 pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
                 jmp_en = ($signed(rs1_data) < $signed(rs2_data)) ? 1'b1 : 1'b0;
                 rd_out_en = 1'b0;
-                b_n_jmp = ~jmp_en;
+                b_n_jmp = branch_hazard ? 0 : ~jmp_en;
             end
             else if (inst_bltu) begin
                 pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
                 jmp_en = (rs1_data < rs2_data) ? 1'b1 : 1'b0;
                 rd_out_en = 1'b0;
-                b_n_jmp = ~jmp_en;
+                b_n_jmp = branch_hazard ? 0 : ~jmp_en;
             end
             else if (inst_bne) begin
                 pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
                 jmp_en = (rs1_data != rs2_data) ? 1'b1 : 1'b0;
                 rd_out_en = 1'b0;
-                b_n_jmp = ~jmp_en;
+                b_n_jmp = branch_hazard ? 0 : ~jmp_en;
             end
             else if (inst_jalr) begin
                 pc_next_out = (rs1_data + {{20{imm_1231[19]}}, imm_1231[19:8]});

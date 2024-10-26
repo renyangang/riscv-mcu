@@ -35,10 +35,10 @@ module digital_soc_top(
     assign digital_flash_data = input_sig[10:3];
     assign digital_mem_data = input_sig[42:11];
 
-    initial begin
-        $dumpfile("D:\\work\\source\\linux\\cpu-v\\digital_soc\\verilog\\digital.vcd");
-        $dumpvars(0, digital_soc_top);
-    end
+    // initial begin
+    //     $dumpfile("D:\\work\\v-computer\\cpu-v\\digital_soc\\verilog\\digital.vcd");
+    //     $dumpvars(0, digital_soc_top);
+    // end
 
     digital_soc digital_soc(
         .clk(clk_r),
@@ -61,16 +61,16 @@ module digital_soc_top(
         .gpio_values(gpio_values)
     );
 
-    initial begin
-        // clk = 0;
-        // input_sig = 0;
-        // $setSignalNames("digital_soc_top.input_sig", "digital_soc_top.output_sig");
-        // rst = 0;
-        // clk_timer = 0;
-        // // offchip_mem_ready = 0;
-        // #10 rst = 1;
+    // initial begin
+    //     // clk = 0;
+    //     // input_sig = 0;
+    //     // $setSignalNames("digital_soc_top.input_sig", "digital_soc_top.output_sig");
+    //     // rst = 0;
+    //     // clk_timer = 0;
+    //     // // offchip_mem_ready = 0;
+    //     // #10 rst = 1;
         
-    end
+    // end
 
     genvar idx;
     generate
@@ -78,6 +78,42 @@ module digital_soc_top(
             pulldown(gpio_values[idx]);
         end
     endgenerate
+
+    // reg [7:0] flash [0:4000];
+    // reg [`MAX_BIT_POS:0] memory [0:8000];
+    // integer i;
+
+    // initial begin
+    //     // 读取 hex 文件
+    //     // $readmemh("D:\\work\\v-computer\\cpu-v\\digital_soc\\src\\test.hex", flash);
+
+    //     for(i=0;i<8000;i=i+1) begin
+    //         memory[i] = 0;
+    //     end
+    // end
+
+    // always @(posedge digital_mem_write_en or digital_mem_addr or posedge digital_mem_read_en) begin
+    //     digital_mem_ready = 1'd0;
+    //     if (digital_mem_write_en) begin
+    //         memory[{digital_mem_addr[12:0]}] = digital_mem_wdata;
+    //         digital_mem_ready = 1'd1;
+    //     end
+    //     if (digital_mem_read_en) begin
+    //         digital_mem_data = memory[{digital_mem_addr[12:0]}];
+    //         digital_mem_ready = 1'd1;
+    //     end
+    // end
+
+    // always @(posedge digital_flash_read_en or digital_flash_addr) begin
+    //     digital_flash_ready = 1'd0;
+    //     if (digital_flash_read_en) begin
+    //         digital_flash_data = flash[digital_flash_addr];
+    //         digital_flash_ready = 1'd1;
+    //     end
+    //     // offchip_mem_ready = 1'd1;
+    //     // #20;
+    //     // offchip_mem_ready = 1'd0;
+    // end
 
     // always @(posedge clk) begin
     //     $refresh;

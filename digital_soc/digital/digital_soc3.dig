@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>2</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>External</elementName>
+      <elementAttributes>
+        <entry>
+          <string>applicationType</string>
+          <appType>VERILATORJNA</appType>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>riscvmcu</string>
+        </entry>
+        <entry>
+          <string>externalInputs</string>
+          <string>clk,rst,clk_timer,digital_flash_data:8,digital_mem_data:32</string>
+        </entry>
+        <entry>
+          <string>Width</string>
+          <int>20</int>
+        </entry>
+        <entry>
+          <string>externalOutputs</string>
+          <string>digital_flash_addr:32,digital_flash_write_en,digital_flash_read_en,digital_flash_byte_size:3,digital_flash_wdata:8,digital_mem_addr:32,digital_mem_write_en,digital_mem_read_en,digital_mem_byte_size:4,digital_mem_wdata:32,gpio_values_out:32</string>
+        </entry>
+        <entry>
+          <string>Code</string>
+          <string>D:\work\v-computer\cpu-v\digital_soc\verilog\dynsrc\wrapper</string>
+        </entry>
+        <entry>
+          <string>iverilogOptions</string>
+          <string>-y D:\\work\\source\\linux\\cpu-v\\verilog -y D:\\work\\source\\linux\\cpu-v\\verilog\\core -y D:\\work\\source\\linux\\cpu-v\\verilog\\testbench -y D:\\work\\source\\linux\\cpu-v\\verilog\\peripherals\\digital -y D:\\work\\source\\linux\\cpu-v\\verilog\\verilog\\soc -y D:\\work\\source\\linux\\cpu-v\\verilog\\peripherals -I D:\\work\\source\\linux\\cpu-v\\verilog\\core -I D:\\work\\source\\linux\\cpu-v\\verilog\\soc</string>
+        </entry>
+      </elementAttributes>
+      <pos x="620" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Clock</elementName>
+      <elementAttributes>
+        <entry>
+          <string>runRealTime</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>C</string>
+        </entry>
+        <entry>
+          <string>Frequency</string>
+          <int>50000</int>
+        </entry>
+      </elementAttributes>
+      <pos x="340" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="340" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Reset</elementName>
+      <elementAttributes/>
+      <pos x="340" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>rst</string>
+        </entry>
+      </elementAttributes>
+      <pos x="340" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Clock</elementName>
+      <elementAttributes>
+        <entry>
+          <string>runRealTime</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>timeclk</string>
+        </entry>
+        <entry>
+          <string>Frequency</string>
+          <int>500</int>
+        </entry>
+      </elementAttributes>
+      <pos x="340" y="200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>clk_timer</string>
+        </entry>
+      </elementAttributes>
+      <pos x="340" y="200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>RAMDualPort</elementName>
+      <elementAttributes>
+        <entry>
+          <string>AddrBits</string>
+          <int>24</int>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1320" y="360"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>mem_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1380" y="400"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>mem_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="620" y="300"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>NetName</string>
+          <string>flash_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1380" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>flash_data</string>
+        </entry>
+      </elementAttributes>
+      <pos x="620" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>EEPROMDualPort</elementName>
+      <elementAttributes>
+        <entry>
+          <string>AddrBits</string>
+          <int>24</int>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>8</int>
+        </entry>
+        <entry>
+          <string>Data</string>
+          <data>93,7,0,2,93,87,17,0,f3,93,57,30,37,2e,0,0,13,e,8e,80,f3,13,e,30
+,37,1,0,3f,ef,0,10,1d,ef,0,40,9,73,0,20,30,20*0,ef,0,c0,45,73
+,0,20,30,8*0,ef,0,80,1,ef,0,c0,45,ef,0,0,3,73,0,20,30,f3,13,45
+,30,67,80,0,0,13,1,81,fe,23,20,c1,0,23,22,d1,0,23,24,e1,0,23,26
+,f1,0,23,28,1,1,23,2a,11,1,67,80,0,0,3,26,1,0,83,26,41,0,3,27
+,81,0,83,27,c1,0,3,28,1,1,83,28,41,1,13,1,81,1,67,80,0,0,ef,f0
+,1f,fc,ef,0,0,3f,ef,f0,9f,fd,67,80,0,0,ef,f0,1f,fb,ef,0,c0,3d
+,ef,f0,9f,fc,73,0,20,30,67,80,0,0,13,1,1,ff,13,5,f0,7,23,26,11
+,0,ef,0,40,2d,b7,7,0,10,83,a7,7,7,63,84,7,6,23,24,81,0,37,4,0
+,10,83,27,84,6,63,90,7,4,ef,0,c0,30,13,65,f5,7,ef,0,80,2f,93,7
+,10,0,23,24,f4,6,3,24,81,0,37,15,0,0,13,5,85,9f,ef,0,80,4f,83
+,20,c1,0,13,6,80,c,13,5,40,1f,93,5,0,0,13,1,1,1,6f,0,0,7c,ef,0,0
+,2d,13,75,5,f8,ef,0,c0,2b,23,24,4,6,3,24,81,0,6f,f0,9f,fc,ef,0
+,80,2b,13,75,5,f8,ef,0,40,2a,b7,7,0,10,3,a5,c7,6,13,5,15,0,13
+,7,70,0,63,4c,a7,0,13,7,5,0,93,5,10,0,23,a6,e7,6,ef,0,0,24,6f
+,f0,5f,f9,13,7,10,0,13,5,7,0,6f,f0,9f,fe,13,1,1,ff,13,5,a0,0,23
+,26,11,0,ef,0,80,27,b7,7,0,10,23,a8,a7,6,ef,0,80,28,37,15,0,0
+,83,20,c1,0,13,5,c5,a0,13,1,1,1,6f,0,80,45,13,1,1,ff,13,5,f0,7
+,23,26,11,0,23,22,91,0,23,20,21,1,23,24,81,0,ef,0,80,1d,13,5,0,0
+,ef,0,c0,21,b7,4,0,10,13,9,80,0,13,5,a0,0,ef,0,40,22,23,a8,a4
+,6,13,4,10,0,63,a,5,4,ef,0,80,20,13,65,f5,7,ef,0,40,1f,93,5,0,0
+,13,5,40,1f,ef,0,40,79,ef,0,0,1f,13,75,5,f8,ef,0,c0,1d,13,5,40
+,1f,93,5,0,0,ef,0,c0,77,13,5,a0,0,ef,0,0,1e,23,a8,a4,6,13,4,10
+,0,e3,10,5,fc,6f,0,c0,0,83,a7,4,7,e3,90,7,fa,13,5,4,0,93,5,10
+,0,ef,0,40,16,13,5,40,1f,93,5,0,0,ef,0,40,74,13,5,4,0,93,5,0,0
+,13,4,14,0,ef,0,80,14,e3,18,24,fd,6f,f0,1f,f7,13,1,1,ff,23,26
+,11,0,ef,0,40,6d,93,5,0,0,13,6,80,c,13,5,40,1f,ef,0,c0,65,93,5
+,80,18,13,5,10,0,ef,0,80,19,6f,0,0,0,13,1,1,ff,23,24,81,0,23,26
+,11,0,13,4,5,0,63,4,6,0,ef,f0,df,fe,13,5,4,0,83,20,c1,0,3,24,81
+,0,13,1,1,1,67,80,0,0,83,47,5,0,13,7,5,0,13,5,0,0,63,86,7,2,93
+,16,25,0,33,5,d5,0,93,87,7,fd,13,7,17,0,13,15,15,0,33,5,f5,0,83
+,47,7,0,13,75,f5,f,e3,90,7,fe,67,80,0,0,67,80,0,0,b7,17,0,0,93
+,87,47,a2,3,d6,87,0,13,1,1,ff,83,a6,7,0,3,a7,47,0,83,c7,a7,0,23
+,22,d1,0,23,24,e1,0,a3,81,5,0,23,16,c1,0,23,7,f1,0,13,7,90,0,93
+,86,25,0,63,56,a7,2,93,7,5,0,13,5,0,0,93,87,67,ff,13,5,15,0,e3
+,4c,f7,fe,b3,87,27,0,83,c7,47,0,23,80,f6,0,93,86,f6,ff,e3,4e,a7
+,fc,33,5,25,0,83,47,45,0,23,80,f6,0,13,85,5,0,13,1,1,1,67,80,0,0
+,63,8e,5,0,b7,7,0,c0,13,5,f5,ff,3,a7,7,0,b3,95,a5,0,b3,e5,e5,0
+,23,a0,b7,0,67,80,0,0,b7,7,0,c0,23,a0,a7,0,67,80,0,0,37,7,0,c0
+,13,5,f5,ff,93,7,10,0,13,7,87,0,b3,97,a7,0,3,27,7,0,63,8a,5,0
+,33,67,f7,0,b7,7,0,c0,23,a2,e7,0,67,80,0,0,93,c7,f7,ff,33,f7,e7
+,0,b7,7,0,c0,23,a2,e7,0,67,80,0,0,b7,7,0,c0,23,a2,a7,0,67,80,0,0
+,b7,7,0,c0,3,a5,87,0,67,80,0,0,37,7,0,c0,13,5,f5,ff,93,7,10,0
+,b3,97,a7,0,3,25,87,0,33,f5,a7,0,67,80,0,0,b7,7,0,c0,23,a8,7,0
+,67,80,0,0,b7,7,0,10,13,15,25,0,93,87,7,0,b3,87,a7,0,37,7,0,10
+,23,a0,b7,0,3,25,47,7,93,7,f0,7f,63,f4,a7,0,67,80,0,0,b7,17,0,0
+,93,87,7,80,33,65,f5,0,23,2a,a7,6,6f,f0,1f,bf,37,7,0,10,83,27
+,47,7,93,e7,7,8,13,6,5,0,b7,6,0,10,13,85,7,0,23,ac,c6,6,23,2a
+,f7,6,6f,f0,df,bc,67,80,0,0,b7,7,0,10,83,a7,87,7,63,84,7,0,67
+,80,7,0,67,80,0,0,b7,7,ff,f,3,a7,7,0,b7,7,0,10,13,17,27,0,93,87
+,7,0,b3,87,e7,0,83,a7,7,0,63,84,7,0,67,80,7,0,67,80,0,0,b7,7,0
+,10,13,7,10,0,23,ae,e7,6,67,80,0,0,13,1,1,ff,23,24,81,0,37,4,0
+,10,23,26,11,0,83,27,4,8,63,8e,7,0,b7,7,0,10,83,20,c1,0,3,24,81
+,0,23,ae,7,6,13,1,1,1,67,80,0,0,93,5,40,4d,13,5,20,0,ef,f0,9f
+,f1,93,7,10,0,23,20,f4,8,b7,7,0,10,83,20,c1,0,3,24,81,0,23,ae
+,7,6,13,1,1,1,67,80,0,0,b7,7,0,a0,23,82,a7,10,13,87,7,11,83,27
+,7,0,93,f7,17,0,e3,8c,7,fe,67,80,0,0,63,8a,5,2,37,6,0,a0,13,7
+,6,0,b3,6,b5,0,13,6,46,10,13,7,7,11,83,47,5,0,23,0,f6,0,83,27
+,7,0,93,f7,17,0,e3,8c,7,fe,13,5,15,0,e3,14,d5,fe,67,80,0,0,13
+,8,5,0,63,84,5,6,b7,7,0,c0,37,3,0,a0,b7,8,0,40,b3,85,f5,0,13,3
+,c3,10,93,88,f8,ff,13,5,0,0,6f,0,80,1,83,c7,7,0,23,0,f7,0,13,5
+,15,0,63,84,b6,2,93,87,6,0,93,86,17,0,33,87,16,1,3,26,3,0,33,7
+,e8,0,e3,ee,c7,fc,37,7,0,a0,23,24,f7,10,67,80,0,0,93,87,5,0,37
+,7,0,a0,23,24,f7,10,67,80,0,0,13,5,0,0,b7,7,0,c0,6f,f0,df,fd,67
+,80,0,0,b7,7,0,a0,93,6,f0,ff,23,82,d7,10,13,87,7,11,83,27,7,0
+,93,f7,17,0,e3,8c,7,fe,37,7,0,a0,13,7,c7,10,37,6,0,10,b7,6,0,c0
+,6f,0,c0,0,83,27,7,0,63,e6,f6,0,83,27,c6,7,e3,8a,7,fe,37,7,0,c0
+,b7,7,0,a0,3,45,7,0,93,5,47,0,13,75,f5,f,23,a4,b7,10,93,86,c7
+,10,83,a7,6,0,e3,6e,f7,fe,23,2e,6,6,67,80,0,0,b7,7,0,10,13,7,10
+,0,23,a4,e7,8,67,80,0,0,13,1,1,ff,23,24,81,0,37,4,0,10,23,26,11
+,0,83,27,44,8,63,8e,7,0,b7,7,0,10,83,20,c1,0,3,24,81,0,23,a4,7
+,8,13,1,1,1,67,80,0,0,93,5,c0,67,13,5,30,0,ef,f0,1f,d7,93,7,10
+,0,23,22,f4,8,b7,7,0,10,83,20,c1,0,3,24,81,0,23,a4,7,8,13,1,1,1
+,67,80,0,0,13,1,1,fe,23,26,31,1,b7,9,0,10,23,2c,81,0,23,2a,91
+,0,23,28,21,1,23,2e,11,0,83,a7,49,8,93,4,5,0,13,84,5,0,13,9,6
+,0,63,80,7,6,13,14,84,0,13,19,9,1,37,7,0,10,33,64,24,1,93,94,14
+,0,b7,7,0,a0,23,24,7,8,33,64,94,0,23,a0,87,20,83,27,87,8,63,9c
+,7,0,37,7,0,a0,13,7,47,20,83,27,7,0,93,f7,17,0,e3,9c,7,fe,83,20
+,c1,1,3,24,81,1,83,24,41,1,3,29,1,1,83,29,c1,0,13,1,1,2,67,80
+,0,0,93,5,c0,67,13,5,30,0,ef,f0,9f,cb,93,7,10,0,23,a2,f9,8,6f
+,f0,1f,f9,13,1,1,ff,23,22,91,0,b7,4,0,10,23,24,81,0,23,26,11,0
+,83,a7,44,8,13,4,5,0,63,8e,7,4,37,7,0,10,13,14,14,0,b7,7,0,a0
+,23,24,7,8,13,64,14,0,23,a0,87,20,83,27,87,8,63,9c,7,0,37,7,0
+,a0,13,7,47,20,83,27,7,0,93,f7,17,0,e3,9c,7,fe,b7,7,0,a0,3,a5
+,47,20,83,20,c1,0,3,24,81,0,13,55,85,0,83,24,41,0,13,75,f5,f,13
+,1,1,1,67,80,0,0,93,5,c0,67,13,5,30,0,ef,f0,9f,c2,93,7,10,0,23
+,a2,f4,8,6f,f0,5f,f9,13,1,1,ff,23,22,91,0,b7,4,0,10,93,84,84,1
+,23,20,21,1,37,f9,ff,f,23,24,81,0,23,26,11,0,13,84,84,0,3,27,9
+,0,93,84,84,5,83,26,49,0,83,27,4,0,63,8c,7,0,3,26,c4,ff,63,e8
+,c6,0,63,12,d6,4,3,26,84,ff,63,7e,c7,2,13,4,4,1,e3,10,94,fe,93
+,5,47,6,33,b7,e5,0,37,f6,ff,f,33,7,d7,0,83,20,c1,0,3,24,81,0,23
+,26,e6,0,23,24,b6,0,83,24,41,0,3,29,1,0,13,1,1,1,67,80,0,0,e7
+,80,7,0,13,4,4,1,23,28,4,fe,3,27,9,0,83,26,49,0,e3,1c,94,f8,6f
+,f0,9f,fb,b7,f7,ff,f,3,a5,7,0,83,a5,47,0,67,80,0,0,b7,f7,ff,f
+,3,a5,87,0,83,a5,c7,0,67,80,0,0,37,f7,ff,f,23,26,b7,0,23,24,a7
+,0,67,80,0,0,37,8,0,10,13,8,88,1,13,7,88,0,93,7,0,0,93,8,50,0
+,83,26,7,0,63,8c,6,0,93,87,17,0,13,7,7,1,e3,98,17,ff,13,5,10,0
+,67,80,0,0,b7,f6,ff,f,3,a7,6,0,33,5,a7,0,83,a6,46,0,93,97,47,0
+,33,37,e5,0,b3,86,b6,0,33,8,f8,0,33,7,d7,0,23,20,a8,0,23,24,c8
+,0,23,22,e8,0,13,5,0,0,67,80,0,0,37,f7,ff,f,83,27,7,0,93,85,c7
+,12,3,27,47,0,b3,b7,f5,0,37,f6,ff,f,33,87,e7,0,37,15,0,0,b7,7
+,0,10,23,26,e6,0,23,24,b6,0,93,87,87,1,13,5,c5,81,23,a4,7,0,23
+,ac,7,0,23,a4,7,2,23,ac,7,2,23,a4,7,4,6f,f0,5f,ad,b7,f7,ff,f,83
+,a6,7,0,3,a7,47,0,33,6,d5,0,b3,85,e5,0,33,35,a6,0,b3,7,b5,0,63
+,72,f7,2,b7,f6,ff,f,13,0,0,0,3,a7,46,0,e3,6c,f7,fe,63,16,f7,0
+,3,a7,6,0,e3,66,c7,fe,67,80,0,0,e3,9e,e7,fe,e3,ee,c6,fc,67,80
+,0,0,13,1,1,ff,23,26,11,0,ef,f0,4f,fc,6c,65,64,20,73,74,61,74
+,75,73,20,63,68,61,6e,67,65,64,a,0,6c,65,64,20,66,6c,61,73,68
+,20,6d,6f,64,65,20,63,68,61,6e,67,65,64,a,0,30,31,32,33,34,35
+,36,37,38,39,0,0,10,7*0,3,7a,52,0,1,7c,1,1,1b,d,2,0,28,0,0,0,18
+,0,0,0,7c,f6,ff,ff,c0,4*0,44,e,10,48,81,1,54,88,2,64,c8,50,c1
+,50,e,0,44,e,10,81,1,88,2,54,c8,0,0,18,0,0,0,44,0,0,0,10,f7,ff,ff
+,30,4*0,44,e,10,48,81,1,58,c1,48,e,0,1c,0,0,0,60,0,0,0,24,f7,ff,ff
+,c0,4*0,44,e,10,54,81,1,89,3,92,4,88,2,0,0,0,14,0,0,0,80,0,0,0
+,c4,f7,ff,ff,2c,4*0,44,e,10,44,81,1,0,14,0,0,0,98,0,0,0,20,ff,ff,ff
+,c,4*0,44,e,10,44,81,1,0,1c,0,0,0,b0,0,0,0,c0,f7,ff,ff,2c,4*0
+,44,e,10,48,88,2,81,1,54,c1,44,c8,44,e,0,10,0,0,0,d0,0,0,0,cc
+,f7,ff,ff,3c,7*0,14,0,0,0,e4,0,0,0,f4,f7,ff,ff,7c,4*0,50,e,10
+,2,68,e,0,10,0,0,0,fc,0,0,0,58,f8,ff,ff,20,7*0,10,0,0,0,10,1,0,0
+,64,f8,ff,ff,c,7*0,10,0,0,0,24,1,0,0,5c,f8,ff,ff,40,7*0,10,0,0,0
+,38,1,0,0,88,f8,ff,ff,c,7*0,10,0,0,0,4c,1,0,0,80,f8,ff,ff,c,7*0
+,10,0,0,0,60,1,0,0,78,f8,ff,ff,1c,7*0,10,0,0,0,74,1,0,0,80,f8
+,ff,ff,c,7*0,10,0,0,0,88,1,0,0,78,f8,ff,ff,3c,7*0,10,0,0,0,9c
+,1,0,0,a0,f8,ff,ff,24,7*0,10,0,0,0,b0,1,0,0,b0,f8,ff,ff,4,7*0
+,10,0,0,0,c4,1,0,0,a0,f8,ff,ff,14,7*0,10,0,0,0,d8,1,0,0,a0,f8
+,ff,ff,28,7*0,10,0,0,0,ec,1,0,0,b4,f8,ff,ff,10,7*0,28,4*0,2,0,0
+,b0,f8,ff,ff,5c,4*0,44,e,10,44,88,2,48,81,1,50,a,c1,44,c8,48,e
+,0,44,b,5c,c1,44,c8,48,e,0,0,10,0,0,0,2c,2,0,0,e0,f8,ff,ff,1c
+,7*0,10,0,0,0,40,2,0,0,e8,f8,ff,ff,38,7*0,10,0,0,0,54,2,0,0,c
+,f9,ff,ff,78,7*0,10,0,0,0,68,2,0,0,70,f9,ff,ff,4,7*0,10,0,0,0
+,7c,2,0,0,60,f9,ff,ff,6c,7*0,10,0,0,0,90,2,0,0,b8,f9,ff,ff,10
+,7*0,28,0,0,0,a4,2,0,0,b4,f9,ff,ff,5c,4*0,44,e,10,44,88,2,48,81
+,1,50,a,c1,44,c8,48,e,0,44,b,5c,c1,44,c8,48,e,0,0,30,0,0,0,d0
+,2,0,0,e4,f9,ff,ff,a4,4*0,44,e,20,44,93,5,54,88,2,89,3,92,4,81
+,1,2,58,a,c1,44,c8,44,c9,44,d2,44,d3,44,e,0,44,b,0,0,0,28,0,0,0
+,4,3,0,0,54,fa,ff,ff,90,4*0,44,e,10,44,89,3,4c,88,2,81,1,2,4c
+,a,c1,44,c8,48,c9,48,e,0,44,b,0,0,0,2c,0,0,0,30,3,0,0,b8,fa,ff,ff
+,a0,4*0,44,e,10,44,89,3,4c,92,4,4c,88,2,81,1,2,48,a,c1,44,c8,4c
+,c9,44,d2,44,e,0,44,b,0,0,10,0,0,0,60,3,0,0,28,fb,ff,ff,10,7*0
+,10,0,0,0,74,3,0,0,24,fb,ff,ff,10,7*0,10,0,0,0,88,3,0,0,20,fb
+,ff,ff,10,7*0,10,0,0,0,9c,3,0,0,1c,fb,ff,ff,68,7*0,10,0,0,0,b0
+,3,0,0,70,fb,ff,ff,4c,7*0,10,0,0,0,c4,3,0,0,a8,fb,ff,ff,4c</data>
+        </entry>
+      </elementAttributes>
+      <pos x="1320" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1320" y="240"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Splitter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Input Splitting</string>
+          <string>32</string>
+        </entry>
+        <entry>
+          <string>Output Splitting</string>
+          <string>24,8</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1220" y="100"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Splitter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Input Splitting</string>
+          <string>32</string>
+        </entry>
+        <entry>
+          <string>Output Splitting</string>
+          <string>24,8</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1220" y="340"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1320" y="420"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes/>
+      <pos x="1340" y="560"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>0</red>
+            <green>0</green>
+            <blue>255</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="760"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>255</red>
+            <green>255</green>
+            <blue>0</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="640"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Splitter</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Input Splitting</string>
+          <string>32</string>
+        </entry>
+        <entry>
+          <string>Output Splitting</string>
+          <string>1,1,1,1,1,1,1,25</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1160" y="580"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>255</red>
+            <green>153</green>
+            <blue>153</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="600"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>0</red>
+            <green>255</green>
+            <blue>204</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="680"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>0</red>
+            <green>204</green>
+            <blue>204</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="720"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>204</red>
+            <green>102</green>
+            <blue>255</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
+      <pos x="1340" y="800"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="2"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk</string>
+        </entry>
+      </elementAttributes>
+      <pos x="620" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation reference="../../../../visualElement[26]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>rst</string>
+        </entry>
+      </elementAttributes>
+      <pos x="620" y="240"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Tunnel</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation reference="../../../../visualElement[26]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>NetName</string>
+          <string>clk_timer</string>
+        </entry>
+      </elementAttributes>
+      <pos x="620" y="260"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="1020" y="320"/>
+      <p2 x="1180" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="1320" y="640"/>
+      <p2 x="1340" y="640"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="640"/>
+      <p2 x="1300" y="640"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="260"/>
+      <p2 x="1320" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="580"/>
+      <p2 x="1200" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1060" y="580"/>
+      <p2 x="1160" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1200" y="200"/>
+      <p2 x="1320" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="400"/>
+      <p2 x="1200" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="400"/>
+      <p2 x="1320" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="1280" y="720"/>
+      <p2 x="1340" y="720"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="340"/>
+      <p2 x="1220" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="340"/>
+      <p2 x="1300" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="340"/>
+      <p2 x="1080" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="660"/>
+      <p2 x="1280" y="660"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="600"/>
+      <p2 x="1340" y="600"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="220"/>
+      <p2 x="1180" y="220"/>
+    </wire>
+    <wire>
+      <p1 x="1220" y="220"/>
+      <p2 x="1320" y="220"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="800"/>
+      <p2 x="1340" y="800"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="100"/>
+      <p2 x="1220" y="100"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="100"/>
+      <p2 x="1300" y="100"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="420"/>
+      <p2 x="1260" y="420"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="420"/>
+      <p2 x="1060" y="420"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="360"/>
+      <p2 x="1320" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="360"/>
+      <p2 x="1120" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="680"/>
+      <p2 x="1340" y="680"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="680"/>
+      <p2 x="1260" y="680"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="300"/>
+      <p2 x="1200" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="620"/>
+      <p2 x="1320" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="1020" y="240"/>
+      <p2 x="1220" y="240"/>
+    </wire>
+    <wire>
+      <p1 x="1200" y="560"/>
+      <p2 x="1340" y="560"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="180"/>
+      <p2 x="1320" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="1120" y="440"/>
+      <p2 x="1320" y="440"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="760"/>
+      <p2 x="1340" y="760"/>
+    </wire>
+    <wire>
+      <p1 x="1200" y="380"/>
+      <p2 x="1320" y="380"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="700"/>
+      <p2 x="1240" y="700"/>
+    </wire>
+    <wire>
+      <p1 x="1200" y="200"/>
+      <p2 x="1200" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="1200" y="380"/>
+      <p2 x="1200" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="1200" y="560"/>
+      <p2 x="1200" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1120" y="360"/>
+      <p2 x="1120" y="440"/>
+    </wire>
+    <wire>
+      <p1 x="1280" y="660"/>
+      <p2 x="1280" y="720"/>
+    </wire>
+    <wire>
+      <p1 x="1220" y="220"/>
+      <p2 x="1220" y="240"/>
+    </wire>
+    <wire>
+      <p1 x="1060" y="420"/>
+      <p2 x="1060" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="100"/>
+      <p2 x="1300" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="340"/>
+      <p2 x="1300" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="1300" y="640"/>
+      <p2 x="1300" y="680"/>
+    </wire>
+    <wire>
+      <p1 x="1320" y="620"/>
+      <p2 x="1320" y="640"/>
+    </wire>
+    <wire>
+      <p1 x="1080" y="340"/>
+      <p2 x="1080" y="420"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="700"/>
+      <p2 x="1240" y="800"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="400"/>
+      <p2 x="1260" y="420"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="680"/>
+      <p2 x="1260" y="760"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="100"/>
+      <p2 x="1180" y="220"/>
+    </wire>
+    <wire>
+      <p1 x="1180" y="320"/>
+      <p2 x="1180" y="340"/>
+    </wire>
+  </wires>
+  <measurementOrdering/>
+</circuit>

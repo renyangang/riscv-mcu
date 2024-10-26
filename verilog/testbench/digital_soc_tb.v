@@ -44,7 +44,7 @@ module cpu_tb;
     );
 
     reg [7:0] flash [0:4000];
-    reg [7:0] memory [0:8000];
+    reg [`MAX_BIT_POS:0] memory [0:8000];
     integer i;
 
     initial begin
@@ -59,11 +59,11 @@ module cpu_tb;
     always @(posedge digital_mem_write_en or digital_mem_addr or posedge digital_mem_read_en) begin
         digital_mem_ready = 1'd0;
         if (digital_mem_write_en) begin
-            memory[{digital_mem_addr[15:0]}] = digital_mem_wdata;
+            memory[{digital_mem_addr[12:0]}] = digital_mem_wdata;
             digital_mem_ready = 1'd1;
         end
         if (digital_mem_read_en) begin
-            digital_mem_data = memory[{digital_mem_addr[15:0]}];
+            digital_mem_data = memory[{digital_mem_addr[12:0]}];
             digital_mem_ready = 1'd1;
         end
     end
@@ -101,12 +101,12 @@ module cpu_tb;
         // offchip_mem_ready = 0;
         #10 rst = 1;
         
-        #25000;
+        #40000;
         $finish;
     end
 
     always #5 clk = ~clk;
-    always #20 clk_timer = ~clk_timer;
+    always #5 clk_timer = ~clk_timer;
 
 
 endmodule

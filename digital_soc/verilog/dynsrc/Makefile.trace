@@ -21,7 +21,7 @@ all: wrapper
 wrapper: wrapper.cpp
 	@echo "wrapper compiled"
 	@echo $(OS)
-	$(CC) $(LDFLAGS) -o wrapper$(DLL_EXT) wrapper.cpp ../obj_dir/verilated.o ../obj_dir/verilated_threads.o ../obj_dir/Vdigital_soc_top__ALL.a
+	$(CC) $(LDFLAGS) -o wrapper$(DLL_EXT) wrapper.cpp ../obj_dir/verilated.o ../obj_dir/verilated_threads.o ../obj_dir/Vdigital_soc_top__ALL.a ../obj_dir/verilated_vcd_c.o
 	
 clean:
 	$(RM) wrapper$(DLL_EXT)

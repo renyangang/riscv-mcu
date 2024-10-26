@@ -119,7 +119,7 @@ module cpu_pipeline(
 
     inst_decoder inst_decoder(
         .instruction_code(if_id_inst_code),
-        .en(decoder_en),
+        .en(1'd1),
         .rd(rd),
         .rs1(rs1),
         .rs2(rs2),
@@ -153,6 +153,7 @@ module cpu_pipeline(
         .rs2_data(id_ex_rs2_data),
         .imm_1231(id_ex_imm_1231),
         .inst_flags(id_ex_inst_flags),
+        .branch_hazard(id_ex_control_hazard),
         .rd_out(branch_rd_out),
         .rd_out_en(branch_rd_out_en),
         .rd_data_out(branch_rd_data_out),

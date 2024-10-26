@@ -55,10 +55,10 @@ module digital_ram(
             next_state = WAIT_PROC;
         end
         else if (state == WAIT_PROC) begin
-            next_state = DO_PROC;
+            next_state = (mem_io_read | mem_io_write) ? DO_PROC : IDLE;
         end
-        else if (state == DO_PROC && mem_io_ready) begin
-            next_state = COMPLATE_PROC;
+        else if (state == DO_PROC) begin
+            next_state = (mem_io_read | mem_io_write) ? (mem_io_ready ? COMPLATE_PROC : DO_PROC) : IDLE;
         end
         else if (state == COMPLATE_PROC) begin
             //保持一个周期读取

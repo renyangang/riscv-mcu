@@ -30,11 +30,11 @@ module sys_bus(
 
     input         read_en,       
     input  [`MAX_BIT_POS:0] mem_addr,
-    output [`MAX_BIT_POS:0] rdata,
+    output wire [`MAX_BIT_POS:0] rdata,
     input         write_en,
     input  [`MAX_BIT_POS:0] wdata,     
     input  [1:0]  byte_size,
-    output wire    mem_busy,
+    output reg    mem_busy,
     output wire    mem_ready,
 
     input [`MAX_BIT_POS:0] pc,
@@ -49,11 +49,14 @@ module sys_bus(
 
     input wire clk_timer,
 
+
     input wire [11:0] csr_read_addr,
     input wire [11:0] csrw_addr,
     input wire [`MAX_BIT_POS:0] w_data,
     input wire csr_write_en,
     output wire [`MAX_BIT_POS:0] csr_out,
+
+
     /* verilator lint_off UNOPTFLAT */
     output reg [`MAX_BIT_POS:0] io_addr,
     output reg io_read,
@@ -114,10 +117,14 @@ module sys_bus(
     wire [`MAX_BIT_POS:0] offchip_mem_addr;
     /* verilator lint_off UNOPTFLAT */
     reg [$clog2(`CACHE_LINE_SIZE/(`XLEN/8))-1:0] offchip_mem_byte_counter;
+    reg [$clog2(`CACHE_LINE_SIZE/(`XLEN/8))-1:0] offchip_mem_byte_size;
+    reg offchip_counter_ready;
 
-    reg [2:0] d_cur_from; // 指令来源
+    reg [2:0] d_cur_from; // 数据来源
     reg [2:0] d_state;
     reg [2:0] d_state_next;
+    reg [1:0] mem_state;
+    reg [1:0] mem_state_next;
     reg d_time_op_status;
     reg [`MAX_BIT_POS:0] mtime_rdata;
     reg mtime_ready;
@@ -126,10 +133,100 @@ module sys_bus(
 
     localparam CUR_IDLE = 3'b000, CUR_CACHE = 3'b001, CUR_PERIPHERALS = 3'b010, CUR_TIMER = 3'b011, CUR_INT = 3'b100;
     localparam S_IDLE = 0, S_WAIT_PERIO = 1, S_READ_CACHE_LOAD_DATA = 2, S_READY = 3, S_WAIT_CACHE = 4;
+    localparam MEM_IDLE = 0, MEM_WAIT_IO = 1, MEM_READY = 2;
 
     assign mem_ready = (d_cur_from == CUR_CACHE) ? d_mem_ready_dcache : (d_cur_from == CUR_PERIPHERALS && (d_state == S_WAIT_PERIO || d_state == S_READY)) ? io_ready : (d_cur_from == CUR_TIMER) ? mtime_ready : (d_cur_from == CUR_INT) ? int_data_ready : 1'b0;
     assign rdata = (d_cur_from == CUR_CACHE) ? d_rdata_dcache : (d_cur_from == CUR_PERIPHERALS) ? io_rdata : (d_cur_from == CUR_TIMER) ? mtime_rdata : (d_cur_from == CUR_INT) ? int_code_rdata : 32'd0;
     assign d_byte_size_dcache = byte_size;
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            mem_state <= MEM_IDLE;
+        end
+        else begin
+            mem_state <= mem_state_next;
+        end
+    end
+
+    /* verilator lint_off LATCH */
+    always @(*) begin
+        if (!rst) begin
+            mem_state_next = S_IDLE;
+        end
+        else begin
+            mem_state_next = mem_state;
+            if (d_cur_from != CUR_IDLE) begin
+                if (mem_ready) begin
+                    mem_state_next = MEM_READY;
+                end
+                else begin
+                    mem_state_next = MEM_WAIT_IO;
+                end
+            end
+            if(mem_state == MEM_READY) begin
+                mem_state_next = S_IDLE;
+            end
+        end
+    end
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            peripheral_op <= 0;
+            read_ready <= 1'b0;
+            d_cur_from <= CUR_IDLE;
+            mem_busy <= 1'b0;
+            mtime_ready <= 1'b0;
+            int_data_ready <= 1'b0;
+            d_write_en_dcache <= 1'b0;
+            d_read_en_dcache <= 1'b0;
+        end
+        else begin
+            case(mem_state)
+                MEM_IDLE: begin
+                    mtime_ready <= 1'b0;
+                    int_data_ready <= 1'b0;
+                    if (read_en || write_en) begin
+                        if (mem_addr >= `SDRAM_ADDR_BASE && mem_addr <= `SDRAM_ADDR_END) begin
+                            // RAM从cache读取
+                            d_read_en_dcache <= read_en;
+                            d_mem_addr_dcache <= mem_addr;
+                            d_cur_from <= CUR_CACHE;
+                            d_write_en_dcache <= write_en;
+                            d_wdata_dcache <= wdata;
+                        end
+                        else if (mem_addr >= `TIMER_ADDR_BASE && mem_addr <= `TIMER_ADDR_END) begin
+                            // 时间相关寄存器读写
+                            d_cur_from <= CUR_TIMER;
+                            time_operation();
+                        end
+                        else if (mem_addr >= `INT_ADDR_BASE && mem_addr <= `INT_ADDR_END) begin
+                            d_cur_from <= CUR_INT;
+                            int_operation();
+                        end
+                        else begin
+                            peripheral_op <= 1;
+                            d_cur_from <= CUR_PERIPHERALS;
+                        end
+                    end
+                end
+                MEM_WAIT_IO: begin
+                    if (d_cur_from == CUR_PERIPHERALS && (d_state == S_WAIT_PERIO || d_state == S_READY)) begin
+                        peripheral_op <= 0;
+                    end
+                end
+                MEM_READY: begin
+                    d_cur_from <= CUR_IDLE;
+                    d_write_en_dcache <= 1'b0;
+                    d_read_en_dcache <= 1'b0;
+                end
+                default: begin
+                    d_cur_from <= CUR_IDLE;
+                    d_write_en_dcache <= 1'b0;
+                    d_read_en_dcache <= 1'b0;
+                end
+            endcase
+        end
+    end
 
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
@@ -144,69 +241,16 @@ module sys_bus(
     always @(*) begin
         if (!rst) begin
             d_state_next = S_IDLE;
-            peripheral_op = 0;
-            read_ready = 1'b0;
-            d_read_en_dcache = 1'd0;
-            d_write_en_dcache = 1'd0;
-            d_cur_from = CUR_IDLE;
-            offchip_mem_data = 0;
-            io_ready_copy = 1'b0;
+            offchip_mem_byte_size = 0;
+            offchip_mem_byte_size = ~offchip_mem_byte_size;
         end
         else begin
-            peripheral_op = 0;
-            if (!write_en) begin
-                d_write_en_dcache = 1'd0;
-            end
-            if (!read_en) begin
-                d_read_en_dcache = 1'd0;
-            end
-            if (!io_ready) begin
-                io_ready_copy = 1'b0;
-            end
-            if (read_en || write_en) begin
-                if (mem_addr >= `SDRAM_ADDR_BASE && mem_addr <= `SDRAM_ADDR_END) begin
-                    // RAM从cache读取
-                    d_read_en_dcache = read_en;
-                    d_mem_addr_dcache = mem_addr;
-                    d_cur_from = CUR_CACHE;
-                    d_write_en_dcache = write_en;
-                    d_wdata_dcache = wdata;
-                    io_byte_size = 2'd0;
-                end
-                else if (mem_addr >= `TIMER_ADDR_BASE && mem_addr <= `TIMER_ADDR_END) begin
-                    // 时间相关寄存器读写
-                    d_cur_from = CUR_TIMER;
-                    time_operation();
-                end
-                else if (mem_addr >= `INT_ADDR_BASE && mem_addr <= `INT_ADDR_END) begin
-                    d_cur_from = CUR_INT;
-                    int_operation();
-                end
-                else begin
-                    peripheral_op = 1;
-                    d_cur_from = CUR_PERIPHERALS;
-                end
-            end
             case (d_state)
                 S_IDLE: begin
-                    io_write = 1'b0;
-                    io_read = 1'b0;
-                    offchip_mem_byte_counter = 0;
-                    offchip_mem_ready = 1'b0;
-                    io_ready_copy = 1'b0;
                     if (offchip_mem_write_en || offchip_mem_read_en) begin
-                        io_addr = offchip_mem_addr;
-                        // io_wdata = offchip_mem_wdata[offchip_mem_byte_counter*32+:32];
-                        io_read = offchip_mem_read_en;
-                        io_byte_size = 2'd0;
                         d_state_next = S_READ_CACHE_LOAD_DATA;
                     end
                     else if (peripheral_op) begin
-                        io_addr = mem_addr;
-                        io_wdata = wdata;
-                        io_read = read_en;
-                        io_write = write_en;
-                        io_byte_size = byte_size;
                         d_state_next = S_WAIT_PERIO;
                     end
                     else begin
@@ -215,7 +259,6 @@ module sys_bus(
                 end
                 S_WAIT_PERIO: begin
                     if (io_ready) begin
-                        // d_cur_from = CUR_IDLE;
                         d_state_next = S_READY;
                     end
                     else begin
@@ -223,34 +266,9 @@ module sys_bus(
                     end
                 end
                 S_READ_CACHE_LOAD_DATA: begin
-                    d_state_next = S_READ_CACHE_LOAD_DATA;
-                    if (offchip_mem_write_en) begin
-                        io_wdata = offchip_mem_wdata[offchip_mem_byte_counter*32+:32];
-                        io_write = offchip_mem_write_en;
-                    end
-                    if (io_ready & !io_ready_copy) begin
-                        io_ready_copy = 1'b1;
-                        if (offchip_mem_write_en) begin
-                            io_wdata = offchip_mem_wdata[offchip_mem_byte_counter*32+:32];
-                        end
-                        else begin
-                            offchip_mem_data[offchip_mem_byte_counter*32+:32] = io_rdata;
-                        end
-                        /* verilator lint_off WIDTHEXPAND */
-                        if (offchip_mem_byte_counter == ((`CACHE_LINE_SIZE/(`XLEN/8))-1)) begin
-                            d_state_next = S_WAIT_CACHE;
-                            offchip_mem_ready = 1'b1;
-                            offchip_mem_byte_counter = 0;
-                        end
-                        else begin
-                            io_addr = io_addr + 4;
-                            offchip_mem_byte_counter = offchip_mem_byte_counter + 1;
-                        end
-                    end
+                    d_state_next = offchip_counter_ready ? S_WAIT_CACHE : S_READ_CACHE_LOAD_DATA;
                 end
                 S_WAIT_CACHE: begin
-                    io_write = 1'b0;
-                    io_read = 1'b0;
                     if (!(offchip_mem_write_en | offchip_mem_read_en)) begin
                         d_state_next = S_IDLE;
                     end
@@ -259,14 +277,84 @@ module sys_bus(
                     end
                 end
                 S_READY: begin
-                    io_write = 1'b0;
-                    io_read = 1'b0;
                     d_state_next = S_IDLE;
                 end
                 default: begin
                     d_state_next = S_IDLE;
                 end
             endcase
+        end
+    end
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            io_ready_copy <= 1'b0;
+            offchip_mem_byte_counter <= 0;
+            io_byte_size <= 2'd0;
+            offchip_mem_data <= 0;
+            offchip_counter_ready <= 1'b0;
+        end
+        else begin
+            case (d_state)
+                S_IDLE: begin
+                    io_write <= 1'b0;
+                    io_read <= 1'b0;
+                    offchip_mem_ready <= 1'b0;
+                    offchip_counter_ready <= 1'b0;
+                    io_addr <= 0;
+                end
+                S_WAIT_PERIO: begin
+                    io_addr <= mem_addr;
+                    io_wdata <= wdata;
+                    io_read <= read_en;
+                    io_write <= write_en;
+                    io_byte_size <= byte_size;
+                end
+                S_READ_CACHE_LOAD_DATA: begin
+                    if (!(|io_addr)) begin
+                        io_addr <= offchip_mem_addr;
+                    end
+                    io_byte_size <= 2'd0;
+                    io_write <= offchip_mem_write_en;
+                    io_read <= offchip_mem_read_en;
+                    if (offchip_mem_write_en) begin
+                        io_wdata <= offchip_mem_wdata[offchip_mem_byte_counter*32+:32];
+                    end
+                    io_ready_copy <= io_ready;
+                    if (io_ready & !io_ready_copy) begin
+                        if (offchip_mem_write_en) begin
+                            io_wdata <= offchip_mem_wdata[offchip_mem_byte_counter*32+:32];
+                        end
+                        else begin
+                            offchip_mem_data[offchip_mem_byte_counter*32+:32] <= io_rdata;
+                        end
+                        
+                        if (offchip_mem_byte_counter == offchip_mem_byte_size) begin
+                            offchip_mem_ready <= 1'b1;
+                            offchip_mem_byte_counter <= 0;
+                            offchip_counter_ready <= 1'b1;
+                        end
+                        else begin
+                            io_addr <= io_addr + 4;
+                            offchip_mem_byte_counter <= offchip_mem_byte_counter + 1;
+                        end
+                    end
+                end
+                S_WAIT_CACHE: begin
+                    io_write <= 1'b0;
+                    io_read <= 1'b0;
+                    io_addr <= 0;
+                    offchip_counter_ready <= 1'b0;
+                end
+                S_READY: begin
+                    io_write <= 1'b0;
+                    io_read <= 1'b0;
+                    io_addr <= 0;
+                end
+                default: begin
+                end
+            endcase
+            
         end
     end
 
@@ -310,55 +398,39 @@ module sys_bus(
 
     assign time_addr_offset = mem_addr[3:0];
 
-    always @(clk) begin
-        if (rst) begin
-            if (d_time_op_status) begin
-                mtime_ready <= 1'b1;
-            end
-            else if (mtime_ready) begin
-                mtime_ready <= 1'b0;
-            end
-        end
-    end
-
-    always @(mtime_ready) begin
-        if (mtime_ready) begin
-            d_time_op_status = 1'b0;
-        end
-    end
 
     task time_operation();
         case (time_addr_offset)
             4'd0: begin
                 // 实时时钟低位，只支持读取
                 if (read_en) begin
-                    mtime_rdata = mtime_low;
-                    d_time_op_status = 1'b1;
+                    mtime_rdata <= mtime_low;
+                    mtime_ready <= 1'b1;
                 end
             end
             4'd4: begin
                 if (read_en) begin
-                    mtime_rdata = mtime_high;
-                    d_time_op_status = 1'b1;
+                    mtime_rdata <= mtime_high;
+                    mtime_ready <= 1'b1;
                 end
             end
             4'd8: begin
                 // mtimecmp 低位，只支持写
                 if (write_en) begin
-                    mtimecmp_low = wdata;
-                    set_mtimecmp_low = 1'b1;
-                    d_time_op_status = 1'b1;
+                    mtimecmp_low <= wdata;
+                    set_mtimecmp_low <= 1'b1;
+                    mtime_ready <= 1'b1;
                 end
             end
             4'd12: begin
                 if (write_en) begin
-                    mtimecmp_high = wdata;
-                    set_mtimecmp_high = 1'b1;
-                    d_time_op_status = 1'b1;
+                    mtimecmp_high <= wdata;
+                    set_mtimecmp_high <= 1'b1;
+                    mtime_ready <= 1'b1;
                 end
             end
             default: begin
-                d_time_op_status = 1'b0;
+                mtime_ready <= 1'b0;
             end
         endcase
     endtask
@@ -373,12 +445,12 @@ module sys_bus(
             4'd0: begin
                 // 当前的中断编号，只支持读取
                 if (read_en) begin
-                    int_code_rdata = {24'd0,cur_int_code};
-                    int_data_ready = 1'b1;
+                    int_code_rdata <= {24'd0,cur_int_code};
+                    int_data_ready <= 1'b1;
                 end
             end
             default: begin
-                int_data_ready = 1'b0;
+                int_data_ready <= 1'b0;
             end
         endcase
     endtask
@@ -392,8 +464,6 @@ module sys_bus(
         if (!rst) begin
             sys_exception_en = 1'b0;
             sys_exception_code = 0;
-            int_data_ready = 1'b0;
-            int_code_rdata = 0;
         end
         else begin
             if (exception_en) begin
