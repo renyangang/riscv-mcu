@@ -39,19 +39,26 @@
 
     reg fetch_stop;
     reg stop_f;
+    reg int_jmp_en;
+    reg [`MAX_BIT_POS:0] int_jmp_pc;
 
-    assign inst_ready = (stop_f || (!next_en && jmp_en)) ? 1'b0 : inst_mem_ready;
+    assign inst_ready = (stop_f || (!next_en && jmp_en) || int_jmp_en) ? 1'b0 : inst_mem_ready;
     // assign inst_code = (inst_data !== 32'hz) ? inst_data : 32'd0;
     assign inst_code = inst_data;
 
     always @(*) begin
-        if (inst_data[6:0] == 7'b1100011) begin
+        if (!int_jmp_en && inst_data[6:0] == 7'b1100011) begin
             // 分支跳转指令，进行静态预测， 向后统一预测为跳转，向前统一预测为不跳转
             fetch_stop = inst_data[31];
             // 如果预测不跳转，则设置冒险标记
             control_hazard = ~(inst_data[31]);
         end
-        else if (inst_data[6:0] == 7'b1101111 || inst_data[6:0] == 7'b1100111) begin
+        else if (!int_jmp_en && (inst_data[6:0] == 7'b1101111 || inst_data[6:0] == 7'b1100111)) begin
+            fetch_stop = 1'b1; // 等待跳转
+            control_hazard = 1'b0;
+        end
+        else if (inst_data == 32'h30200073) begin
+            // mret 跳转,也需要等待
             fetch_stop = 1'b1; // 等待跳转
             control_hazard = 1'b0;
         end
@@ -67,6 +74,7 @@
             next_inst_addr <= `BOOT_ADDR + 4;
             inst_mem_read_en <= 1'b0;
             stop_f <= 1'b0;
+            int_jmp_en <= 1'b0;
         end
         else begin
             if (fetch_stop) begin
@@ -100,7 +108,13 @@
                     next_inst_addr <= jmp_pc + 4;
                 end
                 else if (next_en && !fetch_stop) begin
-                    if (jmp_en) begin
+                    if (int_jmp_en) begin
+                        // 跳转情况下，已读取的指令已经无意义
+                        cur_inst_addr <= int_jmp_pc;
+                        next_inst_addr <= int_jmp_pc + 4;
+                        int_jmp_en <= 1'b0;
+                    end
+                    else if (jmp_en) begin
                         // 跳转情况下，已读取的指令已经无意义
                         cur_inst_addr <= jmp_pc;
                         next_inst_addr <= jmp_pc + 4;
@@ -118,6 +132,10 @@
             end
             else begin
                 inst_mem_read_en <= 1'b1;
+                if (jmp_en) begin
+                    int_jmp_en <= 1'b1;
+                    int_jmp_pc <= jmp_pc;
+                end
             end
         end
     end

@@ -85,6 +85,7 @@ module ex_mem(
     always @(*) begin
         busy_flag = (((state == `IDLE) && (inst_flags[36:29] == 8'd0)) || state == `DONE) ? 1'b0 : 1'b1;
         rd_out = (state != `IDLE) ? rd_out : (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)? rd : 5'd0;
+        //TODO 考虑如何在指令没有变化的时候，完成后这里不会置位
         wb_rd_wait = (state == `READ) ? 1'b1 : ((state == `IDLE) && (inst_lb || inst_lbu || inst_lh || inst_lhu || inst_lw)) ? 1'b1 : 1'b0;
     end
 

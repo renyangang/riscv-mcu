@@ -45,13 +45,16 @@ module cpu_top(
     wire mem_ready;
 
     // interrupts and exceptions
-    wire [`MAX_BIT_POS:0]pc_cur;
-    wire [`MAX_BIT_POS:0]pc_next;
-    wire [`MAX_BIT_POS:0]inst_cur_ex;
+    
+    wire [`MAX_BIT_POS:0] exp_pc;
+    wire [`MAX_BIT_POS:0] exp_pc_next;
     wire [`MAX_BIT_POS:0]exception_code;
     wire exception_en;
     wire [`MAX_BIT_POS:0] int_jmp_pc;
     wire int_jmp_en;
+    wire mret_en;
+    wire int_en;
+    wire int_jmp_ready;
 
     // csr operations
     wire [11:0] csr_read_addr;
@@ -71,11 +74,6 @@ module cpu_top(
     wire [`MAX_BIT_POS:0] inst_data;
     wire inst_mem_ready;
 
-    wire cur_branch_hazard;
-    wire [`MAX_BIT_POS:0] id_ex_pc_cur;
-    wire [`MAX_BIT_POS:0] id_ex_pc_next;
-    wire [`MAX_BIT_POS:0] id_ex_cur_inst_code;
-
     cpu_pipeline cpu_pipeline(
         .clk(clk),
         .rst(rst),
@@ -87,11 +85,13 @@ module cpu_top(
         .byte_size(byte_size),
         .mem_busy(mem_busy),
         .mem_ready(mem_ready),
-        .pc_cur(pc_cur),
-        .pc_next(pc_next),
-        .inst_cur_ex(inst_cur_ex),
+        .exp_pc(exp_pc),
+        .exp_pc_next(exp_pc_next),
         .exception_code(exception_code),
         .exception_en(exception_en),
+        .int_jmp_ready(int_jmp_ready),
+        .int_en(int_en),
+        .mret_en(mret_en),
         .int_jmp_pc(int_jmp_pc),
         .int_jmp_en(int_jmp_en),
         .csr_read_addr(csr_read_addr),
@@ -107,11 +107,7 @@ module cpu_top(
         .jmp_en(jmp_en),
         .fetch_en(fetch_en),
         .inst_data(inst_data),
-        .inst_mem_ready(inst_mem_ready),
-        .cur_branch_hazard(cur_branch_hazard),
-        .id_ex_pc_cur_out(id_ex_pc_cur),
-        .id_ex_pc_next_out(id_ex_pc_next),
-        .id_ex_cur_inst_code_out(id_ex_cur_inst_code)
+        .inst_mem_ready(inst_mem_ready)
     );
 
     sys_bus sys_bus(
@@ -129,12 +125,13 @@ module cpu_top(
         .byte_size(byte_size),
         .mem_busy(mem_busy),
         .mem_ready(mem_ready),
-        .pc(id_ex_pc_cur),
-        .pc_next(id_ex_pc_next),
-        .inst_cur(id_ex_cur_inst_code),
+        .exp_pc(exp_pc),
+        .exp_pc_next(exp_pc_next),
         .exception_code(exception_code),
-        .cur_branch_hazard(cur_branch_hazard),
+        .int_jmp_ready(int_jmp_ready),
+        .int_en(int_en),
         .exception_en(exception_en),
+        .mret_en(mret_en),
         .jmp_en(int_jmp_en),
         .jmp_pc(int_jmp_pc),
         .clk_timer(clk_timer),

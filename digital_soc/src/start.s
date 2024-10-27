@@ -2,6 +2,8 @@
 .global _start
 .global set_mie
 _start:
+    # set sp
+    li sp, 0x3f000000
     # register interrupts handler
     la a5,int_handler
     addi a5,a5, 0x1
@@ -9,26 +11,28 @@ _start:
     # open interrupts
     li t3,0x1808
     csrrw t2,mstatus,t3
-    # set sp
-    li sp, 0x3f000000
     # goto c main
     call main
 
 .section .exceptiontext
 int_handler:
     call inner_exception_handler
+mret_pos:
     mret
 
 .section .timerinttext
 timer_handler:
-    call int_timer_handler
-    mret
+    j inner_timer_handler
 
 .section .peripheralinttext
 peripheral_handler:
+    add	sp,sp,-4
+    sw	ra,0(sp)
     call save_regs
     call int_peripheral_handler
     call restore_regs
+    lw	ra,0(sp)
+    addi	sp,sp,4
     mret
 
 .section .text
@@ -37,13 +41,15 @@ set_mie:
     ret
 
 save_regs:
-    addi sp, sp, -24
+    addi sp, sp, -34
     sw a2, 0(sp)
     sw a3, 4(sp)
     sw a4, 8(sp)
     sw a5, 12(sp)
     sw a6, 16(sp)
     sw a7, 20(sp)
+    sw a0, 24(sp)
+    sw a1, 28(sp)
     ret
 
 restore_regs:
@@ -53,18 +59,27 @@ restore_regs:
     lw a5, 12(sp)
     lw a6, 16(sp)
     lw a7, 20(sp)
-    addi sp, sp, 24
+    lw a0, 24(sp)
+    lw a1, 28(sp)
+    addi sp, sp, 34
     ret
 
 inner_timer_handler:
+    add	sp,sp,-4
+    sw	ra,0(sp)
     call save_regs
     call int_timer_handler
     call restore_regs
-    ret
+    lw	ra,0(sp)
+    addi	sp,sp,4
+    j mret_pos
 
 inner_exception_handler:
+    add	sp,sp,-4
+    sw	ra,0(sp)
     call save_regs
     call exception_handler
     call restore_regs
-    mret
-    ret
+    lw	ra,0(sp)
+    addi	sp,sp,4
+    j mret_pos

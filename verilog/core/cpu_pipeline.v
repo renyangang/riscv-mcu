@@ -37,11 +37,13 @@ module cpu_pipeline(
     input wire mem_ready,
 
     // interrupts and exceptions
-    output reg [`MAX_BIT_POS:0]pc_cur,
-    output reg [`MAX_BIT_POS:0]pc_next,
-    output reg [`MAX_BIT_POS:0]inst_cur_ex,
+    input wire int_en, // 待处理中断信号
+    output reg [`MAX_BIT_POS:0] exp_pc,
+    output reg [`MAX_BIT_POS:0] exp_pc_next,
     output reg [`MAX_BIT_POS:0]exception_code,
     output reg exception_en,
+    output wire mret_en,
+    output reg int_jmp_ready, // 等待中断跳转就绪，可以处理中断跳转指令，并且exp_pc_next已经更新
     input wire [`MAX_BIT_POS:0] int_jmp_pc,
     input wire int_jmp_en,
 
@@ -61,12 +63,7 @@ module cpu_pipeline(
     output reg jmp_en,
     output wire fetch_en,
     input wire [`MAX_BIT_POS:0] inst_data,
-    input wire inst_mem_ready,
-
-    output reg cur_branch_hazard, // 标识当前是否正在执行跳转指令，如果是，中断等处理就需要等待结果
-    output wire [`MAX_BIT_POS:0] id_ex_pc_cur_out,
-    output wire [`MAX_BIT_POS:0] id_ex_pc_next_out,
-    output wire [`MAX_BIT_POS:0] id_ex_cur_inst_code_out
+    input wire inst_mem_ready
 );
 
     // fetch
@@ -86,11 +83,11 @@ module cpu_pipeline(
     // decode
     reg decoder_en;
     wire [47:0] inst_decode_out;
-    
 
     // memory instructions
     wire inst_mem_busy; // 访存指令忙
 
+    assign mret_en = id_ex_inst_flags[45];
     assign inst_data_in = inst_mem_ready ? inst_data : 0;
 
     inst_fetch inst_fetch(
@@ -274,10 +271,7 @@ module cpu_pipeline(
     reg ex_stop; // 执行停止标记
     reg mem_stop; // 连续2个内存操作时，需要额外的停顿
     reg rs1_forward, rs2_forward, rs1_forward_last, rs2_forward_last;  // 寄存器数据旁路标记
-
-    assign id_ex_pc_cur_out = id_ex_pc_cur;
-    assign id_ex_pc_next_out = id_ex_pc_next;
-    assign id_ex_cur_inst_code_out = id_ex_cur_inst_code;
+    
 
     reg check_rs1,check_rs2,check_rd,is_mem_inst,is_last_mem_inst;
     reg fowrard_wb_rd_en;
@@ -349,7 +343,8 @@ module cpu_pipeline(
             ex_stop = 1'b1;
         end
         if (!ex_stop && (check_rs1 || check_rs2 || check_rd)) begin
-            ex_stop = (((check_rd && rd != 5'd0) && (rd == mem_rd_out && wb_rd_wait))
+            // 如果存在寄存器结构冒险，需要等待，内存写回寄存器时，如果下一条指令也需要写回，需要暂停一个周期
+            ex_stop = (((check_rd && rd != 5'd0) && ((!is_mem_inst && mem_rd_en) || (rd == mem_rd_out && wb_rd_wait)))
             || (check_rs1 && rs1 != 5'd0 && rs1 == mem_rd_out && wb_rd_wait && !mem_rd_en)
             || (check_rs2 && rs2 != 5'd0 && rs2 == mem_rd_out && wb_rd_wait && !mem_rd_en));
         end
@@ -386,12 +381,11 @@ module cpu_pipeline(
         rs2_forward_last = (rs2 != 5'd0 && rs2 == wb_rd && wb_rd_en);
     end
 
-    // 控制冒险失败或者中断发生时，冲刷流水线
-    assign pipe_flush = int_jmp_en | (branch_jmp_en & id_ex_control_hazard);
+    // 控制冒险失败或者中断发生时，冲刷流水线，等待中断跳转也做冲刷
+    assign pipe_flush = int_jmp_en | (branch_jmp_en & id_ex_control_hazard) | int_jmp_ready;
     assign fetch_en = ~ex_stop;
     // assign decoder_en = ~ex_stop;
 
-    
 
     /* verilator lint_off LATCH */
     // 跳转信号处理
@@ -399,24 +393,20 @@ module cpu_pipeline(
         if (!rst) begin
             jmp_en = 1'b0;
             jmp_pc = 0;
-            pc_next = pc_next;
         end
         else begin
             if (int_jmp_en) begin
                 jmp_en = 1'b1;
                 jmp_pc = int_jmp_pc;
-                pc_next = pc_next;
                 // 中断发生时，通过冲刷清理掉未执行的指令
             end
             else if (branch_jmp_en) begin
                 jmp_en = 1'b1;
                 jmp_pc = branch_pc_next_out;
-                pc_next = branch_pc_next_out;
             end
             else begin
                 jmp_en = 1'b0;
                 jmp_pc = 32'd0;
-                pc_next = pc_next;
             end
         end
     end
@@ -461,8 +451,6 @@ module cpu_pipeline(
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
             decoder_en <= 1'd1;
-            cur_branch_hazard <= 1'b0;
-            
             id_ex_control_hazard <= 1'b0;
             id_ex_pc_cur <= 32'd0;
             id_ex_pc_next <= 32'd0;
@@ -474,6 +462,9 @@ module cpu_pipeline(
             id_ex_rs2_data <= 32'd0;
             id_ex_imm_1231 <= 20'd0;
             id_ex_cur_inst_code <= 32'd0;
+            int_jmp_ready <= 1'b0;
+            exp_pc <= 32'd0;
+            exp_pc_next <= 32'd0;
         end
         else begin
              // 取指或者执行停顿都会导致取指停顿
@@ -503,6 +494,17 @@ module cpu_pipeline(
                 id_ex_rs2 <= 5'd0;
                 id_ex_control_hazard <= 1'b0;
                 id_ex_cur_inst_code <= 32'd0;
+                if (int_jmp_en) begin
+                    //中断跳转触发，关闭等待
+                    int_jmp_ready <= 1'b0;
+                end
+            end
+            else if (int_en && !int_jmp_ready) begin
+                // 中断mepc只会存储next_pc，实际就是下一条即将执行的指令，当前指令和下一指令一致，因为这个状态后就不会再执行指令
+                exp_pc <= if_id_pc_cur;
+                exp_pc_next <= if_id_pc_cur;
+                int_jmp_ready <= |(if_id_pc_cur); // 如果指令为空则不置位，继续等待下一轮
+                id_ex_inst_flags <= 48'd0;
             end
             else begin
                 id_ex_inst_flags <= inst_decode_out;
@@ -516,6 +518,8 @@ module cpu_pipeline(
                 id_ex_pc_next <= if_id_pc_next;
                 id_ex_control_hazard <= if_id_control_hazard;
                 id_ex_cur_inst_code <= if_id_inst_code;
+                exp_pc <= if_id_pc_cur;
+                exp_pc_next <= if_id_pc_next;
             end
         end
     end

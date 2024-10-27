@@ -101,12 +101,12 @@ module cpu_tb;
         // offchip_mem_ready = 0;
         #10 rst = 1;
         
-        #40000;
+        #200000;
         $finish;
     end
 
     always #5 clk = ~clk;
-    always #5 clk_timer = ~clk_timer;
+    always #30 clk_timer = ~clk_timer;
 
 
 endmodule

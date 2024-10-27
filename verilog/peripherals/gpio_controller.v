@@ -51,7 +51,7 @@ module gpio(
                 gpio_int_set = gpio_int_set & (~gpio_int_clear_set);
             end
             gpio_out = (gpio_out & (~gpio_ctrl)) | (gpio_set & gpio_ctrl);
-            gpio_int_set = gpio_out ^ (gpio_values & (~gpio_ctrl));
+            gpio_int_set = (gpio_out & (~gpio_ctrl)) ^ (gpio_values & (~gpio_ctrl));
             gpio_out = (gpio_out & gpio_ctrl) | (gpio_values & (~gpio_ctrl));
         end
         else begin

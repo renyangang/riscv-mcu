@@ -66,7 +66,7 @@ void flash_by_interrupt() {
 }
 
 int main() {
-    flash_by_sleep();
-    // flash_by_interrupt();
+    // flash_by_sleep();
+    flash_by_interrupt();
     return 0;
 }

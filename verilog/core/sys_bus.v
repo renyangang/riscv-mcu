@@ -37,13 +37,14 @@ module sys_bus(
     output reg    mem_busy,
     output wire    mem_ready,
 
-    input [`MAX_BIT_POS:0] pc,
-    input [`MAX_BIT_POS:0] pc_next,
-    input [`MAX_BIT_POS:0] inst_cur,
+    input [`MAX_BIT_POS:0] exp_pc,
+    input [`MAX_BIT_POS:0] exp_pc_next,
     input [`MAX_BIT_POS:0] exception_code,
     input exception_en,
-    input cur_branch_hazard,
+    input int_jmp_ready,
+    input mret_en,
 
+    output wire int_en,
     output wire jmp_en,
     output wire [`MAX_BIT_POS:0] jmp_pc,
 
@@ -469,7 +470,7 @@ module sys_bus(
             if (exception_en) begin
                 sys_exception_en = 1'b1;
                 sys_exception_code = exception_code;
-                exp_val = pc;
+                exp_val = exp_pc;
             end
             else if (inst_addr_exception) begin
                 sys_exception_en = 1'b1;
@@ -486,15 +487,17 @@ module sys_bus(
     registers_csr registers_csr(
         .clk(clk),
         .rst(rst),
-        .pc(pc),
-        .pc_next(pc_next),
+        .exp_pc(exp_pc),
+        .exp_pc_next(exp_pc_next),
         .exp_val(exp_val),
         .exception_code(sys_exception_code),
         .exception_en(sys_exception_en),
-        .cur_branch_hazard(cur_branch_hazard),
+        .int_jmp_ready(int_jmp_ready),
+        .int_en(int_en),
         .peripheral_int_code(peripheral_int_code),
         .soft_int_code(soft_int_code),
         .cur_int_code(cur_int_code),
+        .mret_en(mret_en),
         .jmp_en(jmp_en),
         .jmp_pc(jmp_pc),
         .clk_timer(clk_timer),
@@ -507,7 +510,7 @@ module sys_bus(
         .csr_read_addr(csr_read_addr),
         .csrw_addr(csrw_addr),
         .w_data(w_data),
-        .write_en(write_en),
+        .write_en(csr_write_en),
         .csr_out(csr_out)
     );
 
