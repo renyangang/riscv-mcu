@@ -32,7 +32,7 @@ module gpio(
     // 控制位，0表示输入，1表示输出
     input  wire       [`GPIO_NUMS-1:0] gpio_ctrl,
     output reg        [`GPIO_NUMS-1:0] gpio_int_set,
-    output wire        gpio_int
+    output reg        gpio_int
 );
     /* verilator lint_off UNOPTFLAT */
     reg        [`GPIO_NUMS-1:0] gpio_out;
@@ -43,12 +43,14 @@ module gpio(
         end
     endgenerate
 
-    assign gpio_int = |gpio_int_set;
-
     always @(*) begin
         if (rst) begin
             if (int_clear) begin
                 gpio_int_set = gpio_int_set & (~gpio_int_clear_set);
+                gpio_int = |gpio_int_set;
+            end
+            else begin
+                gpio_int |= |gpio_int_set;
             end
             gpio_out = (gpio_out & (~gpio_ctrl)) | (gpio_set & gpio_ctrl);
             gpio_int_set = (gpio_out & (~gpio_ctrl)) ^ (gpio_values & (~gpio_ctrl));
@@ -57,6 +59,7 @@ module gpio(
         else begin
             gpio_int_set = `GPIO_NUMS'b0;
             gpio_out = `GPIO_NUMS'b0;
+            gpio_int = 1'b0;
         end
     end
 

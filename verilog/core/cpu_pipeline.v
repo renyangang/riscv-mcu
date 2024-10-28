@@ -172,6 +172,7 @@ module cpu_pipeline(
         .rs1_data(id_ex_rs1_data),
         .rs2_data(id_ex_rs2_data),
         .imm_2031(id_ex_imm_1231[19:8]),
+        .pc(id_ex_pc_cur),
         .inst_flags(id_ex_inst_flags),
         .mem_data_in(rdata),
         .mem_read_ready(mem_ready),
@@ -342,11 +343,12 @@ module cpu_pipeline(
         if ((is_mem_inst && inst_mem_busy)) begin
             ex_stop = 1'b1;
         end
-        if (!ex_stop && (check_rs1 || check_rs2 || check_rd)) begin
+        if (!ex_stop && (check_rs1 || check_rs2 || check_rd || (|id_ex_rd))) begin
             // 如果存在寄存器结构冒险，需要等待，内存写回寄存器时，如果下一条指令也需要写回，需要暂停一个周期
             ex_stop = (((check_rd && rd != 5'd0) && ((!is_mem_inst && mem_rd_en) || (rd == mem_rd_out && wb_rd_wait)))
             || (check_rs1 && rs1 != 5'd0 && rs1 == mem_rd_out && wb_rd_wait && !mem_rd_en)
-            || (check_rs2 && rs2 != 5'd0 && rs2 == mem_rd_out && wb_rd_wait && !mem_rd_en));
+            || (check_rs2 && rs2 != 5'd0 && rs2 == mem_rd_out && wb_rd_wait && !mem_rd_en))
+            || (mem_rd_en && (|id_ex_rd)); // 如果当前的rd需要写入，也需要暂停一周期
         end
     end
 

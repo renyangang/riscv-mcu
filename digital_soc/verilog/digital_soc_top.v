@@ -1,7 +1,7 @@
 `include "config.v"
 
 module digital_soc_top(
-    input [42:0] input_sig,
+    input [43:0] input_sig,
     output [146:0] output_sig
 );
     // reg clk;
@@ -34,6 +34,7 @@ module digital_soc_top(
     assign clk_timer = input_sig[2];
     assign digital_flash_data = input_sig[10:3];
     assign digital_mem_data = input_sig[42:11];
+    assign gpio_values[9] = input_sig[43];
 
     // initial begin
     //     $dumpfile("D:\\work\\v-computer\\cpu-v\\digital_soc\\verilog\\digital.vcd");

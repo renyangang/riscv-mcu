@@ -33,18 +33,18 @@
     integer i;
     wire [`MAX_BIT_POS:0] x1_out;
     wire [`MAX_BIT_POS:0] x2_out;
+    reg [0:2] abc;
 
-
-    assign rs1_out = (rs1_addr == 5'd0) ? 32'd0 : reg_file[rs1_addr];
-    assign rs2_out = (rs2_addr == 5'd0) ? 32'd0 : reg_file[rs2_addr];
+    assign rs1_out = (rs1_addr == 5'd0) ? `XLEN'd0 : reg_file[rs1_addr];
+    assign rs2_out = (rs2_addr == 5'd0) ? `XLEN'd0 : reg_file[rs2_addr];
 
     assign x1_out = reg_file[1];
     assign x2_out = reg_file[2];
 
     always @(posedge clk) begin
         if (!rst) begin
-            for (i = 0; i < 32; i = i + 1) begin
-                reg_file[i] <= 32'h00000000;
+            for (i = 0; i < `XLEN; i = i + 1) begin
+                reg_file[i] <= `XLEN'h00000000;
             end
         end
         else begin 

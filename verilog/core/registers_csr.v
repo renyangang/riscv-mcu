@@ -112,38 +112,29 @@
 
     /* verilator lint_off LATCH */
     always @(*) begin
-        if (|(peripheral_int_code)) begin
-            mip[11] = 1'b1;
-            cur_int_code = peripheral_int_code;
-        end
-        else begin
-            mip[11] = 1'b0;
-        end
-        if (|(soft_int_code)) begin
-            mip[3] = 1'b1;
-            cur_int_code = soft_int_code;
-        end
-        else begin
-            mip[3] = 1'b0;
-        end
-        if (mtime >= mtimecmp) begin
-            mip[7] =  1'b1;
-        end
-        else begin
-            mip[7] =  1'b0;
-        end
-    end
-
-    always @(posedge set_mtimecmp_low or posedge set_mtimecmp_high) begin
         if (!rst) begin
-            mtimecmp = {64{1'b1}};
+            mip = `XLEN'd0;
         end
         else begin
-            if (set_mtimecmp_low) begin
-                mtimecmp[31:0] = mtimecmp_low;
+            if (|(peripheral_int_code)) begin
+                mip[11] = 1'b1;
+                cur_int_code = peripheral_int_code;
             end
-            else if (set_mtimecmp_high) begin
-                mtimecmp[63:32] = mtimecmp_high;
+            else begin
+                mip[11] = 1'b0;
+            end
+            if (|(soft_int_code)) begin
+                mip[3] = 1'b1;
+                cur_int_code = soft_int_code;
+            end
+            else begin
+                mip[3] = 1'b0;
+            end
+            if (mtime >= mtimecmp) begin
+                mip[7] =  1'b1;
+            end
+            else begin
+                mip[7] =  1'b0;
             end
         end
     end
@@ -170,7 +161,6 @@
             mepc <= `XLEN'd0;
             mcause <= `XLEN'd0;
             mtval <= `XLEN'd0;
-            mip <= `XLEN'd0;
             mvendorid <= `XLEN'd0;
             marchid <= `XLEN'd0;
             mimpid <= `XLEN'd0;

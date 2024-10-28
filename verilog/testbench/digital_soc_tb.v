@@ -91,22 +91,29 @@ module cpu_tb;
         end
     endgenerate
 
+    reg gpio_10;
+    assign gpio_values[9] = gpio_10;
+
     initial begin
         clk = 0;
         rst = 0;
         clk_timer = 0;
+        gpio_10 = 1'b0;
         digital_flash_ready = 1'd0;
         digital_mem_ready = 1'd0;
         
         // offchip_mem_ready = 0;
         #10 rst = 1;
-        
         #200000;
+        gpio_10 = 1'b1;
+        #100000;
+        gpio_10 = 1'b0;
+        #100000;
         $finish;
     end
 
     always #5 clk = ~clk;
-    always #30 clk_timer = ~clk_timer;
+    always #20 clk_timer = ~clk_timer;
 
 
 endmodule
