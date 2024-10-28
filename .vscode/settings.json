@@ -60,7 +60,11 @@
         "stdexcept": "cpp",
         "stop_token": "cpp",
         "streambuf": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "coroutine": "cpp",
+        "list": "cpp",
+        "fstream": "cpp",
+        "sstream": "cpp"
     },
     "verilog.linting.linter": "iverilog",
     "verilog.linting.iverilog.includePath": ["verilog","verilog/core","verilog/soc"],

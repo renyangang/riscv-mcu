@@ -33,7 +33,6 @@
     integer i;
     wire [`MAX_BIT_POS:0] x1_out;
     wire [`MAX_BIT_POS:0] x2_out;
-    reg [0:2] abc;
 
     assign rs1_out = (rs1_addr == 5'd0) ? `XLEN'd0 : reg_file[rs1_addr];
     assign rs2_out = (rs2_addr == 5'd0) ? `XLEN'd0 : reg_file[rs2_addr];

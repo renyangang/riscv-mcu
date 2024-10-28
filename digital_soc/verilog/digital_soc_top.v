@@ -1,6 +1,7 @@
 `include "config.v"
 
 module digital_soc_top(
+    input clk,
     input [43:0] input_sig,
     output [146:0] output_sig
 );
@@ -36,13 +37,13 @@ module digital_soc_top(
     assign digital_mem_data = input_sig[42:11];
     assign gpio_values[9] = input_sig[43];
 
-    // initial begin
-    //     $dumpfile("D:\\work\\v-computer\\cpu-v\\digital_soc\\verilog\\digital.vcd");
-    //     $dumpvars(0, digital_soc_top);
-    // end
+    initial begin
+        $dumpfile("D:\\work\\v-computer\\cpu-v\\digital_soc\\verilog\\digital.vcd");
+        $dumpvars(0, digital_soc_top);
+    end
 
     digital_soc digital_soc(
-        .clk(clk_r),
+        .clk(clk),
         .rst(rst),
         .clk_timer(clk_timer),
         .digital_flash_addr(digital_flash_addr),
@@ -121,13 +122,30 @@ module digital_soc_top(
     //     // $display("input_sig = %b, output_sig = %b", input_sig, output_sig);
     // end
 
+    reg digital_flash_ready_r1;
+    reg digital_mem_ready_r1;
     reg digital_flash_ready_r;
     reg digital_mem_ready_r;
+    reg last_digital_flash_ready_r;
+    reg last_digital_mem_ready_r;
+
+    always @(posedge clk) begin
+        if (!rst) begin
+            digital_flash_ready_r1 <= 1'b0;
+            digital_mem_ready_r1 <= 1'b0;
+        end
+        else begin
+            last_digital_flash_ready_r <= digital_flash_ready_r;
+            last_digital_mem_ready_r <= digital_mem_ready_r;
+            digital_flash_ready_r1 <= (!last_digital_flash_ready_r && digital_flash_ready_r);
+            digital_mem_ready_r1 <= (!last_digital_mem_ready_r && digital_mem_ready_r);
+        end
+    end
 
     always @(posedge clk_r) begin
         if (rst) begin
-            digital_flash_ready_r <= (~digital_flash_ready) ? 1'b1 : digital_flash_ready;
-            digital_mem_ready_r <= (~digital_mem_ready) ? 1'b1 : digital_mem_ready;
+            digital_flash_ready_r <= ((~digital_flash_ready_r) && (digital_flash_write_en || digital_flash_read_en));
+            digital_mem_ready_r <= ((~digital_mem_ready_r) && (digital_mem_write_en || digital_mem_read_en));
         end
         else begin
             digital_mem_ready_r <= 1'b0;
@@ -135,16 +153,16 @@ module digital_soc_top(
         end
     end
 
-    always @(digital_flash_addr or digital_flash_write_en or digital_flash_read_en or digital_flash_ready_r) begin
+    always @(digital_flash_addr or digital_flash_write_en or digital_flash_read_en or digital_flash_ready_r1) begin
         digital_flash_ready = 1'b0;
-        if (digital_flash_ready_r) begin
+        if (digital_flash_ready_r1) begin
             digital_flash_ready = 1'b1;
         end
     end
 
-    always @(digital_mem_addr or digital_mem_write_en or digital_mem_read_en or digital_mem_ready_r) begin
+    always @(digital_mem_addr or digital_mem_write_en or digital_mem_read_en or digital_mem_ready_r1) begin
         digital_mem_ready = 1'b0;
-        if (digital_mem_ready_r) begin
+        if (digital_mem_ready_r1) begin
             digital_mem_ready = 1'b1;
         end
     end

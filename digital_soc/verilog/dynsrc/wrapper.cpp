@@ -6,6 +6,7 @@
 #include "verilated.h"
 #include "Vdigital_soc_top.h"
 #include <thread>
+#include <time.h>
 
 #define SIG_SIZE 128
 
@@ -26,68 +27,60 @@ void cpu_loop() {
     contextp->debug(0);
     contextp->randReset(2);
     contextp->traceEverOn(true);
+    memset((void*)input_sig, 0, SIG_SIZE);
+    struct timespec ns_sleep;
+    ns_sleep.tv_sec = 0;
+    ns_sleep.tv_nsec = 5;
+    unsigned char clk = 0;
     
     // Simulate until $finish
-    // while (!contextp->gotFinish() && run_flag) {
-    //     // Evaluate model
-    //     topp->input_sig = (*(QData*)input_sig);
-    //     topp->eval();
-    //     int pos = 0;
-    //     memcpy((void*)output_sig, (char*)&(topp->output_sig.m_storage[0]), sizeof(EData)*topp->output_sig.Words);
-    //     // Advance time
-    //     contextp->timeInc(1);
-    //     usleep(1);
-    // }
-
-    // if (!contextp->gotFinish()) {
-    //     VL_DEBUG_IF(VL_PRINTF("+ Exiting without $finish; no events left\n"););
-    // }
+    while (!contextp->gotFinish() && run_flag) {
+        // Evaluate model
+        topp->clk = clk;
+        topp->input_sig = (*(QData*)input_sig);
+        topp->eval();
+        memcpy((void*)output_sig, (char*)&(topp->output_sig.m_storage[0]), sizeof(EData)*topp->output_sig.Words);
+        if (clk) {
+            clk = 0;
+        }else {
+            clk = 1;
+        }
+        // Advance time
+        contextp->timeInc(1);
+        nanosleep(&ns_sleep,NULL);
+    }
 
     // Execute 'final' processes
-    // topp->final();
-    // contextp->statsPrintSummary();
-    // delete topp;
-    // delete contextp;
+    topp->final();
+    contextp->statsPrintSummary();
+    delete topp;
+    delete contextp;
 }
 
 extern "C" {
 
     DLL_EXPORT void cpuLoopInit() {
-        // std::thread cpu_thread(cpu_loop);
-        // cpu_thread.detach();
         if (!run_flag) {
-            cpu_loop();
+            std::thread cpu_thread(cpu_loop);
+            cpu_thread.detach();
             run_flag = 1;
         }
     }
 
     DLL_EXPORT void setInput(char* input, int size) {
-        cpuLoopInit();
         int len = size > SIG_SIZE ? SIG_SIZE : size;
         memcpy((void*)input_sig, input, len);
-        topp->input_sig = (*(QData*)input_sig);
-        topp->eval();
-        memcpy((void*)output_sig, (char*)&(topp->output_sig.m_storage[0]), sizeof(EData)*topp->output_sig.Words);
-        // Advance time
-        contextp->timeInc(1);
+        // topp->input_sig = (*(QData*)input_sig);
+        // topp->eval();
+        // contextp->timeInc(1);
     }
 
     DLL_EXPORT void getOutput(char* output, int size) {
-        cpuLoopInit();
-        topp->input_sig = (*(QData*)input_sig);
-        topp->eval(); 
-        memcpy((void*)output_sig, (char*)&(topp->output_sig.m_storage[0]), sizeof(EData)*topp->output_sig.Words);
-        // Advance time
-        contextp->timeInc(1);
         int len = size > SIG_SIZE ? SIG_SIZE : size;
         memcpy(output, (void*)output_sig, len);
     }
 
     DLL_EXPORT void cpuLoopStop() {
-        topp->final();
-        contextp->statsPrintSummary();
-        delete topp;
-        delete contextp;
         run_flag = 0;
     }
 }
