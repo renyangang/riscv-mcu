@@ -83,31 +83,23 @@
     assign mtime_low = mtime[31:0];
     assign mtime_high = mtime[63:32];
 
-    task get_csr_value;
-        input [11:0] addr;
-        output [`MAX_BIT_POS:0] value;
-        begin
-            case (addr)
-                12'h300: value = mstatus;
-                12'h301: value = misa;
-                12'h304: value = mie;
-                12'h305: value = mtvec;
-                12'h340: value = mscratch;
-                12'h341: value = mepc;
-                12'h342: value = mcause;
-                12'h343: value = mtval;
-                12'h344: value = mip;
-                12'hF11: value = mvendorid;
-                12'hF12: value = marchid;
-                12'hF13: value = mimpid;
-                12'hF14: value = mhartid;
-                default: value = 32'h0;
-            endcase
-        end
-    endtask
-
-    always @(csr_read_addr) begin
-        get_csr_value(csr_read_addr, csr_out);
+    always @(*) begin
+        case (csr_read_addr)
+            12'h300: csr_out = mstatus;
+            12'h301: csr_out = misa;
+            12'h304: csr_out = mie;
+            12'h305: csr_out = mtvec;
+            12'h340: csr_out = mscratch;
+            12'h341: csr_out = mepc;
+            12'h342: csr_out = mcause;
+            12'h343: csr_out = mtval;
+            12'h344: csr_out = mip;
+            12'hF11: csr_out = mvendorid;
+            12'hF12: csr_out = marchid;
+            12'hF13: csr_out = mimpid;
+            12'hF14: csr_out = mhartid;
+            default: csr_out = 32'h0;
+        endcase
     end
 
     /* verilator lint_off LATCH */
@@ -150,21 +142,6 @@
 
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
-            int_proc_state <= 1'b0;
-            jmp_en <= 1'b0;
-            jmp_pc <= `XLEN'd0;
-            mstatus <= `XLEN'd0;
-            misa <= `XLEN'b11000000000000000000000010000000;
-            mie <= `XLEN'd0;
-            mtvec <= `XLEN'd0;
-            mscratch <= `XLEN'd0;
-            mepc <= `XLEN'd0;
-            mcause <= `XLEN'd0;
-            mtval <= `XLEN'd0;
-            mvendorid <= `XLEN'd0;
-            marchid <= `XLEN'd0;
-            mimpid <= `XLEN'd0;
-            mhartid <= `XLEN'd0;
             mtimecmp <= {64{1'b1}};
         end
         else begin
@@ -174,24 +151,66 @@
             else if (set_mtimecmp_high) begin
                 mtimecmp[63:32] <= mtimecmp_high;
             end
-            if (mret_en) begin
+        end
+    end
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            jmp_en <= 1'b0;
+            jmp_pc <= `XLEN'd0;
+            mstatus <= `XLEN'd0;
+            misa <= `XLEN'b11000000000000000000000010000000;
+            mie <= `XLEN'd0;
+            mtvec <= `XLEN'd0;
+            mscratch <= `XLEN'd0;
+            mvendorid <= `XLEN'd0;
+            marchid <= `XLEN'd0;
+            mimpid <= `XLEN'd0;
+            mhartid <= `XLEN'd0;
+        end
+        else begin
+            if (write_en) begin
+                case (csrw_addr)
+                    12'h300: mstatus <= w_data;
+                    // 12'h301: misa <= w_data;
+                    12'h304: mie <= w_data;
+                    12'h305: mtvec <= w_data;
+                    12'h340: mscratch <= w_data;
+                    // 12'h341: mepc <= w_data;
+                    // 12'h342: mcause <= w_data;
+                    // 12'h343: mtval <= w_data;
+                    default: ;
+                endcase
+            end
+        end
+    end
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
+            int_proc_state <= 1'b0;
+            jmp_en <= 1'b0;
+            jmp_pc <= `XLEN'd0;
+            mepc <= `XLEN'd0;
+            mcause <= `XLEN'd0;
+            mtval <= `XLEN'd0;
+        end
+        else begin
+            if (exception_en) begin
+                mstatus[7] <= mstatus[3];
+                mstatus[3] <= 1'b0;
+                jmp_en <= 1'b1;
+                mcause <= exception_code;
+                mepc <= exp_pc;
+                mtval <= exp_val;
+                jmp_pc <= {mtvec[31:2],2'b00};
+            end
+            else if (mret_en) begin
                 jmp_en <= 1'b1;
                 jmp_pc <= mepc;
                 mepc <= `XLEN'd0;
                 mstatus[3] <= mstatus[7];
                 mstatus[7] <= 1'b1;
                 int_proc_state <= 1'b0;
-            end
-            else if (exception_en) begin
-                mstatus[7] <= mstatus[3];
-                mstatus[3] <= 1'b0;
-                jmp_en <= 1'b1;
-                if (exception_en) begin
-                    mcause <= exception_code;
-                    mepc <= exp_pc;
-                    mtval <= exp_val;
-                    jmp_pc <= {mtvec[31:2],2'b00};
-                end
             end
             else if (int_jmp_ready && !int_proc_state) begin
                 mepc <= exp_pc_next;
@@ -211,25 +230,6 @@
                     mcause <= {1'd1,31'd7};
                     jmp_pc <= mtvec[0] ? ({mtvec[31:2],2'b00} + (4*7)):{mtvec[31:2],2'b00};
                 end
-            end
-            else if (write_en) begin
-                case (csrw_addr)
-                    12'h300: mstatus <= w_data;
-                    // 12'h301: misa <= w_data;
-                    12'h304: mie <= w_data;
-                    12'h305: mtvec <= w_data;
-                    12'h340: mscratch <= w_data;
-                    12'h341: mepc <= w_data;
-                    12'h342: mcause <= w_data;
-                    12'h343: mtval <= w_data;
-                    // 12'h344: mip <= w_data;
-                    // 12'hF11: mvendorid <= w_data;
-                    // 12'hF12: marchid <= w_data;
-                    // 12'hF13: mimpid <= w_data;
-                    // 12'hF14: mhartid <= w_data;
-                    default: ;
-                endcase
-                jmp_en <= 1'b0;
             end
             else begin
                 jmp_en <= 1'b0;

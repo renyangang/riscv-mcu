@@ -20,6 +20,9 @@ SECTIONS
     _int_begin = .;
     *(.exceptiontext)
     . = ALIGN(4);
+    . = (_int_begin + 0xC);
+    *(.softinttext)
+    . = ALIGN(4);
     . = (_int_begin + 0x1C);
     *(.timerinttext)
     . = ALIGN(4);

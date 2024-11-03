@@ -16,9 +16,14 @@ _start:
 
 .section .exceptiontext
 int_handler:
-    call inner_exception_handler
+    j inner_exception_handler
 mret_pos:
     mret
+
+
+.section .softinttext
+soft_handler:
+    j inner_soft_handler
 
 .section .timerinttext
 timer_handler:
@@ -63,6 +68,16 @@ restore_regs:
     lw a1, 28(sp)
     addi sp, sp, 34
     ret
+
+inner_soft_handler:
+    add	sp,sp,-4
+    sw	ra,0(sp)
+    call save_regs
+    call int_soft_handler
+    call restore_regs
+    lw	ra,0(sp)
+    addi	sp,sp,4
+    j mret_pos
 
 inner_timer_handler:
     add	sp,sp,-4

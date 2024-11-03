@@ -41,3 +41,7 @@ void int_peripheral_handler() {
     return;
 }
 
+void int_soft_handler() {
+    return;
+}
+
