@@ -9,8 +9,8 @@ module digital_soc_top(
     wire rst;
     wire clk_timer;
     wire clk_r;
-    reg digital_flash_ready;
-    reg digital_mem_ready;
+    wire digital_flash_ready;
+    wire digital_mem_ready;
 
     wire  [`MAX_BIT_POS:0] digital_flash_addr;
     wire  digital_flash_write_en;
@@ -28,22 +28,24 @@ module digital_soc_top(
 
     // assign output_sig = {digital_flash_addr[31:0],digital_flash_write_en,digital_flash_read_en,digital_flash_byte_size[2:0],digital_flash_wdata[7:0],
     // digital_mem_addr[31:0],digital_mem_write_en,digital_mem_read_en,digital_mem_byte_size[3:0],digital_mem_wdata[31:0],gpio_values[31:0]};
-    assign output_sig = {gpio_values[31:0],digital_mem_wdata[31:0],digital_mem_byte_size[3:0],digital_mem_read_en,digital_mem_write_en,digital_mem_addr[31:0],digital_flash_wdata[7:0],digital_flash_byte_size[2:0],digital_flash_read_en,digital_flash_write_en,digital_flash_addr[31:0]};
+    assign output_sig = {gpio_values[31:0],digital_mem_wdata_l[31:0],digital_mem_byte_size[3:0],digital_mem_read_en_l,digital_mem_write_en_l,digital_mem_addr_l[31:0],digital_flash_wdata_l[7:0],digital_flash_byte_size[2:0],digital_flash_read_en_l,digital_flash_write_en_l,digital_flash_addr_l[31:0]};
     // assign output_sig = {32'd1,32'd2,4'd0,1'b1,1'b1,32'd2,8'd1,3'd0,1'b0,1'b0,32'd2};
     assign clk_r = input_sig[0];
     assign rst = input_sig[1];
     assign clk_timer = input_sig[2];
-    assign digital_flash_data = input_sig[10:3];
-    assign digital_mem_data = input_sig[42:11];
+    assign digital_flash_data_l = input_sig[10:3];
+    assign digital_mem_data_l = input_sig[42:11];
     assign gpio_values[9] = input_sig[43];
 
     initial begin
-        $dumpfile("D:\\work\\v-computer\\cpu-v\\digital_soc\\verilog\\digital.vcd");
+        // $dumpfile("D:\\work\\v-computer\\cpu-v\\digital_soc\\verilog\\digital.vcd");
+        $dumpfile("D:\\work\\source\\linux\\cpu-v\\digital_soc\\verilog\\digital.vcd");
         $dumpvars(0, digital_soc_top);
     end
 
+
     digital_soc digital_soc(
-        .clk(clk),
+        .clk(clk_r),
         .rst(rst),
         .clk_timer(clk_timer),
         .digital_flash_addr(digital_flash_addr),
@@ -122,50 +124,55 @@ module digital_soc_top(
     //     // $display("input_sig = %b, output_sig = %b", input_sig, output_sig);
     // end
 
-    reg digital_flash_ready_r1;
-    reg digital_mem_ready_r1;
-    reg digital_flash_ready_r;
-    reg digital_mem_ready_r;
-    reg last_digital_flash_ready_r;
-    reg last_digital_mem_ready_r;
+    wire digital_flash_ready_l;
+    wire digital_mem_ready_l;
 
-    always @(posedge clk) begin
-        if (!rst) begin
-            digital_flash_ready_r1 <= 1'b0;
-            digital_mem_ready_r1 <= 1'b0;
-        end
-        else begin
-            last_digital_flash_ready_r <= digital_flash_ready_r;
-            last_digital_mem_ready_r <= digital_mem_ready_r;
-            digital_flash_ready_r1 <= (!last_digital_flash_ready_r && digital_flash_ready_r);
-            digital_mem_ready_r1 <= (!last_digital_mem_ready_r && digital_mem_ready_r);
-        end
-    end
+    wire  [`MAX_BIT_POS:0] digital_flash_addr_l;
+    wire  digital_flash_write_en_l;
+    wire  digital_flash_read_en_l;
+    wire  [2:0] digital_flash_byte_size_l;
+    wire  [7:0] digital_flash_wdata_l;
+    wire  [7:0] digital_flash_data_l;
+    wire  [`MAX_BIT_POS:0] digital_mem_addr_l;
+    wire  digital_mem_write_en_l;
+    wire  digital_mem_read_en_l;
+    wire  [3:0] digital_mem_byte_size_l;
+    wire  [`MAX_BIT_POS:0] digital_mem_wdata_l;
+    wire  [`MAX_BIT_POS:0] digital_mem_data_l;
 
-    always @(posedge clk_r) begin
-        if (rst) begin
-            digital_flash_ready_r <= ((~digital_flash_ready_r) && (digital_flash_write_en || digital_flash_read_en));
-            digital_mem_ready_r <= ((~digital_mem_ready_r) && (digital_mem_write_en || digital_mem_read_en));
-        end
-        else begin
-            digital_mem_ready_r <= 1'b0;
-            digital_flash_ready_r <= 1'b0;
-        end
-    end
+    hl_adapter #(8) hl_adapter_flash (
+        .clk_h(clk),
+        .rst(rst),
+        .clk_l(clk_r),
+        .h_read_en(digital_flash_read_en),
+        .h_write_en(digital_flash_write_en),
+        .h_addr(digital_flash_addr),
+        .h_data_in(digital_flash_wdata),
+        .h_data_ready(digital_flash_ready),
+        .h_data_out(digital_flash_data),
+        .l_read_en(digital_flash_read_en_l),
+        .l_write_en(digital_flash_write_en_l),
+        .l_addr(digital_flash_addr_l),
+        .l_data_in(digital_flash_wdata_l),
+        .l_data_out(digital_flash_data_l)
+    );
 
-    always @(digital_flash_addr or digital_flash_write_en or digital_flash_read_en or digital_flash_ready_r1) begin
-        digital_flash_ready = 1'b0;
-        if (digital_flash_ready_r1) begin
-            digital_flash_ready = 1'b1;
-        end
-    end
-
-    always @(digital_mem_addr or digital_mem_write_en or digital_mem_read_en or digital_mem_ready_r1) begin
-        digital_mem_ready = 1'b0;
-        if (digital_mem_ready_r1) begin
-            digital_mem_ready = 1'b1;
-        end
-    end
+    hl_adapter #(`XLEN) hl_adapter_mem (
+        .clk_h(clk),
+        .rst(rst),
+        .clk_l(clk_r),
+        .h_read_en(digital_mem_read_en),
+        .h_write_en(digital_mem_write_en),
+        .h_addr(digital_mem_addr),
+        .h_data_in(digital_mem_wdata),
+        .h_data_ready(digital_mem_ready),
+        .h_data_out(digital_mem_data),
+        .l_read_en(digital_mem_read_en_l),
+        .l_write_en(digital_mem_write_en_l),
+        .l_addr(digital_mem_addr_l),
+        .l_data_in(digital_mem_wdata_l),
+        .l_data_out(digital_mem_data_l)
+    );
 
     // always #50 clk = ~clk;
     // always #1000000 clk_timer = ~clk_timer;

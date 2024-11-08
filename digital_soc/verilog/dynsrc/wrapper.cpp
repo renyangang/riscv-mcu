@@ -7,8 +7,11 @@
 #include "Vdigital_soc_top.h"
 #include <thread>
 #include <time.h>
+#include <mutex>
 
 #define SIG_SIZE 128
+
+std::mutex mtx; 
 
 static volatile char input_sig[SIG_SIZE];
 static volatile char output_sig[SIG_SIZE];
@@ -37,9 +40,13 @@ void cpu_loop() {
     while (!contextp->gotFinish() && run_flag) {
         // Evaluate model
         topp->clk = clk;
+        mtx.lock();
         topp->input_sig = (*(QData*)input_sig);
+        mtx.unlock();
         topp->eval();
+        mtx.lock();
         memcpy((void*)output_sig, (char*)&(topp->output_sig.m_storage[0]), sizeof(EData)*topp->output_sig.Words);
+        mtx.unlock();
         if (clk) {
             clk = 0;
         }else {
@@ -69,6 +76,7 @@ extern "C" {
 
     DLL_EXPORT void setInput(char* input, int size) {
         int len = size > SIG_SIZE ? SIG_SIZE : size;
+        std::lock_guard<std::mutex> lock(mtx); 
         memcpy((void*)input_sig, input, len);
         // topp->input_sig = (*(QData*)input_sig);
         // topp->eval();
@@ -77,10 +85,18 @@ extern "C" {
 
     DLL_EXPORT void getOutput(char* output, int size) {
         int len = size > SIG_SIZE ? SIG_SIZE : size;
+        std::lock_guard<std::mutex> lock(mtx); 
         memcpy(output, (void*)output_sig, len);
     }
 
     DLL_EXPORT void cpuLoopStop() {
         run_flag = 0;
+    }
+
+    DLL_EXPORT void nanoSleep(int ns) {
+        struct timespec ns_sleep;
+        ns_sleep.tv_sec = 0;
+        ns_sleep.tv_nsec = ns;
+        nanosleep(&ns_sleep,NULL);
     }
 }
