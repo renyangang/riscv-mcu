@@ -4,7 +4,7 @@
 #define DLL_EXPORT
 #endif
 #include "verilated.h"
-#include "Vdigital_soc.h"
+#include "Vvboard_soc_top.h"
 #include <thread>
 #include <time.h>
 #include <mutex>
@@ -17,7 +17,7 @@ static volatile char run_flag = 0;
 static volatile char cpu_thread_flag = 0;
 
 VerilatedContext *contextp;
-Vdigital_soc *topp;
+Vvboard_soc_top *topp;
 
 void setInput(unsigned char* input,int input_size) {
     topp->clk = input[0];
@@ -60,7 +60,7 @@ extern "C" {
     DLL_EXPORT void init() {
         if (!run_flag) {
             contextp = new VerilatedContext();
-            topp = new Vdigital_soc{contextp};
+            topp = new Vvboard_soc_top{contextp};
             contextp->debug(0);
             contextp->randReset(2);
             contextp->traceEverOn(true);
@@ -70,6 +70,7 @@ extern "C" {
 
     DLL_EXPORT void eval(unsigned char* input,int input_size,unsigned char* output,int output_size) {
         setInput(input,input_size);
+        // printf("%d %d %d \n",input[0],input[1],input[2]);
         topp->eval();
         contextp->timeInc(1);
         getOutput(output,output_size);

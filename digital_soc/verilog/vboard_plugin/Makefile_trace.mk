@@ -21,7 +21,7 @@ all: plugin
 plugin: plugin.cpp
 	@echo "plugin compiled"
 	@echo $(OS)
-	$(CC) $(LDFLAGS) -o plugin$(DLL_EXT) plugin.cpp ../obj_dir/verilated.o ../obj_dir/verilated_threads.o ../obj_dir/Vdigital_soc__ALL.a ../obj_dir/verilated_vcd_c.o
+	$(CC) $(LDFLAGS) -o plugin$(DLL_EXT) plugin.cpp ../obj_dir/verilated.o ../obj_dir/verilated_threads.o ../obj_dir/Vvboard_soc_top__ALL.a ../obj_dir/verilated_vcd_c.o
 	
 clean:
 	$(RM) plugin$(DLL_EXT)
