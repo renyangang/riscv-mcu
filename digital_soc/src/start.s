@@ -42,7 +42,11 @@ peripheral_handler:
 
 .section .text
 set_mie:
+    add	sp,sp,-4
+    sw	ra,0(sp)
     csrrw t2,mie,a0
+    lw	ra,0(sp)
+    addi	sp,sp,4
     ret
 
 save_regs:

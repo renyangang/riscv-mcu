@@ -31,8 +31,7 @@ module gpio(
     inout  wire       [`GPIO_NUMS-1:0] gpio_values,
     // 控制位，0表示输入，1表示输出
     input  wire       [`GPIO_NUMS-1:0] gpio_ctrl,
-    output reg        [`GPIO_NUMS-1:0] gpio_int_set,
-    output reg        gpio_int
+    output reg        [`GPIO_NUMS-1:0] gpio_int_set
 );
     /* verilator lint_off UNOPTFLAT */
     reg        [`GPIO_NUMS-1:0] gpio_out;
@@ -46,20 +45,15 @@ module gpio(
     always @(*) begin
         if (rst) begin
             if (int_clear) begin
-                gpio_int_set = gpio_int_set & (~gpio_int_clear_set);
-                gpio_int = |gpio_int_set;
+                gpio_int_set = 0;
             end
-            else begin
-                gpio_int |= |gpio_int_set;
-            end
+            gpio_int_set |= (gpio_out & (~gpio_ctrl)) ^ (gpio_values & (~gpio_ctrl));
             gpio_out = (gpio_out & (~gpio_ctrl)) | (gpio_set & gpio_ctrl);
-            gpio_int_set = (gpio_out & (~gpio_ctrl)) ^ (gpio_values & (~gpio_ctrl));
             gpio_out = (gpio_out & gpio_ctrl) | (gpio_values & (~gpio_ctrl));
         end
         else begin
             gpio_int_set = `GPIO_NUMS'b0;
             gpio_out = `GPIO_NUMS'b0;
-            gpio_int = 1'b0;
         end
     end
 
@@ -82,7 +76,7 @@ module gpio_controller(
     output reg [`MAX_BIT_POS:0] io_rdata,
     output reg io_ready,
     inout wire [`GPIO_NUMS-1:0] gpio_values,
-    output wire gpio_int
+    output reg gpio_int
 );
 
     wire [5:0]addr_offset;
@@ -104,7 +98,6 @@ module gpio_controller(
         .int_clear(int_clear),
         .gpio_values(gpio_values),
         .gpio_ctrl(gpio_ctrl),
-        .gpio_int(gpio_int),
         .gpio_int_set(gpio_int_set),
         .gpio_int_clear_set(gpio_int_clear_set)
     );
@@ -115,50 +108,60 @@ module gpio_controller(
             gpio_set <= `GPIO_NUMS'b0;
             gpio_ctrl <= `GPIO_NUMS'b0;
             int_clear <= 1'b0;
-        end else if(io_write) begin
-            case (addr_offset)
-                `GPIO_CONFIG_OFFSET: begin
-                    gpio_ctrl <= io_wdata[`GPIO_NUMS-1:0];
-                    io_ready <= 1'b1;
-                end
-                `GPIO_SET_OFFSET: begin
-                    gpio_set <= io_wdata[`GPIO_NUMS-1:0];
-                    io_ready <= 1'b1;
-                end
-                `GPIO_INT_CLEAR_OFFSET: begin
-                    int_clear <= 1'b1;
-                    gpio_int_clear_set <= io_wdata[`GPIO_NUMS-1:0];
-                    io_ready <= 1'b1;
-                end
-                default: begin
-                    io_ready <= 1'b0;
-                    int_clear <= 1'b0;
-                end
-            endcase
-        end
-        else if (io_read) begin
-            int_clear <= 1'b0;
-            case (addr_offset)
-                `GPIO_CONFIG_OFFSET: begin
-                    io_rdata <= gpio_ctrl;
-                    io_ready <= 1'b1;
-                end
-                `GPIO_READ_OFFSET: begin
-                    io_rdata <= gpio_values;
-                    io_ready <= 1'b1;
-                end
-                `GPIO_INT_READ_OFFSET: begin
-                    io_rdata <= gpio_int_set;
-                    io_ready <= 1'b1;
-                end
-                default: begin
-                    io_ready <= 1'b0;
-                end
-            endcase
-        end
+            gpio_int <= 1'b0;
+        end 
         else begin
-            io_ready <= 1'b0;
-            int_clear <= 1'b0;
+            if (int_clear) begin
+                gpio_int <= |gpio_int_set;
+            end
+            else begin
+                gpio_int <= gpio_int | (|gpio_int_set);
+            end
+            if(io_write) begin
+                case (addr_offset)
+                    `GPIO_CONFIG_OFFSET: begin
+                        gpio_ctrl <= io_wdata[`GPIO_NUMS-1:0];
+                        io_ready <= 1'b1;
+                    end
+                    `GPIO_SET_OFFSET: begin
+                        gpio_set <= io_wdata[`GPIO_NUMS-1:0];
+                        io_ready <= 1'b1;
+                    end
+                    `GPIO_INT_CLEAR_OFFSET: begin
+                        int_clear <= 1'b1;
+                        gpio_int_clear_set <= io_wdata[`GPIO_NUMS-1:0];
+                        io_ready <= 1'b1;
+                    end
+                    default: begin
+                        io_ready <= 1'b0;
+                        int_clear <= 1'b0;
+                    end
+                endcase
+            end
+            else if (io_read) begin
+                int_clear <= 1'b0;
+                case (addr_offset)
+                    `GPIO_CONFIG_OFFSET: begin
+                        io_rdata <= gpio_ctrl;
+                        io_ready <= 1'b1;
+                    end
+                    `GPIO_READ_OFFSET: begin
+                        io_rdata <= gpio_values;
+                        io_ready <= 1'b1;
+                    end
+                    `GPIO_INT_READ_OFFSET: begin
+                        io_rdata <= gpio_int_set;
+                        io_ready <= 1'b1;
+                    end
+                    default: begin
+                        io_ready <= 1'b0;
+                    end
+                endcase
+            end
+            else begin
+                io_ready <= 1'b0;
+                int_clear <= 1'b0;
+            end
         end
     end
 

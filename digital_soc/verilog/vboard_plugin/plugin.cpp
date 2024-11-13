@@ -27,7 +27,7 @@ void setInput(unsigned char* input,int input_size) {
     topp->digital_flash_ready = input[4];
     topp->digital_mem_data = *(IData*)&(input[5]);
     topp->digital_mem_ready = input[5+sizeof(IData)];
-    topp->gpio_values |= (input[5+sizeof(IData)+1] & 0x1) << 9;
+    topp->gpio_values_in = *(IData*)&(input[5+sizeof(IData)+1]);
 }
 
 void getOutput(unsigned char* output,int output_size) {
@@ -40,8 +40,8 @@ void getOutput(unsigned char* output,int output_size) {
     pos += sizeof(CData);
     memcpy((void*)&(output[pos]), &(topp->digital_flash_byte_size), sizeof(CData));
     pos += sizeof(CData);
-    memcpy((void*)&(output[pos]), &(topp->digital_flash_wdata), sizeof(IData));
-    pos += sizeof(IData);
+    memcpy((void*)&(output[pos]), &(topp->digital_flash_wdata), sizeof(CData));
+    pos += sizeof(CData);
     memcpy((void*)&(output[pos]), &(topp->digital_mem_write_en), sizeof(CData));
     pos += sizeof(CData);
     memcpy((void*)&(output[pos]), &(topp->digital_mem_read_en), sizeof(CData));
@@ -52,7 +52,7 @@ void getOutput(unsigned char* output,int output_size) {
     pos += sizeof(CData);
     memcpy((void*)&(output[pos]), &(topp->digital_mem_wdata), sizeof(IData));
     pos += sizeof(IData);
-    memcpy((void*)&(output[pos]), &(topp->gpio_values), sizeof(IData));
+    memcpy((void*)&(output[pos]), &(topp->gpio_values_out), sizeof(IData));
 }
 
 extern "C" {
