@@ -46,7 +46,7 @@ module vboard_soc_top(
 
     genvar i;
     generate
-        for (i = 9; i < `GPIO_NUMS; i = i + 1) begin : gpio_logic
+        for (i = 20; i < `GPIO_NUMS; i = i + 1) begin : gpio_logic
             assign gpio_values[i] = gpio_values_in[i];
         end
     endgenerate

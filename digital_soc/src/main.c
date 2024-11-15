@@ -30,20 +30,20 @@ static int cur_pin = 0;
 static int cur_pins_status = 0;
 
 void flash_timer_handler() {
-    // set low 7 pins of port D as output
-    set_all_pins_mode(0x7f);
+    // set low 20 pins of port D as output
+    set_all_pins_mode(0xFFFFF);
     if(mode) {
         if(cur_pins_status) {
-            set_all_pins(get_all_pins() & ~0x7f);
+            set_all_pins(get_all_pins() & 0xFFF00000);
             cur_pins_status = 0;
         }else{
-            set_all_pins(get_all_pins() | 0x7f);
+            set_all_pins(get_all_pins() | 0xFFFFF);
             cur_pins_status = 1;
         }
     } else {
-        set_all_pins(get_all_pins() & ~0x7f);
+        set_all_pins(get_all_pins() & 0xFFF00000);
         cur_pin++;
-        if(cur_pin > 7) {
+        if(cur_pin > 20) {
             cur_pin = 1;
         }
         set_pin(cur_pin, 1);
@@ -53,7 +53,7 @@ void flash_timer_handler() {
 }
 
 void mode_change_handler() {
-    mode = get_pin(10);
+    mode = get_pin(32);
     clear_gpio_int();
     send_string("led flash mode changed\n");
 }

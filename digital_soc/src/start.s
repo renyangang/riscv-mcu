@@ -50,7 +50,7 @@ set_mie:
     ret
 
 save_regs:
-    addi sp, sp, -34
+    addi sp, sp, -36
     sw a2, 0(sp)
     sw a3, 4(sp)
     sw a4, 8(sp)
@@ -70,7 +70,7 @@ restore_regs:
     lw a7, 20(sp)
     lw a0, 24(sp)
     lw a1, 28(sp)
-    addi sp, sp, 34
+    addi sp, sp, 36
     ret
 
 inner_soft_handler:

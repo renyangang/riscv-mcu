@@ -4,6 +4,7 @@
 #define DLL_EXPORT
 #endif
 #include "verilated.h"
+#include "verilated_vcd_c.h"
 #include "Vvboard_soc_top.h"
 #include <thread>
 #include <time.h>
@@ -18,6 +19,7 @@ static volatile char cpu_thread_flag = 0;
 
 VerilatedContext *contextp;
 Vvboard_soc_top *topp;
+VerilatedVcdC *tfp;
 
 void setInput(unsigned char* input,int input_size) {
     topp->clk = input[0];
@@ -55,15 +57,20 @@ void getOutput(unsigned char* output,int output_size) {
     memcpy((void*)&(output[pos]), &(topp->gpio_values_out), sizeof(IData));
 }
 
+double sc_time_stamp() { return contextp->time(); }
+
 extern "C" {
 
     DLL_EXPORT void init() {
         if (!run_flag) {
             contextp = new VerilatedContext();
             topp = new Vvboard_soc_top{contextp};
+            tfp = new VerilatedVcdC();
             contextp->debug(0);
-            contextp->randReset(2);
+            contextp->randReset(0);
             contextp->traceEverOn(true);
+            contextp->trace(tfp, 0);
+            tfp->open("d:\\vboard_soc_top.vcd");
             run_flag = 1;
         }
     }
@@ -73,15 +80,22 @@ extern "C" {
         // printf("%d %d %d \n",input[0],input[1],input[2]);
         topp->eval();
         contextp->timeInc(1);
+        tfp->dump(contextp->time());
         getOutput(output,output_size);
     }
 
     DLL_EXPORT void stop() {
         run_flag = 0;
+        tfp->flush();
+        tfp->close();
         topp->final();
         contextp->statsPrintSummary();
-        delete topp;
-        delete contextp;
+        contextp->traceEverOn(false);
+        delete(topp);
+        delete(tfp);
+        delete(contextp);
+        // delete topp;
+        // delete contextp;
     }
 
     DLL_EXPORT void nanoSleep(int ns) {
