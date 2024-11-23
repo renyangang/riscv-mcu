@@ -97,10 +97,10 @@ end
 
 always @(gpio_int) begin
     if (gpio_int) begin
-        peripheral_int_code <= `INT_CODE_WIDTH'd1;
+        peripheral_int_code <= `INT_CODE_NONE;
     end
     else begin
-        peripheral_int_code <= `INT_CODE_WIDTH'd0;
+        peripheral_int_code <= `INT_CODE_GPIO;
     end
 end
 

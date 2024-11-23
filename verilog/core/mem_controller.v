@@ -156,7 +156,7 @@ module mem_controller(
             case (offship_state)
                 OFF_STATUS_IDLE: begin
                     if (inst_cache_load_en && cur_load_type == CUR_LOAD_IDLE) begin
-                        offchip_mem_addr <= {inst_mem_addr[31:4],4'b0000};
+                        offchip_mem_addr <= {inst_mem_addr[31:4],4'b0000}; // 指令保证4字节对齐访问
                         offchip_mem_read_en <= 1'b1;
                         cur_load_type <= CUR_INST_LOAD;
                     end
