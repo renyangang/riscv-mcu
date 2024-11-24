@@ -55,6 +55,10 @@ module peripherals_bus(
     input wire [`MAX_BIT_POS:0] digital_mem_data,
     input wire digital_mem_ready,
     inout wire [`GPIO_NUMS-1:0] gpio_values,
+
+    input uart_rx,
+    output uart_tx,
+
     output reg [`INT_CODE_WIDTH-1:0]peripheral_int_code
 );
 
@@ -76,13 +80,14 @@ task addr_mapping();
         gpio_write = io_write;
     end 
     else if (io_addr >= `UART_ADDR_BASE && io_addr <= `UART_ADDR_END) begin
-        // do nothing
+        uart_wr_en = io_write;
+        uart_rd_en = io_read;
     end
 endtask
 
 /* verilator lint_off UNOPTFLAT */
-assign io_rdata = (gpio_read || gpio_write) ? gpio_rdata : (flash_io_read || flash_io_write) ? flash_io_rdata : (mem_io_read || mem_io_write) ? mem_io_rdata : `XLEN'd0;
-assign io_ready = (gpio_read || gpio_write) ? gpio_ready : (flash_io_read || flash_io_write) ? flash_io_ready : (mem_io_read || mem_io_write) ? mem_io_ready : 1'b0;
+assign io_rdata = (gpio_read || gpio_write) ? gpio_rdata : (flash_io_read || flash_io_write) ? flash_io_rdata : (mem_io_read || mem_io_write) ? mem_io_rdata : (uart_wr_en || uart_rd_en) ? uart_reg_rdata : `XLEN'd0;
+assign io_ready = (gpio_read || gpio_write) ? gpio_ready : (flash_io_read || flash_io_write) ? flash_io_ready : (mem_io_read || mem_io_write) ? mem_io_ready : (uart_wr_en || uart_rd_en) ? uart_ready : 1'b0;
 
 always @(io_addr or io_read or io_write) begin
     `INIT_ENS
@@ -98,6 +103,12 @@ end
 always @(gpio_int) begin
     if (gpio_int) begin
         peripheral_int_code <= `INT_CODE_NONE;
+    end
+    else if (data_ready_int) begin
+        peripheral_int_code <= `INT_CODE_UART1_RX_READY;
+    end
+    else if (write_ready_int) begin
+        peripheral_int_code <= `INT_CODE_UART1_TX_READY;
     end
     else begin
         peripheral_int_code <= `INT_CODE_GPIO;
@@ -173,6 +184,28 @@ digital_flash flash(
     .digital_flash_wdata(digital_flash_wdata),
     .digital_flash_data(digital_flash_data),
     .digital_flash_ready(digital_flash_ready)
+);
+
+reg uart_wr_en;
+reg uart_rd_en;
+wire uart_ready;
+wire data_ready_int;
+wire write_ready_int;
+wire [`MAX_BIT_POS:0] uart_reg_rdata;
+
+uart_top dut(
+	.clk(pclk),
+    .rst(rst),
+    .uart_rx(uart_rx),
+    .uart_tx(uart_tx),
+    .uart_reg_wr_en(uart_wr_en),
+    .uart_reg_rd_en(uart_rd_en),
+    .uart_reg_addr(io_addr),
+    .uart_reg_wdata(io_wdata),
+    .uart_reg_rdata(uart_reg_rdata),
+    .uart_ready(uart_ready),
+    .data_ready_int(data_ready_int),
+    .write_ready_int(write_ready_int)
 );
 
 endmodule
