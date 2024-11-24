@@ -1,3 +1,18 @@
+/*                                                                      
+    Designer   : Renyangang               
+                                                                            
+    Licensed under the Apache License, Version 2.0 (the "License");         
+    you may not use this file except in compliance with the License.        
+    You may obtain a copy of the License at                                 
+                                                                            
+        http://www.apache.org/licenses/LICENSE-2.0                          
+                                                                            
+    Unless required by applicable law or agreed to in writing, software    
+    distributed under the License is distributed on an "AS IS" BASIS,       
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and     
+    limitations under the License. 
+*/
 `timescale 1ns/1ns
 
 module uart_top_tb();
@@ -54,6 +69,70 @@ initial begin
     $dumpvars; // dump all vars
 end
 
+
+reg [31:0] uart_config;
+reg [31:0] uart_data;
+
+task uart1_send(
+    input [31:0] data,
+    input [31:0] addr
+);
+    if (rst) begin
+        addr1 = addr;
+        wdata1 = data;
+        wr_en_1 = 1;
+        wait(uart_ready_1);
+        #21;
+        wr_en_1 = 0;
+        wait(!uart_ready_1);
+    end
+endtask
+
+task uart2_send(
+    input [31:0] data,
+    input [31:0] addr
+);
+    if (rst) begin
+        addr2 = addr;
+        wdata2 = data;
+        wr_en_2 = 1;
+        wait(uart_ready_2);
+        #21;
+        wr_en_2 = 0;
+        wait(!uart_ready_2);
+    end
+endtask
+
+task uart1_read(
+    input [31:0] addr
+);
+    if (rst) begin
+        wait(data_ready_int_1);
+        addr1 = addr;
+        rd_en_1 = 1;
+        wait(uart_ready_1);
+        #21;
+        rd_en_1 = 0;
+        wait(!uart_ready_1);
+    end
+endtask
+
+task uart2_read(
+    input [31:0] addr
+);
+    if (rst) begin
+        wait(data_ready_int_2);
+        addr2 = addr;
+        rd_en_2 = 1;
+        wait(uart_ready_2);
+        #21;
+        rd_en_2 = 0;
+        wait(!uart_ready_2);
+    end
+endtask
+
+integer i,j;
+
 initial begin
 	clk = 0;
 	rst = 0;
@@ -65,180 +144,48 @@ initial begin
 	addr2 = 0;
 	wdata1 = 0;
 	wdata2 = 0;
+    uart_config[15:0] = 16'd27;
+    uart_config[20:16] = 5'd2;
+    uart_config[24:21] = 4'd7;
+    uart_config[26:25] = 2'd0; // parity none
+    uart_config[28:27] = 2'd1; // stop bit 1
+    uart_config[29] = 1'd1; // data read interrupt enable
+    uart_config[31:30] = 2'd0;
 	#100;
 	rst = 1;
     // set baudrate to 115200
-    addr1 = 32'h00000000;
-    wdata1[15:0] = 16'd27;
-    wdata1[20:16] = 5'd2;
-    wdata1[24:21] = 4'd7;
-    wdata1[26:25] = 2'd0; // parity none
-    wdata1[28:27] = 2'd1; // stop bit 1
-    wr_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    wr_en_1 = 0;
-    wait(!uart_ready_1);
+    uart1_send(uart_config, 32'h00000000);
     #10;
-    wr_en_2 = 1;
-    addr2 = 32'h00000000;
-    wdata2[15:0] = 16'd27;
-    wdata2[20:16] = 5'd2;
-    wdata2[24:21] = 4'd7;
-    wdata2[26:25] = 2'd0; // parity none
-    wdata2[28:27] = 2'd1; // stop bit 1
-    wait(uart_ready_2);
-    #21;
-    wr_en_2 = 0;
-    wait(!uart_ready_2);
+    uart2_send(uart_config, 32'h00000000);
+
     #21;
     // send data
-    addr1 = 32'h00000004;
-    wdata1 = 32'h00000001;
-    wr_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    wr_en_1 = 0;
-    wait(!uart_ready_1);
-    #21;
-    addr1 = 32'h00000004;
-    wdata1 = 32'h00000002;
-    wr_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    wr_en_1 = 0;
-    wait(!uart_ready_1);
-    #21;
-    addr1 = 32'h00000004;
-    wdata1 = 32'h00000003;
-    wr_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    wr_en_1 = 0;
-    wait(!uart_ready_1);
-    #21;
-    addr1 = 32'h00000004;
-    wdata1 = 32'h00000004;
-    wr_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    wr_en_1 = 0;
-    wait(!uart_ready_1);
-
-    // send data
-    addr2 = 32'h00000004;
-    wdata2 = 32'h00000019;
-    wr_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    wr_en_2 = 0;
-    wait(!uart_ready_2);
-    #21;
-    addr2 = 32'h00000004;
-    wdata2 = 32'h00000018;
-    wr_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    wr_en_2 = 0;
-    wait(!uart_ready_2);
-    #21;
-    addr2 = 32'h00000004;
-    wdata2 = 32'h00000017;
-    wr_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    wr_en_2 = 0;
-    wait(!uart_ready_2);
-    #21;
-    addr2 = 32'h00000004;
-    wdata2 = 32'h00000016;
-    wr_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    wr_en_2 = 0;
-    wait(!uart_ready_2);
+    for (i = 0; i < 10; i = i + 1) begin
+        uart1_send(i, 32'h00000004);
+        #21;
+    end
+    for (i = 32'h80; i < 32'h90; i = i + 1) begin
+        uart2_send(i, 32'h00000004);
+        #21;
+    end
 
     // read data
-    wait(data_ready_int_1);
-    addr1 = 32'h00000008;
-    rd_en_1 = 1;
-    wait(uart_ready_1);
     #21;
-    rd_en_1 = 0;
-    wait(!uart_ready_1);
+    uart1_read(32'h00000008);
     #21;
-    wait(data_ready_int_1);
-    addr1 = 32'h00000004;
-    rd_en_1 = 1;
-    wait(uart_ready_1);
+    for (i = 0; i < 10; i = i + 1) begin
+        uart1_read(32'h00000004);
+        #21;
+    end
     #21;
-    rd_en_1 = 0;
-    wait(!uart_ready_1);
-    #21;
-    wait(data_ready_int_1);
-    addr1 = 32'h00000004;
-    rd_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    rd_en_1 = 0;
-    wait(!uart_ready_1);
-    #21;
-    wait(data_ready_int_1);
-    addr1 = 32'h00000004;
-    rd_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    rd_en_1 = 0;
-    wait(!uart_ready_1);
-    #21;
-    wait(data_ready_int_1);
-    addr1 = 32'h00000004;
-    rd_en_1 = 1;
-    wait(uart_ready_1);
-    #21;
-    rd_en_1 = 0;
-    wait(!uart_ready_1);
-
     // read data
-    wait(data_ready_int_2);
-    addr2 = 32'h00000008;
-    rd_en_2 = 1;
-    wait(uart_ready_2);
+    uart2_read(32'h00000008);
     #21;
-    rd_en_2 = 0;
-    wait(!uart_ready_2);
-    #21;
-    wait(data_ready_int_2);
-    addr2 = 32'h00000004;
-    rd_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    rd_en_2 = 0;
-    wait(!uart_ready_2);
-    #21;
-    wait(data_ready_int_2);
-    addr2 = 32'h00000004;
-    rd_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    rd_en_2 = 0;
-    wait(!uart_ready_2);
-    #21;
-    wait(data_ready_int_2);
-    addr2 = 32'h00000004;
-    rd_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    rd_en_2 = 0;
-    wait(!uart_ready_2);
-    #21;
-    wait(data_ready_int_2);
-    addr2 = 32'h00000004;
-    rd_en_2 = 1;
-    wait(uart_ready_2);
-    #21;
-    rd_en_2 = 0;
-    wait(!uart_ready_2);
+    for (i = 0; i < 10; i = i + 1) begin
+        uart2_read(32'h00000004);
+        #21;
+    end
+
     $finish;
 end
 

@@ -38,9 +38,7 @@ module uart_clk_div(
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
             div_cnt <= 16'b0;
-            frag_cnt_16 <= 5'b0;
             clk_sample <= 1'b0;
-            clk_uart <= 1'b0;
         end
         else begin
             if (((div_cnt == uart_clk_div - 1) && !frag_en) || ((div_cnt == uart_clk_div) && frag_en)) begin
@@ -62,7 +60,7 @@ module uart_clk_div(
         end
         else begin
             if (frag_cnt_16 == 15) begin
-                frag_cnt_16 <= 4'b0;
+                frag_cnt_16 <= 0;
                 frag_cnt <= 5'b0;
             end
             else begin
@@ -71,7 +69,7 @@ module uart_clk_div(
             if (frag_cnt_i == uart_clk_frag_i) begin
                 frag_en <= frag_cnt > uart_clk_frag_total ? 1'b0 : 1'b1;
                 frag_cnt <= frag_cnt > uart_clk_frag_total ? frag_cnt : (frag_cnt + 1);
-                frag_cnt_i <= 4'b0;
+                frag_cnt_i <= 0;
             end
             else begin
                 frag_cnt_i <= frag_cnt_i + 1;

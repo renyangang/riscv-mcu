@@ -1,3 +1,18 @@
+/*                                                                      
+    Designer   : Renyangang               
+                                                                            
+    Licensed under the Apache License, Version 2.0 (the "License");         
+    you may not use this file except in compliance with the License.        
+    You may obtain a copy of the License at                                 
+                                                                            
+        http://www.apache.org/licenses/LICENSE-2.0                          
+                                                                            
+    Unless required by applicable law or agreed to in writing, software    
+    distributed under the License is distributed on an "AS IS" BASIS,       
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and     
+    limitations under the License. 
+*/
 #ifdef _WIN32
 #define DLL_EXPORT __declspec(dllexport)
 #else
@@ -22,14 +37,24 @@ Vvboard_soc_top *topp;
 VerilatedVcdC *tfp;
 
 void setInput(unsigned char* input,int input_size) {
-    topp->clk = input[0];
-    topp->rst = input[1];
-    topp->clk_timer = input[2];
-    topp->digital_flash_data = input[3];
-    topp->digital_flash_ready = input[4];
-    topp->digital_mem_data = *(IData*)&(input[5]);
-    topp->digital_mem_ready = input[5+sizeof(IData)];
-    topp->gpio_values_in = *(IData*)&(input[5+sizeof(IData)+1]);
+    int pos = 0;
+    topp->clk = input[pos];
+    pos++;
+    topp->rst = input[pos];
+    pos++;
+    topp->clk_timer = input[pos];
+    pos++;
+    topp->digital_flash_data = input[pos];
+    pos++;
+    topp->digital_flash_ready = input[pos];
+    pos++;
+    topp->digital_mem_data = *(IData*)&(input[pos]);
+    pos += sizeof(IData);
+    topp->digital_mem_ready = input[pos];
+    pos++;
+    topp->gpio_values_in = *(IData*)&(input[pos]);
+    pos += sizeof(IData);
+    topp->uart_rx = input[pos];
 }
 
 void getOutput(unsigned char* output,int output_size) {
@@ -55,6 +80,8 @@ void getOutput(unsigned char* output,int output_size) {
     memcpy((void*)&(output[pos]), &(topp->digital_mem_wdata), sizeof(IData));
     pos += sizeof(IData);
     memcpy((void*)&(output[pos]), &(topp->gpio_values_out), sizeof(IData));
+    pos += sizeof(IData);
+    memcpy((void*)&(output[pos]), &(topp->uart_tx), sizeof(CData));
 }
 
 double sc_time_stamp() { return contextp->time(); }

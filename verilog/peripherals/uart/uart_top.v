@@ -67,6 +67,7 @@ reg rd_data_flag;
 wire [7:0] rd_data;
 wire wr_full;
 wire rd_empty;
+wire uart_tx_busy;
 
 wire [7:0] addr_offset;
 

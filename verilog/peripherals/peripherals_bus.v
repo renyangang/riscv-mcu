@@ -23,7 +23,9 @@
     mem_io_read = 0; \
     mem_io_write = 0; \
     gpio_read = 0; \
-    gpio_write = 0;
+    gpio_write = 0; \
+    uart_wr_en = 0; \
+    uart_rd_en = 0;
 module peripherals_bus(
     input wire pclk,
     input wire rst_n,
@@ -195,7 +197,7 @@ wire [`MAX_BIT_POS:0] uart_reg_rdata;
 
 uart_top dut(
 	.clk(pclk),
-    .rst(rst),
+    .rst(rst_n),
     .uart_rx(uart_rx),
     .uart_tx(uart_tx),
     .uart_reg_wr_en(uart_wr_en),

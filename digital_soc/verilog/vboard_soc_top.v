@@ -1,3 +1,18 @@
+/*                                                                      
+    Designer   : Renyangang               
+                                                                            
+    Licensed under the Apache License, Version 2.0 (the "License");         
+    you may not use this file except in compliance with the License.        
+    You may obtain a copy of the License at                                 
+                                                                            
+        http://www.apache.org/licenses/LICENSE-2.0                          
+                                                                            
+    Unless required by applicable law or agreed to in writing, software    
+    distributed under the License is distributed on an "AS IS" BASIS,       
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and     
+    limitations under the License. 
+*/
 `include "config.v"
 
 module vboard_soc_top(
@@ -20,7 +35,9 @@ module vboard_soc_top(
     input wire [`MAX_BIT_POS:0] digital_mem_data,
     input wire digital_mem_ready,
     input wire [`GPIO_NUMS-1:0] gpio_values_in,
-    output wire [`GPIO_NUMS-1:0] gpio_values_out
+    output wire [`GPIO_NUMS-1:0] gpio_values_out,
+    input wire uart_rx,
+    output wire uart_tx
 );
     
 
@@ -52,7 +69,7 @@ module vboard_soc_top(
     endgenerate
 
 
-    digital_soc digital_soc(
+    vboard_soc vboard_inst(
         .clk(clk),
         .rst(rst),
         .clk_timer(clk_timer),
@@ -70,7 +87,9 @@ module vboard_soc_top(
         .digital_mem_wdata(digital_mem_wdata),
         .digital_mem_data(digital_mem_data),
         .digital_mem_ready(digital_mem_ready),
-        .gpio_values(gpio_values)
+        .gpio_values(gpio_values),
+        .uart_rx(uart_rx),
+        .uart_tx(uart_tx)
     );
 
     

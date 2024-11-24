@@ -31,7 +31,7 @@ module uart_tx(
 reg [2:0] tx_cnt;
 reg rx_parity;
 reg [1:0] tx_state;
-reg [4:0] tx_1_cnt;
+reg [4:0] tx_h_cnt;
 
 localparam TX_IDLE = 0, TX_DATA = 1, TX_PARITY = 2, TX_STOP = 3;
 localparam PARITY_NONE = 0, PARITY_EVEN = 1, PARITY_ODD = 2;
@@ -60,7 +60,7 @@ always @(posedge clk_uart or negedge rst) begin
             TX_DATA: begin
                 tx_cnt <= tx_cnt + 1;
                 tx <= tx_data[tx_cnt];
-                tx_1_cnt <= tx_data[tx_cnt] ? (tx_1_cnt + 1) : tx_1_cnt;
+                tx_h_cnt <= tx_data[tx_cnt] ? (tx_h_cnt + 1) : tx_h_cnt;
                 if (tx_cnt == 7) begin
                     tx_state <= parity_mode == PARITY_NONE ? TX_STOP : TX_PARITY;
                     tx_cnt <= 3'b0;
@@ -68,18 +68,18 @@ always @(posedge clk_uart or negedge rst) begin
             end
             TX_PARITY: begin
                 if (parity_mode == PARITY_EVEN) begin
-                    tx <= tx_1_cnt[0];
+                    tx <= tx_h_cnt[0];
                 end
                 else if (parity_mode == PARITY_ODD) begin
-                    tx <= (~tx_1_cnt[0]);
+                    tx <= (~tx_h_cnt[0]);
                 end
-                tx_1_cnt <= 5'b0;
+                tx_h_cnt <= 5'b0;
                 tx_state <= TX_STOP;
             end
             TX_STOP: begin
                 tx_cnt <= tx_cnt + 1;
                 tx <= 1'b1;
-                if (tx_cnt >= stop_bit) begin
+                if (tx_cnt >= {1'b0,stop_bit}) begin
                     tx_cnt <= 3'b0;
                     tx_state <= TX_IDLE;
                     tx_busy <= 1'b0;

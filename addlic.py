@@ -29,24 +29,22 @@ def process_directory(directory, extensions, license_text, check_text):
 if __name__ == '__main__':
     # 配置项
     directory_to_scan = './'  # 项目根目录
-    file_extensions = ['.v', '.cpp']  # 需要处理的文件后缀
-    license_text = """
-/*                                                                      
-Designer   : Renyangang               
-                                                                        
-Licensed under the Apache License, Version 2.0 (the "License");         
-you may not use this file except in compliance with the License.        
-You may obtain a copy of the License at                                 
-                                                                        
-    http://www.apache.org/licenses/LICENSE-2.0                          
-                                                                        
-Unless required by applicable law or agreed to in writing, software    
-distributed under the License is distributed on an "AS IS" BASIS,       
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and     
-limitations under the License. 
-*/
-"""
+    file_extensions = ['.v', '.c', '.h', '.s']  # 需要处理的文件后缀
+    license_text = """/*                                                                      
+    Designer   : Renyangang               
+                                                                            
+    Licensed under the Apache License, Version 2.0 (the "License");         
+    you may not use this file except in compliance with the License.        
+    You may obtain a copy of the License at                                 
+                                                                            
+        http://www.apache.org/licenses/LICENSE-2.0                          
+                                                                            
+    Unless required by applicable law or agreed to in writing, software    
+    distributed under the License is distributed on an "AS IS" BASIS,       
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and     
+    limitations under the License. 
+*/"""
     check_text = "Designer   : Renyangang"  # 判断是否已包含的关键文本
 
     # 执行处理
