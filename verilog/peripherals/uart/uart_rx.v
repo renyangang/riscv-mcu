@@ -100,7 +100,6 @@ always @(posedge clk_sample or negedge rst) begin
                     rx_sample_cnt <= 3'd0;
                     rx_t_cnt <= 4'd0;
                     rx_f_cnt <= 4'd0;
-                    rx_parity = rx_t_cnt > rx_f_cnt ? 1'b1 : 1'b0;
                     if (rx_cnt == 3'd7) begin
                         rx_state <= parity_mode == PARITY_NONE ? (stop_bit > 0 ? RX_STOP : RX_IDLE) : RX_PARITY;
                         if (parity_mode == PARITY_NONE && stop_bit == 0) begin
