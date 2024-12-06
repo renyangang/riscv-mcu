@@ -104,7 +104,7 @@ end
 
 always @(gpio_int) begin
     if (gpio_int) begin
-        peripheral_int_code <= `INT_CODE_NONE;
+        peripheral_int_code <= `INT_CODE_GPIO;
     end
     else if (data_ready_int) begin
         peripheral_int_code <= `INT_CODE_UART1_RX_READY;
@@ -113,7 +113,7 @@ always @(gpio_int) begin
         peripheral_int_code <= `INT_CODE_UART1_TX_READY;
     end
     else begin
-        peripheral_int_code <= `INT_CODE_GPIO;
+        peripheral_int_code <= `INT_CODE_NONE;
     end
 end
 
