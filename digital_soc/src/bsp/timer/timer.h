@@ -49,4 +49,6 @@ void interrupt_timer_handler();
 
 void sleep(uint64_t ms);
 
+int check(); // for debug
+
 #endif

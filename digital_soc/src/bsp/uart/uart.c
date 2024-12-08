@@ -24,6 +24,7 @@ static volatile uint32_t* fifo_status = (volatile uint32_t*)UART1_DATA_STATUS_AD
 
 static volatile uint32_t uart_int_reg_status = 0;
 static volatile uint32_t uart_int_status = 0;
+static uint32_t is_init = 0;
 
 void uart_int_proc() {
     uart_int_status = 1;
@@ -31,13 +32,16 @@ void uart_int_proc() {
 }
 
 void uart_init(void) {
-    // if(uart_int_reg_status == 0) {
-    //     register_peripheral_int_handler(INT_UART, uart_int_proc);
-    //     uart_int_reg_status = 1;
-    // }
-    // uart_int_status = 0;
-    // 默认预置50mhz主频下的 115200波特率，无奇偶校验，8位数据位，1位停止位，关闭中断
-    *(volatile uint32_t*)UART1_CONFIG_ADDR = 0x08e2001b;
+    if (!is_init) {
+        // if(uart_int_reg_status == 0) {
+        //     register_peripheral_int_handler(INT_UART, uart_int_proc);
+        //     uart_int_reg_status = 1;
+        // }
+        // uart_int_status = 0;
+        // 默认预置50mhz主频下的 115200波特率，无奇偶校验，8位数据位，1位停止位，关闭中断
+        *(volatile uint32_t*)UART1_CONFIG_ADDR = 0x08e2001b;
+        is_init = 1;
+    }
 }
 
 void send_char(uint8_t c) {

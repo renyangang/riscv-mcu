@@ -67,6 +67,16 @@ void interrupt_timer_handler() {
     set_timer_after(100);
 }
 
+int check() {
+    int a = 0;
+    for(int i = 0; i < MAX_SOFT_TIMER_NUM; i++) {
+        if(soft_timers[i].call_back != NULL) {
+            a++;
+        }
+    }
+    return a;
+}
+
 void sleep(uint64_t ms) {
     uint64_t ctime = get_mtime_cur() + ms;
     while(get_mtime_cur() < ctime) {

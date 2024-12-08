@@ -81,6 +81,7 @@ void flash_by_interrupt() {
 }
 
 int main() {
+    uart_init();
     // flash_by_sleep();
     flash_by_interrupt();
     return 0;

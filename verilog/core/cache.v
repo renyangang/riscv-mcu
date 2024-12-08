@@ -29,7 +29,7 @@ module cache_way (
     input wire [1:0]byte_size, // 0: 32bit, 1: 8bit, 2: 16bit
     input wire [(`CACHE_LINE_SIZE*8)-1:0] write_load_data,
     input wire cs, // cache select
-    output reg [`MAX_BIT_POS:0] rdata,
+    output wire [`MAX_BIT_POS:0] rdata,
     output wire [(`CACHE_LINE_SIZE*8)-1:0] write_back_data, 
     output wire hit,
     output wire dirty_status
@@ -38,7 +38,7 @@ module cache_way (
     reg [`CACHE_LINE_WIDTH-1:0] cache_data [`CACHE_LINES-1:0]; 
     reg [21:0] tag [`CACHE_LINES-1:0];                          
     reg valid [`CACHE_LINES-1:0];
-    reg dirty [`CACHE_LINES-1:0];                              
+    reg dirty [`CACHE_LINES-1:0];                             
 
     wire [5:0] index;
     wire [3:0] offset;
@@ -46,27 +46,34 @@ module cache_way (
 
     assign index = addr[9:4];      
     assign offset = addr[3:0];     
-    assign tag_in = addr[31:10];
-
-    
+    assign tag_in = addr[31:10];    
 
     assign hit = (valid[index] && (tag[index] == tag_in))? 1'b1:1'b0;
     assign dirty_status = dirty[index];
     assign write_back_data = cs ? cache_data[index] : {`CACHE_LINE_WIDTH{1'bz}};
 
-    always @(*) begin
-        case(byte_size)
-            1: begin
-                rdata = hit ? {24'd0,cache_data[index][(offset*8) +: 8]} : 32'bz;
-            end
-            2: begin
-                rdata = hit ? {16'd0,cache_data[index][(offset*8) +: 16]} : 32'bz;
-            end
-            default: begin
-                rdata = hit ? cache_data[index][(offset*8) +: 32] : 32'bz;
-            end
-        endcase
-    end
+    assign rdata = hit ? (byte_size == 1 ? {24'd0,cache_data[index][(offset*8) +: 8]} : 
+                    (byte_size == 2 ? {16'd0,cache_data[index][(offset*8) +: 16]} : 
+                    cache_data[index][(offset*8) +: 32])) : 
+                    `XLEN'bz;
+    // always @(*) begin
+    //     if (rst) begin
+    //         case(byte_size)
+    //             1: begin
+    //                 in_rdata = hit ? {24'd0,cache_data[index][(offset*8) +: 8]} : `XLEN'bz;
+    //             end
+    //             2: begin
+    //                 in_rdata = hit ? {16'd0,cache_data[index][(offset*8) +: 16]} : `XLEN'bz;
+    //             end
+    //             default: begin
+    //                 in_rdata = hit ? cache_data[index][(offset*8) +: 32] : `XLEN'bz;
+    //             end
+    //         endcase
+    //     end
+    //     else begin
+    //         in_rdata = `XLEN'bz;
+    //     end
+    // end
     
     integer i, j;
 
