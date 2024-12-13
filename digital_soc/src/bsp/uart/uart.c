@@ -39,6 +39,7 @@ void uart_init(void) {
         // }
         // uart_int_status = 0;
         // 默认预置50mhz主频下的 115200波特率，无奇偶校验，8位数据位，1位停止位，关闭中断
+        // 在指令集支持乘法和除法计算后这里做成动态计算配置
         *(volatile uint32_t*)UART1_CONFIG_ADDR = 0x08e2001b;
         is_init = 1;
     }

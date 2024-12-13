@@ -105,7 +105,7 @@ uart_tx uart_tx_inst(
     .tx_start(tx_start),
     .parity_mode(parity_mode),
     .stop_bit(stop_bit),
-    .tx(uart_tx),
+    .tx_out(uart_tx),
     .tx_busy(uart_tx_busy)
 );
 

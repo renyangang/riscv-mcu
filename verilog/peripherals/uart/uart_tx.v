@@ -24,7 +24,7 @@ module uart_tx(
     input tx_start,
     input [1:0] parity_mode,
     input [1:0] stop_bit,
-    output reg tx,
+    output wire tx_out,
     output reg tx_busy
 );
 
@@ -35,6 +35,11 @@ reg [4:0] tx_h_cnt;
 
 localparam TX_IDLE = 0, TX_DATA = 1, TX_PARITY = 2, TX_STOP = 3;
 localparam PARITY_NONE = 0, PARITY_EVEN = 1, PARITY_ODD = 2;
+
+reg tx;
+
+assign tx_out = (rst && tx_state != TX_IDLE) ? tx : 1'b1;
+
 
 always @(posedge clk_uart or negedge rst) begin
     if (!rst) begin

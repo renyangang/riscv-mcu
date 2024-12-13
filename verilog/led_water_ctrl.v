@@ -14,7 +14,7 @@
     limitations under the License. 
 */
 module led_water_ctrl (
-    input clk,
+    input clk_ss,
     input rst,
     output led1,
     output led2,
@@ -22,25 +22,27 @@ module led_water_ctrl (
 );
    
    reg [2:0] led_state;
-   reg [15:0] counter;
+   reg [24:0] counter;
 
    assign led1 = led_state[0];
    assign led2 = led_state[1];
    assign led3 = led_state[2];
+
+   localparam COUTER_MAX = 25'd999;
    
-   always @(posedge clk or negedge rst) begin
+   always @(posedge clk_ss or negedge rst) begin
       if (!rst) begin
          led_state <= 3'b001;
-         counter <= 16'b0;
+         counter <= 25'b0;
       end 
       else begin
          counter <= counter + 1;
-         if (counter == 16'd19) begin
-            counter <= 16'b0;
+         if (counter == COUTER_MAX) begin
+            counter <= 25'b0;
             led_state <= {led_state[1:0], led_state[2]};
          end
-         else begin
-            led_state <= led_state;
+         else if (!(|led_state)) begin
+            led_state <= 3'b001;
          end
       end
    end
