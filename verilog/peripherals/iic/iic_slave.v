@@ -1,0 +1,257 @@
+/*                                                                      
+    Designer   : Renyangang               
+                                                                            
+    Licensed under the Apache License, Version 2.0 (the "License");         
+    you may not use this file except in compliance with the License.        
+    You may obtain a copy of the License at                                 
+                                                                            
+        http://www.apache.org/licenses/LICENSE-2.0                          
+                                                                            
+    Unless required by applicable law or agreed to in writing, software    
+    distributed under the License is distributed on an "AS IS" BASIS,       
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and     
+    limitations under the License. 
+
+    File Name   : iic_slave.v
+    Module Name : iic_slave
+    for iic examples
+*/
+module iic_slave(
+    input wire clk,
+    input wire rst,
+    input wire scl,
+    inout wire sda,
+    input [7:0] reg1_in,
+    input [31:0] reg2_in,
+    input reg1_w_en, reg2_w_en,
+    output reg [7:0] reg1_out,
+    output reg [31:0] reg2_out
+);
+
+localparam DEV_ADDR = 7'h01;
+localparam REG1_ADDR = 8'h00;
+localparam REG2_ADDR = 8'h01;
+
+localparam CUR_DEV_ADDR = 0, CUR_REG_ADDR = 1, CUR_DATA = 2;
+
+localparam S_IDLE = 0, S_START = 1, S_STOP = 2, S_DEV_ADDR = 3, S_REG_ADDR = 4, S_READ = 5, S_SEND = 6, S_WAITACK = 7, S_SENDACK = 8;
+
+reg [3:0] state;
+reg [3:0] nextstate;
+reg [2:0] bit_cnt;
+reg [6:0] dev_addr_reg;
+reg [7:0] reg_addr_reg;
+reg [7:0] data_reg;
+reg [1:0] cur_info_reg;
+
+wire start_sig;
+wire stop_sig;
+wire scl_falling_edge;
+wire scl_rising_edge;
+
+reg [1:0] reg2_offset;
+reg rw_reg; // 1: read, 0: write
+reg send_ack_flag;
+reg ack_flag;
+reg last_scl;
+reg last_sda;
+reg sda_out;
+wire [7:0] send_data;
+
+assign start_sig = (last_scl && scl) && (last_sda && !sda);
+assign stop_sig = (last_scl && scl) && (!last_sda && sda);
+assign scl_falling_edge = last_scl && !scl;
+assign scl_rising_edge = !last_scl && scl;
+assign sda = sda_out ? 1'bz : 1'b0;
+assign send_data = (CUR_REG_ADDR == REG1_ADDR) ? reg1_out : reg2_out[reg2_offset*8+:8];
+
+
+always @(posedge clk or negedge rst) begin
+    if (!rst) begin
+        reg1_out <= 8'h00;
+        reg2_out <= 32'h00000000;
+    end
+    else begin
+        if (reg1_w_en) reg1_out <= reg1_in;
+        if (reg2_w_en) reg2_out <= reg2_in;
+    end
+end
+
+always @(posedge clk or negedge rst) begin
+    if (!rst) state <= S_IDLE;
+    else state <= nextstate;
+end
+
+always @(*) begin
+    if (!rst) begin
+        nextstate = S_IDLE;
+    end
+    else begin
+        nextstate = state;
+        case (state)
+            S_IDLE: begin
+                if (start_sig) begin
+                    nextstate = S_START;
+                end
+            end
+            S_START: begin
+                if (scl_falling_edge) begin
+                    nextstate = S_DEV_ADDR;
+                end
+            end
+            S_DEV_ADDR: begin
+                if (bit_cnt == 0) begin
+                    nextstate = S_SENDACK;
+                end
+            end
+            S_REG_ADDR: begin
+                if (bit_cnt == 0) begin
+                    nextstate = S_SENDACK;
+                end
+            end
+            S_READ: begin
+                if (bit_cnt == 0) begin
+                    nextstate = S_SENDACK;
+                end
+            end
+            S_SEND: begin
+                if (bit_cnt == 0 && scl_falling_edge) begin
+                    nextstate = S_WAITACK;
+                end
+            end
+            S_WAITACK: begin
+                if (dev_addr_reg != DEV_ADDR) begin
+                    // not my device
+                    nextstate = S_IDLE;
+                end
+                else if (ack_flag) begin
+                    nextstate = S_SEND;
+                end
+                else if (scl_falling_edge) begin
+                    // no ack
+                    nextstate = S_IDLE;
+                end
+            end
+            S_SENDACK: begin
+                if (ack_flag) begin
+                    case (cur_info_reg)
+                        CUR_DATA: begin
+                            nextstate = S_READ;
+                        end
+                        default: begin
+                            nextstate = rw_reg ? S_SEND : S_READ;
+                        end
+                    endcase
+                end
+            end
+        endcase
+        if (stop_sig) begin
+            nextstate = S_IDLE;
+        end
+    end
+end
+
+task init_signals();
+    if (1'b1) begin
+        bit_cnt <= 7;
+        dev_addr_reg <= 0;
+        reg_addr_reg <= 0;
+        data_reg <= 0;
+        cur_info_reg <= 0;
+        rw_reg <= 0;
+        send_ack_flag <= 0;
+        ack_flag <= 0;
+        sda_out <= 1'b1;
+        reg2_offset <= 0;
+    end
+endtask;
+
+task recv_data();
+    if (last_scl && scl) begin
+        data_reg[bit_cnt] <= sda;
+    end
+    else if (scl_falling_edge) begin
+        bit_cnt <= bit_cnt - 1;
+        if (bit_cnt == 0) begin
+            case (cur_info_reg)
+                CUR_DEV_ADDR: begin
+                    dev_addr_reg <= data_reg[7:1];
+                    rw_reg <= data_reg[0];
+                end
+                CUR_REG_ADDR: begin
+                    reg_addr_reg <= data_reg;
+                end
+                CUR_DATA: begin
+                    if (reg_addr_reg == REG1_ADDR) begin
+                        reg1_out <= data_reg;
+                    end
+                    else if (reg_addr_reg == REG2_ADDR) begin
+                        reg2_out <= data_reg;
+                    end
+                end
+            endcase
+        end
+    end
+endtask
+
+always @(posedge clk or negedge rst) begin
+    if (!rst) begin
+        init_signals();
+    end
+    else begin
+        case (state)
+            S_IDLE: begin
+            end
+            S_START: begin
+                init_signals();
+            end
+            S_SENDACK: begin
+                if (dev_addr_reg == DEV_ADDR) begin
+                    if (!scl) begin
+                        sda_out <= 1'b0;
+                        send_ack_flag <= 1;
+                    end
+                    if (scl_falling_edge && send_ack_flag) begin
+                        sda_out <= 1'b1;
+                        ack_flag <= 1;
+                        send_ack_flag <= 0;
+                    end
+                end
+            end
+            S_DEV_ADDR: begin
+                cur_info_reg <= CUR_DEV_ADDR;
+                ack_flag <= 0;
+                recv_data();
+            end
+            S_REG_ADDR: begin
+                cur_info_reg <= CUR_REG_ADDR;
+                ack_flag <= 0;
+                recv_data();
+            end
+            S_READ: begin
+                cur_info_reg <= CUR_DATA;
+                ack_flag <= 0;
+                recv_data();
+            end
+            S_SEND: begin
+                sda_out <= send_data[bit_cnt];
+                ack_flag <= 0;
+                if (scl_falling_edge) begin
+                    bit_cnt <= bit_cnt - 1;
+                    if (bit_cnt == 0) begin
+                        sda_out <= 1'b1;
+                        reg2_offset <= reg2_offset + 1;
+                    end
+                end
+            end
+            S_WAITACK: begin
+                if (scl && !sda) begin
+                    ack_flag <= 1;
+                end
+            end
+        endcase
+    end
+end
+
+endmodule
