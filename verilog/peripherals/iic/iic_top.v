@@ -36,10 +36,13 @@ module iic_top(
 
 // [1:0] mode config 0:standard mode, 1:fast mode, 2:high-speed mode
 // other bits reserved
-reg [`MAX_BIT_POS:0] iic_reg_addr_r;
+reg [`MAX_BIT_POS:0] iic_reg;
 reg [1:0] data_offset;
+wire [7:0] addr_offset;
 
-localparam CONFIG_OFFSET = 8'h00, DATA_OFFSET = 8'h04;
+assign addr_offset = iic_reg_addr[7:0];
+
+localparam CONFIG_OFFSET = 8'h00, WRITE_INFO_OFFSET = 8'h04, DATA_OFFSET = 8'h08;
 localparam S_IDLE = 2'b00, S_WRITE = 2'b01, S_READ = 2'b10;
 
 // 64 bytes tx ram， [0] rw [7:1] dev addr [15:8] reg addr [23:16] datalen [63:24] data
@@ -47,6 +50,25 @@ reg [63:0] tx_ram;
 reg [31:0] rx_ram; // 4 bytes rx ram,max datalen is 4 bytes
 
 always @(posedge clk or posedge rst_n) begin
+    if (!rst_n) begin
+        tx_ram <= 64'b0;
+    end
+    else begin
+        if (iic_reg_wr_en) begin
+            case (addr_offset)
+                CONFIG_OFFSET: iic_reg <= iic_reg_wdata;
+                WRITE_INFO_OFFSET: tx_ram[31:0] <= iic_reg_wdata;
+                DATA_OFFSET: tx_ram[63:32] <= iic_reg_wdata;
+            endcase
+        end
+        else if (iic_reg_rd_en) begin
+            case (addr_offset)
+                CONFIG_OFFSET: iic_reg_rdata <= iic_reg;
+                WRITE_INFO_OFFSET: iic_reg_rdata <= tx_ram[31:0];
+                DATA_OFFSET: iic_reg_rdata <= rx_ram;
+            endcase
+        end
+    end
 end
 
 endmodule
