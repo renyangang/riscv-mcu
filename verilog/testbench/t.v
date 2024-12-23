@@ -15,12 +15,12 @@
 */
 module t(
     input clk,
-    input rst,
+    input rst_n,
     output reg [3:0] leds
 );
 
-    always @(posedge clk or rst) begin
-        if (!rst) begin
+    always @(posedge clk or rst_n) begin
+        if (!rst_n) begin
             leds <= 4'b0001;
         end
         else begin

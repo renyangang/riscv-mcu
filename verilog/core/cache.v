@@ -21,7 +21,7 @@
 // cache_way with 64*16 bytes
 module cache_way (
     input wire clk,
-    input wire rst,
+    input wire rst_n,
     input wire [`MAX_BIT_POS:0] addr,   
     input wire [`MAX_BIT_POS:0] wdata,  
     input wire write_enable,
@@ -57,7 +57,7 @@ module cache_way (
                     cache_data[index][(offset*8) +: 32])) : 
                     `XLEN'bz;
     // always @(*) begin
-    //     if (rst) begin
+    //     if (rst_n) begin
     //         case(byte_size)
     //             1: begin
     //                 in_rdata = hit ? {24'd0,cache_data[index][(offset*8) +: 8]} : `XLEN'bz;
@@ -77,8 +77,8 @@ module cache_way (
     
     integer i, j;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             for (i = 0; i < `CACHE_LINES; i = i + 1) begin
                 valid[i] <= 0;
                 tag[i] <= 0;
@@ -114,7 +114,7 @@ endmodule
 
 module cache_set(
     input wire clk,
-    input wire rst,
+    input wire rst_n,
     input wire [`MAX_BIT_POS:0] addr,   
     input wire [`MAX_BIT_POS:0] wdata,  
     input wire write_enable,
@@ -155,7 +155,7 @@ module cache_set(
         for (i_way = 0; i_way < `CACHE_WAYS; i_way = i_way + 1) begin : cache_way_gen
             cache_way cache_way_inst (
                 .clk(clk),
-                .rst(rst),
+                .rst_n(rst_n),
                 .addr(addr),
                 .wdata(wdata),
                 .write_enable(write_enable),
@@ -206,8 +206,8 @@ module cache_set(
         end
     endtask
     
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= S_IDLE;
         end
         else begin
@@ -222,7 +222,7 @@ module cache_set(
     end
     
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             for(j=0;j<`CACHE_LINES;j=j+1) begin
                 way_cs[j] =  {`CACHE_WAYS{1'b0}};
             end
@@ -280,7 +280,7 @@ endmodule
 
 module cache(
     input wire clk,
-    input wire rst,
+    input wire rst_n,
     input wire [`MAX_BIT_POS:0] addr,
     input wire [`MAX_BIT_POS:0] data_in,
     input wire write_enable,
@@ -309,7 +309,7 @@ module cache(
     
     cache_set cache_set_inst(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .addr(addr),
         .wdata(data_in),
         .write_enable(write_enable),
@@ -326,8 +326,8 @@ module cache(
         .status_ready(status_ready)
     );
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= IDLE;
         end
         else begin
@@ -336,7 +336,7 @@ module cache(
     end
 
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             next_state = IDLE;
             save_data = 0;
             load_complate = 0;

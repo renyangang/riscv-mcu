@@ -19,7 +19,7 @@
 */
 module iic_slave(
     input wire clk,
-    input wire rst,
+    input wire rst_n,
     input wire scl,
     inout wire sda,
     input [7:0] reg1_in,
@@ -67,8 +67,8 @@ assign sda = sda_out ? 1'bz : 1'b0;
 assign send_data = (CUR_REG_ADDR == REG1_ADDR) ? reg1_out : reg2_out[reg2_offset*8+:8];
 
 
-always @(posedge clk or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
         reg1_out <= 8'h00;
         reg2_out <= 32'h00000000;
     end
@@ -78,13 +78,13 @@ always @(posedge clk or negedge rst) begin
     end
 end
 
-always @(posedge clk or negedge rst) begin
-    if (!rst) state <= S_IDLE;
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) state <= S_IDLE;
     else state <= nextstate;
 end
 
 always @(*) begin
-    if (!rst) begin
+    if (!rst_n) begin
         nextstate = S_IDLE;
     end
     else begin
@@ -195,8 +195,8 @@ task recv_data();
     end
 endtask
 
-always @(posedge clk or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
         init_signals();
     end
     else begin

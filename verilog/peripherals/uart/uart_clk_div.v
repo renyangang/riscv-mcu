@@ -19,7 +19,7 @@ Description: UART RX module
 
 module uart_clk_div(
     input clk,
-    input rst,
+    input rst_n,
     input [15:0] uart_clk_div, // 波特率时钟分频数，整数部分  主频/(波特率 * 16)
     input [4:0] uart_clk_frag_total, // 每16个整数周期中，小数分频添加个数  (主频 % (波特率 * 16)) * 16
     input [3:0] uart_clk_frag_i, // 小数添加间隔 1 / (主频 % (波特率 * 16))
@@ -35,8 +35,8 @@ module uart_clk_div(
     reg [1:0] uart_cnt;
 
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             div_cnt <= 16'b0;
             clk_sample <= 1'b0;
         end
@@ -51,8 +51,8 @@ module uart_clk_div(
         end
     end
 
-    always @(posedge clk_sample or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk_sample or negedge rst_n) begin
+        if (!rst_n) begin
             frag_cnt_16 <= 5'b0;
             frag_cnt_i <= 4'b0;
             frag_cnt <= 5'b0;
@@ -78,8 +78,8 @@ module uart_clk_div(
         end
     end
 
-    always @(posedge clk_sample or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk_sample or negedge rst_n) begin
+        if (!rst_n) begin
             uart_cnt <= 2'b0;
             clk_uart <= 1'b0;
         end

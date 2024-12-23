@@ -20,7 +20,7 @@
 `include "config.v"
  module registers(
     input wire clk,
-    input wire rst,
+    input wire rst_n,
     input wire [4:0] rs1_addr,
     input wire [4:0] rs2_addr,
     input wire [4:0] rd_addr,
@@ -41,7 +41,7 @@
     assign x2_out = reg_file[2];
 
     always @(posedge clk) begin
-        if (!rst) begin
+        if (!rst_n) begin
             for (i = 0; i < `XLEN; i = i + 1) begin
                 reg_file[i] <= `XLEN'h00000000;
             end

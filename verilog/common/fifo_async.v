@@ -20,7 +20,7 @@ Description: async fifo
 module fifo_async #(parameter DEPTH = 16, parameter WIDTH = 8) (
     input wclk,
     input rclk,
-    input rst,
+    input rst_n,
     input wr_en,
     input rd_en,
     input [WIDTH-1:0] wr_data,
@@ -52,8 +52,8 @@ assign rd_ptr_gray = ((rd_ptr>>1) ^ rd_ptr);
 assign rd_empty = (rd_ptr_gray == wr_ptr_gray_2);
 assign wr_full  = (wr_ptr_gray == {~rd_ptr_gray_2[$clog2(DEPTH):$clog2(DEPTH)-1], rd_ptr_gray_2[$clog2(DEPTH)-2:0]});
  
-always@(posedge wclk or negedge rst) begin
-    if(!rst) begin
+always@(posedge wclk or negedge rst_n) begin
+    if(!rst_n) begin
         wr_ptr <= 0;
     end
     else if(wr_en && !wr_full)begin
@@ -62,8 +62,8 @@ always@(posedge wclk or negedge rst) begin
     end
 end
  
-always@(posedge rclk or negedge rst) begin
-    if(!rst)
+always@(posedge rclk or negedge rst_n) begin
+    if(!rst_n)
         rd_ptr <= 0;
     else if(rd_en && !rd_empty)begin
         rd_data  <= data[rd_addr];
@@ -71,8 +71,8 @@ always@(posedge rclk or negedge rst) begin
     end
 end
  
-always@(posedge wclk or negedge rst) begin
-    if(!rst)begin
+always@(posedge wclk or negedge rst_n) begin
+    if(!rst_n)begin
         rd_ptr_gray_1 <= 0;
         rd_ptr_gray_2 <= 0;
     end
@@ -82,8 +82,8 @@ always@(posedge wclk or negedge rst) begin
     end
 end
  
-always@(posedge rclk or negedge rst) begin
-    if(!rst)begin
+always@(posedge rclk or negedge rst_n) begin
+    if(!rst_n)begin
         wr_ptr_gray_1 <= 0;
         wr_ptr_gray_2 <= 0;
     end

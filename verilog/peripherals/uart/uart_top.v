@@ -20,7 +20,7 @@ Description: UART Top module
 
 module uart_top(
     input  wire        clk,
-    input  wire        rst,
+    input  wire        rst_n,
     input  wire        uart_rx,
     output wire        uart_tx,
     
@@ -80,7 +80,7 @@ localparam ADDR_CONFIG = 0, ADDR_DATA = 4, ADDR_DATA_STATUS = 8;
 
 uart_clk_div clk_div(
     .clk(clk),
-    .rst(rst),
+    .rst_n(rst_n),
     .uart_clk_div(uart_clk_div),
     .uart_clk_frag_total(uart_clk_frag_total),
     .uart_clk_frag_i(uart_clk_frag_i),
@@ -90,7 +90,7 @@ uart_clk_div clk_div(
 
 uart_rx uart_rx_inst(
     .clk_sample(clk_sample),
-    .rst(rst),
+    .rst_n(rst_n),
     .rx(uart_rx),
     .parity_mode(parity_mode),
     .stop_bit(stop_bit),
@@ -100,7 +100,7 @@ uart_rx uart_rx_inst(
 
 uart_tx uart_tx_inst(
     .clk_uart(clk_uart),
-    .rst(rst),
+    .rst_n(rst_n),
     .tx_data(tx_data),
     .tx_start(tx_start),
     .parity_mode(parity_mode),
@@ -112,7 +112,7 @@ uart_tx uart_tx_inst(
 fifo_async uart_fifo(
     .wclk(clk_sample),
     .rclk(clk),
-    .rst(rst),
+    .rst_n(rst_n),
     .wr_en(wr_en),
     .rd_en(rd_en),
     .wr_data(rx_data),
@@ -132,7 +132,7 @@ wire tx_fifo_full;
 fifo_async uart_fifo_tx(
     .wclk(clk),
     .rclk(clk_uart),
-    .rst(rst),
+    .rst_n(rst_n),
     .wr_en(tx_wr_en),
     .rd_en(tx_rd_en),
     .wr_data(tx_fifo_wdata),
@@ -141,8 +141,8 @@ fifo_async uart_fifo_tx(
     .rd_empty(tx_fifo_empty)
 );
 
-always @(posedge clk_uart or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk_uart or negedge rst_n) begin
+    if (!rst_n) begin
         tx_start <= 1'b0;
         tx_rd_en <= 1'b0;
         tx_rd_data_flag <= 1'b0;
@@ -173,7 +173,7 @@ reg rx_ready_flag;
 reg uart_inner_state; // 0 idle 1 wait change
 
 always @(*) begin
-    if (!rst) begin
+    if (!rst_n) begin
         uart_data_status_r = 0;
     end
     else begin
@@ -183,7 +183,7 @@ always @(*) begin
 end
 
 always @(uart_reg_addr or uart_reg_rd_en or uart_reg_wr_en or uart_reg_wdata or posedge uart_ready) begin
-    if (!rst) begin
+    if (!rst_n) begin
         uart_inner_state = 0;
     end
     else begin
@@ -196,8 +196,8 @@ always @(uart_reg_addr or uart_reg_rd_en or uart_reg_wr_en or uart_reg_wdata or 
     end
 end
 
-always @(posedge clk_sample or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk_sample or negedge rst_n) begin
+    if (!rst_n) begin
         wr_en <= 1'b0;
         rx_ready_flag <= 1'b0;
     end
@@ -212,8 +212,8 @@ always @(posedge clk_sample or negedge rst) begin
     end
 end
 
-always @(posedge clk or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
         rd_en <= 1'b0;
         uart_ready <= 1'b0;
         tx_wr_en <= 1'b0;

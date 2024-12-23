@@ -21,7 +21,7 @@
 
 module sys_bus(
     input         clk,
-    input         rst,
+    input         rst_n,
 
     input         inst_read_en,       
     input  [`MAX_BIT_POS:0] inst_read_addr,
@@ -85,7 +85,7 @@ module sys_bus(
     assign inst_rdata = inst_rdata_icache;
 
     always @(posedge inst_read_en or inst_read_addr) begin
-        if (!rst) begin
+        if (!rst_n) begin
             inst_read_en_icache = 1'b0;
             inst_read_addr_icache = 0;
             inst_addr_exception = 1'b0;
@@ -140,8 +140,8 @@ module sys_bus(
     assign rdata = (d_cur_from == CUR_CACHE) ? d_rdata_dcache : (d_cur_from == CUR_PERIPHERALS) ? io_rdata : (d_cur_from == CUR_TIMER) ? mtime_rdata : (d_cur_from == CUR_INT) ? int_code_rdata : 32'd0;
     assign d_byte_size_dcache = byte_size;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             mem_state <= MEM_IDLE;
         end
         else begin
@@ -151,7 +151,7 @@ module sys_bus(
 
     /* verilator lint_off LATCH */
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             mem_state_next = S_IDLE;
         end
         else begin
@@ -170,8 +170,8 @@ module sys_bus(
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             peripheral_op <= 0;
             read_ready <= 1'b0;
             d_cur_from <= CUR_IDLE;
@@ -229,8 +229,8 @@ module sys_bus(
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             d_state <= S_IDLE;
         end
         else begin
@@ -240,7 +240,7 @@ module sys_bus(
 
     /* verilator lint_off LATCH */
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             d_state_next = S_IDLE;
             offchip_mem_byte_size = 0;
             offchip_mem_byte_size = ~offchip_mem_byte_size;
@@ -287,8 +287,8 @@ module sys_bus(
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             io_ready_copy <= 1'b0;
             offchip_mem_byte_counter <= 0;
             io_byte_size <= 2'd0;
@@ -362,7 +362,7 @@ module sys_bus(
 
     mem_controller d_cache(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .inst_mem_addr(inst_read_addr_icache),
         .inst_read_en(inst_read_en_icache),
         .inst_mem_rdata(inst_rdata_icache),
@@ -462,7 +462,7 @@ module sys_bus(
     reg [`MAX_BIT_POS:0] sys_exception_code;
 
     always @(exception_en or inst_addr_exception) begin
-        if (!rst) begin
+        if (!rst_n) begin
             sys_exception_en = 1'b0;
             sys_exception_code = 0;
         end
@@ -486,7 +486,7 @@ module sys_bus(
 
     registers_csr registers_csr(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .exp_pc(exp_pc),
         .exp_pc_next(exp_pc_next),
         .exp_val(exp_val),

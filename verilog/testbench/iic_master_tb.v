@@ -19,7 +19,7 @@
 module iic_master_tb;
 
     reg clk;
-    reg rst;
+    reg rst_n;
     reg rw;
     reg [1:0]mode;
     reg [7:0] data;
@@ -39,7 +39,7 @@ module iic_master_tb;
 
 iic_master iic_master(
     .clk(clk),
-    .rst(rst),
+    .rst_n(rst_n),
     .rw(rw), 
     .mode(mode), 
     .data(data),
@@ -56,12 +56,12 @@ iic_master iic_master(
 always #20 clk = ~clk;
 
 initial begin
-  rst = 1'b1;
+  rst_n = 1'b1;
   clk = 1'b1;
   start = 1'b0;
   mode = 2'd3;
   #201
-  rst = 1'b0;
+  rst_n = 1'b0;
   #201
   rw = 1'b0;
   data = 8'h1;

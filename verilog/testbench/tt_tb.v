@@ -21,13 +21,13 @@ module tt_tb;
     wire [81:0] outputsig;
 
     reg clk;
-    reg rst;
+    reg rst_n;
 
     reg [2:0] leds;
     assign outputsig = inputsig1;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             leds <= 3'b000;
             inputsig1 <= 82'h22ee_22ee_33ff_33ff;
         end
@@ -40,11 +40,11 @@ module tt_tb;
     end
 
     initial begin
-        rst = 0;
+        rst_n = 0;
         clk = 0;
         $setSignalNames("tt_tb.inputsig", "tt_tb.outputsig");
         #20;
-        rst = 1;
+        rst_n = 1;
         $refresh;
     end
 

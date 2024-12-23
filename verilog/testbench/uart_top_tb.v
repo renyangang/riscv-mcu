@@ -18,7 +18,7 @@
 module uart_top_tb();
 
 reg clk;
-reg rst;
+reg rst_n;
 wire uart_rx;
 wire uart_tx;
 reg wr_en_1;
@@ -38,7 +38,7 @@ wire  data_ready_int_2;  // data ready interrupt
 
 uart_top dut(
 	.clk(clk),
-    .rst(rst),
+    .rst_n(rst_n),
     .uart_rx(uart_rx),
     .uart_tx(uart_tx),
     .uart_reg_wr_en(wr_en_1),
@@ -52,7 +52,7 @@ uart_top dut(
 
 uart_top dut1(
 	.clk(clk),
-    .rst(rst),
+    .rst_n(rst_n),
     .uart_rx(uart_tx),
     .uart_tx(uart_rx),
     .uart_reg_wr_en(wr_en_2),
@@ -77,7 +77,7 @@ task uart1_send(
     input [31:0] data,
     input [31:0] addr
 );
-    if (rst) begin
+    if (rst_n) begin
         addr1 = addr;
         wdata1 = data;
         wr_en_1 = 1;
@@ -92,7 +92,7 @@ task uart2_send(
     input [31:0] data,
     input [31:0] addr
 );
-    if (rst) begin
+    if (rst_n) begin
         addr2 = addr;
         wdata2 = data;
         wr_en_2 = 1;
@@ -106,7 +106,7 @@ endtask
 task uart1_read(
     input [31:0] addr
 );
-    if (rst) begin
+    if (rst_n) begin
         wait(data_ready_int_1);
         addr1 = addr;
         rd_en_1 = 1;
@@ -120,7 +120,7 @@ endtask
 task uart2_read(
     input [31:0] addr
 );
-    if (rst) begin
+    if (rst_n) begin
         wait(data_ready_int_2);
         addr2 = addr;
         rd_en_2 = 1;
@@ -135,7 +135,7 @@ integer i,j;
 
 initial begin
 	clk = 0;
-	rst = 0;
+	rst_n = 0;
     wr_en_1 = 0;
 	rd_en_1 = 0;
 	wr_en_2 = 0;
@@ -152,7 +152,7 @@ initial begin
     uart_config[29] = 1'd1; // data read interrupt enable
     uart_config[31:30] = 2'd0;
 	#100;
-	rst = 1;
+	rst_n = 1;
     // set baudrate to 115200
     uart1_send(uart_config, 32'h00000000);
     #10;

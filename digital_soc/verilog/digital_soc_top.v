@@ -21,7 +21,7 @@ module digital_soc_top(
     output [146:0] output_sig
 );
     // reg clk;
-    wire rst;
+    wire rst_n;
     wire clk_timer;
     wire clk_r;
     wire digital_flash_ready;
@@ -46,7 +46,7 @@ module digital_soc_top(
     assign output_sig = {gpio_values[31:0],digital_mem_wdata_l[31:0],digital_mem_byte_size[3:0],digital_mem_read_en_l,digital_mem_write_en_l,digital_mem_addr_l[31:0],digital_flash_wdata_l[7:0],digital_flash_byte_size[2:0],digital_flash_read_en_l,digital_flash_write_en_l,digital_flash_addr_l[31:0]};
     // assign output_sig = {32'd1,32'd2,4'd0,1'b1,1'b1,32'd2,8'd1,3'd0,1'b0,1'b0,32'd2};
     assign clk_r = input_sig[0];
-    assign rst = input_sig[1];
+    assign rst_n = input_sig[1];
     assign clk_timer = input_sig[2];
     assign digital_flash_data_l = input_sig[10:3];
     assign digital_mem_data_l = input_sig[42:11];
@@ -61,7 +61,7 @@ module digital_soc_top(
 
     digital_soc digital_soc(
         .clk(clk_r),
-        .rst(rst),
+        .rst_n(rst_n),
         .clk_timer(clk_timer),
         .digital_flash_addr(digital_flash_addr),
         .digital_flash_write_en(digital_flash_write_en),
@@ -84,10 +84,10 @@ module digital_soc_top(
     //     // clk = 0;
     //     // input_sig = 0;
     //     // $setSignalNames("digital_soc_top.input_sig", "digital_soc_top.output_sig");
-    //     // rst = 0;
+    //     // rst_n = 0;
     //     // clk_timer = 0;
     //     // // offchip_mem_ready = 0;
-    //     // #10 rst = 1;
+    //     // #10 rst_n = 1;
         
     // end
 
@@ -157,7 +157,7 @@ module digital_soc_top(
 
     hl_adapter #(8) hl_adapter_flash (
         .clk_h(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .clk_l(clk_r),
         .h_read_en(digital_flash_read_en),
         .h_write_en(digital_flash_write_en),
@@ -174,7 +174,7 @@ module digital_soc_top(
 
     hl_adapter #(`XLEN) hl_adapter_mem (
         .clk_h(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .clk_l(clk_r),
         .h_read_en(digital_mem_read_en),
         .h_write_en(digital_mem_write_en),

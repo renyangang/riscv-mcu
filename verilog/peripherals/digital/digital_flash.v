@@ -20,7 +20,7 @@
 
 module digital_flash(
     input wire flashclk,
-    input wire rst,
+    input wire rst_n,
     input wire [`MAX_BIT_POS:0] flash_io_addr,
     input wire flash_io_read,
     input wire flash_io_write,
@@ -71,8 +71,8 @@ module digital_flash(
         end
     end
 
-    always @(posedge flashclk or negedge rst) begin
-        if(!rst) begin
+    always @(posedge flashclk or negedge rst_n) begin
+        if(!rst_n) begin
             state <= IDLE;
         end
         else begin
@@ -80,8 +80,8 @@ module digital_flash(
         end
     end
 
-    always @(posedge flashclk or negedge rst) begin
-        if(!rst) begin
+    always @(posedge flashclk or negedge rst_n) begin
+        if(!rst_n) begin
             flash_io_ready <= 1'b0;
             // digital 固定位4字节
             digital_flash_byte_size <= 0;

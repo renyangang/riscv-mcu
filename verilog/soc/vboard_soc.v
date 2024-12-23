@@ -21,7 +21,7 @@ Description: vboard soc
 
 module vboard_soc(
     input  wire        clk,           // 时钟信号
-    input  wire        rst,           // 复位信号
+    input  wire        rst_n,           // 复位信号
     input  wire        clk_timer,
 
     output wire  [`MAX_BIT_POS:0] digital_flash_addr,
@@ -57,7 +57,7 @@ module vboard_soc(
 
 cpu_top cpu(
     .clk(clk),
-    .rst(rst),
+    .rst_n(rst_n),
     .clk_timer(clk_timer),
     .io_addr(io_addr),
     .io_read(io_read),
@@ -74,7 +74,7 @@ cpu_top cpu(
 
 peripherals_bus peripherals_bus(
     .pclk(clk),
-    .rst_n(rst),
+    .rst_n(rst_n),
     .io_addr(io_addr),
     .io_read(io_read),
     .io_write(io_write),

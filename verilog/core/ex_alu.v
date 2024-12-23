@@ -18,7 +18,7 @@
  */
 `include "config.v"
 module ex_alu(
-    input rst,
+    input rst_n,
     input [4:0] rd, 
     input [`MAX_BIT_POS:0] rs1_data, rs2_data,
     input [19:0] imm_1231,
@@ -74,7 +74,7 @@ assign inst_xor = inst_flags[27];
 assign inst_lui = inst_flags[28];
 
 always @(*) begin
-    if (rst) begin
+    if (rst_n) begin
         rd_out = rd;
         if (inst_addi) begin
             rd_data = rs1_data + {{20{imm_2031[11]}}, imm_2031};

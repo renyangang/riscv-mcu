@@ -17,7 +17,7 @@
 
 module vboard_soc_top(
     input  wire        clk,           // 时钟信号
-    input  wire        rst,           // 复位信号
+    input  wire        rst_n,           // 复位信号
     input  wire        clk_timer,
 
     output wire  [`MAX_BIT_POS:0] digital_flash_addr,
@@ -71,7 +71,7 @@ module vboard_soc_top(
 
     vboard_soc vboard_inst(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .clk_timer(clk_timer),
         .digital_flash_addr(digital_flash_addr),
         .digital_flash_write_en(digital_flash_write_en),

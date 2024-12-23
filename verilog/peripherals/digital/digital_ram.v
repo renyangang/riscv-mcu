@@ -20,7 +20,7 @@
 
 module digital_ram(
     input wire ramclk,
-    input wire rst,
+    input wire rst_n,
     input wire [`MAX_BIT_POS:0] mem_io_addr,
     input wire mem_io_read,
     input wire mem_io_write,
@@ -89,8 +89,8 @@ module digital_ram(
         end
     end
 
-    always @(posedge ramclk or negedge rst) begin
-        if(!rst) begin
+    always @(posedge ramclk or negedge rst_n) begin
+        if(!rst_n) begin
             state <= IDLE;
         end
         else begin
@@ -98,8 +98,8 @@ module digital_ram(
         end
     end
 
-    always @(posedge ramclk or negedge rst) begin
-        if(!rst) begin
+    always @(posedge ramclk or negedge rst_n) begin
+        if(!rst_n) begin
             mem_io_ready <= 1'b0;
             digital_mem_write_en <= 1'b0;
         end

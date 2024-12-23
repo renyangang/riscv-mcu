@@ -24,7 +24,7 @@
 `define WRITE 2'b10
 `define DONE 2'b11
 module ex_mem(
-    input clk, rst,
+    input clk, rst_n,
     input [4:0] rd,
     input [`MAX_BIT_POS:0] rs1_data, rs2_data,
     input [11:0] imm_2031,
@@ -69,8 +69,8 @@ module ex_mem(
     assign inst_sh = inst_flags[35];
     assign inst_sw = inst_flags[36];
 
-    always @(posedge clk or posedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or posedge rst_n) begin
+        if (!rst_n) begin
             state <= `IDLE;
         end
         else begin
@@ -80,7 +80,7 @@ module ex_mem(
 
     /* verilator lint_off LATCH */
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             state_next = `IDLE;
             busy_flag = 1'b0;
             wb_rd_wait = 1'b0;
@@ -126,8 +126,8 @@ module ex_mem(
         end
     end
 
-    always @(posedge clk or posedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or posedge rst_n) begin
+        if (!rst_n) begin
             rd_en <= 1'b0;
             rd_data <= `XLEN'd0;
             byte_size <= 2'd0;

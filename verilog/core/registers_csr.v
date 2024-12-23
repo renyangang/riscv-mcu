@@ -22,7 +22,7 @@
 `include "config.v"
  module registers_csr(
     input wire clk,
-    input wire rst,
+    input wire rst_n,
 
     // 中断信号
     input [`MAX_BIT_POS:0] exp_pc,
@@ -104,7 +104,7 @@
 
     /* verilator lint_off LATCH */
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             mip = `XLEN'd0;
         end
         else begin
@@ -131,8 +131,8 @@
         end
     end
 
-    always @(posedge clk_timer or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk_timer or negedge rst_n) begin
+        if (!rst_n) begin
             mtime <= 64'd0;
         end
         else begin
@@ -140,8 +140,8 @@
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             mtimecmp <= {64{1'b1}};
         end
         else begin
@@ -154,8 +154,8 @@
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             jmp_en <= 1'b0;
             jmp_pc <= `XLEN'd0;
             mstatus <= `XLEN'd0;
@@ -185,8 +185,8 @@
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             int_proc_state <= 1'b0;
             jmp_en <= 1'b0;
             jmp_pc <= `XLEN'd0;

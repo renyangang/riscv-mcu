@@ -40,7 +40,7 @@ void setInput(unsigned char* input,int input_size) {
     int pos = 0;
     topp->clk = input[pos];
     pos++;
-    topp->rst = input[pos];
+    topp->rst_n = input[pos];
     pos++;
     topp->clk_timer = input[pos];
     pos++;

@@ -25,7 +25,7 @@
 `define EXECUTE_COMPLATE 2'b10
 module cpu_pipeline(
     input wire clk,
-    input wire rst,
+    input wire rst_n,
 
     output wire read_en,
     output wire [`MAX_BIT_POS:0] mem_addr,
@@ -92,7 +92,7 @@ module cpu_pipeline(
 
     inst_fetch inst_fetch(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .jmp_pc(jmp_pc),
         .jmp_en(jmp_en),
         .next_en(fetch_en),
@@ -130,7 +130,7 @@ module cpu_pipeline(
     wire [`MAX_BIT_POS:0] alu_rd_data;
 
     ex_alu alu(
-        .rst(rst),
+        .rst_n(rst_n),
         .rd(id_ex_rd),
         .rs1_data(id_ex_rs1_data),
         .rs2_data(id_ex_rs2_data),
@@ -142,7 +142,7 @@ module cpu_pipeline(
     );
 
     ex_branch ex_branch(
-        .rst(rst),
+        .rst_n(rst_n),
         .pc_cur(id_ex_pc_cur),
         .pc_next(id_ex_pc_next),
         .rd(id_ex_rd),
@@ -167,7 +167,7 @@ module cpu_pipeline(
 
     ex_mem ex_mem(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .rd(id_ex_rd),
         .rs1_data(id_ex_rs1_data),
         .rs2_data(id_ex_rs2_data),
@@ -196,7 +196,7 @@ module cpu_pipeline(
     
 
     ex_csr ex_csr(
-        .rst(rst),
+        .rst_n(rst_n),
         .rd(id_ex_rd),
         .rs1_data(id_ex_rs1_data),
         .csr_data(id_ex_rs2_data),
@@ -217,7 +217,7 @@ module cpu_pipeline(
 
     registers registers(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .rd_addr(wb_rd),
         .rs1_addr(rs1),
         .rs2_addr(rs2),
@@ -392,7 +392,7 @@ module cpu_pipeline(
     /* verilator lint_off LATCH */
     // 跳转信号处理
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             jmp_en = 1'b0;
             jmp_pc = 0;
         end
@@ -414,8 +414,8 @@ module cpu_pipeline(
     end
 
     //wb写回信号处理
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             wb_rd_en <= 1'b0;
             wb_rd_data <= 32'd0;
             wb_rd <= 5'd0;
@@ -434,8 +434,8 @@ module cpu_pipeline(
     end
 
     // if to id
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             if_id_control_hazard <= 1'b0;
             if_id_pc_cur <= 32'd0;
             if_id_pc_next <= 32'd0;
@@ -450,8 +450,8 @@ module cpu_pipeline(
     end
 
     // id to ex
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             decoder_en <= 1'd1;
             id_ex_control_hazard <= 1'b0;
             id_ex_pc_cur <= 32'd0;
@@ -527,7 +527,7 @@ module cpu_pipeline(
     end
 
     always @(invalid_instruction) begin
-        if (invalid_instruction && rst) begin
+        if (invalid_instruction && rst_n) begin
             exception_en = 1'b1;
             exception_code = `EXCEPT_ILLEGAL_INSTR;
         end

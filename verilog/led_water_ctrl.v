@@ -15,7 +15,7 @@
 */
 module led_water_ctrl (
     input clk_ss,
-    input rst,
+    input rst_n,
     output led1,
     output led2,
     output led3
@@ -30,8 +30,8 @@ module led_water_ctrl (
 
    localparam COUTER_MAX = 25'd999;
    
-   always @(posedge clk_ss or negedge rst) begin
-      if (!rst) begin
+   always @(posedge clk_ss or negedge rst_n) begin
+      if (!rst_n) begin
          led_state <= 3'b001;
          counter <= 25'b0;
       end 

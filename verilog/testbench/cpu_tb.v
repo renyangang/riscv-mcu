@@ -19,7 +19,7 @@
 
 module cpu_tb;
     reg clk;
-    reg rst;
+    reg rst_n;
     reg clk_timer;
 
     // 片外内存
@@ -32,7 +32,7 @@ module cpu_tb;
 
     // cpu_pipeline cpu_pipeline(
     //     .clk(clk),
-    //     .rst(rst),
+    //     .rst_n(rst_n),
     //     .clk_timer(clk_timer),
     //     .offchip_mem_data(offchip_mem_data),
     //     .offchip_mem_ready(offchip_mem_ready),
@@ -71,10 +71,10 @@ module cpu_tb;
 
     initial begin
         clk = 0;
-        rst = 0;
+        rst_n = 0;
         clk_timer = 0;
         offchip_mem_ready = 0;
-        #10 rst = 1;
+        #10 rst_n = 1;
         
         #500;
         $finish;

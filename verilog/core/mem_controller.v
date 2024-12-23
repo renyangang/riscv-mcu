@@ -21,7 +21,7 @@
 
 module mem_controller(
     input clk,
-    input rst,
+    input rst_n,
     // 指令获取通道
     input [`MAX_BIT_POS:0] inst_mem_addr,
     input inst_read_en,
@@ -49,7 +49,7 @@ module mem_controller(
     // 指令缓存
     cache i_cache(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .addr(inst_mem_addr),
         .data_in(),
         .write_enable(1'b0),
@@ -69,7 +69,7 @@ module mem_controller(
     // 数据缓存
     cache d_cache(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .addr(mem_addr),
         .data_in(mem_wdata),
         .write_enable(d_write_cache_en),
@@ -134,8 +134,8 @@ module mem_controller(
     /* verilator lint_off UNOPTFLAT */
     reg [1:0]cur_load_type; // 0: inst, 1: data
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             offship_state <= OFF_STATUS_IDLE;
         end
         else begin
@@ -143,8 +143,8 @@ module mem_controller(
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             offchip_mem_read_en <= 1'b0;
             offchip_mem_write_en <= 1'b0;
             cur_load_type <= CUR_LOAD_IDLE;
@@ -222,7 +222,7 @@ module mem_controller(
 
     /* verilator lint_off LATCH */
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             next_offship_state = OFF_STATUS_IDLE;
         end
         else begin

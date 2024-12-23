@@ -16,7 +16,7 @@
         </entry>
         <entry>
           <string>externalInputs</string>
-          <string>clk,rst,clk_timer,digital_flash_data:8,digital_mem_data:32,gpio_10:1</string>
+          <string>clk,rst_n,clk_timer,digital_flash_data:8,digital_mem_data:32,gpio_10:1</string>
         </entry>
         <entry>
           <string>Width</string>
@@ -75,7 +75,7 @@
       <elementAttributes>
         <entry>
           <string>NetName</string>
-          <string>rst</string>
+          <string>rst_n</string>
         </entry>
       </elementAttributes>
       <pos x="340" y="320"/>
@@ -519,7 +519,7 @@
         </entry>
         <entry>
           <string>NetName</string>
-          <string>rst</string>
+          <string>rst_n</string>
         </entry>
       </elementAttributes>
       <pos x="620" y="240"/>

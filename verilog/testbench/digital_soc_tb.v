@@ -18,7 +18,7 @@
 
 module cpu_tb;
     reg clk;
-    reg rst;
+    reg rst_n;
     reg clk_timer;
 
     wire  [`MAX_BIT_POS:0] digital_flash_addr;
@@ -39,7 +39,7 @@ module cpu_tb;
 
     digital_soc digital_soc(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .clk_timer(clk_timer),
         .digital_flash_addr(digital_flash_addr),
         .digital_flash_write_en(digital_flash_write_en),
@@ -111,14 +111,14 @@ module cpu_tb;
 
     initial begin
         clk = 0;
-        rst = 0;
+        rst_n = 0;
         clk_timer = 0;
         gpio_10 = 1'b0;
         digital_flash_ready = 1'd0;
         digital_mem_ready = 1'd0;
         
         // offchip_mem_ready = 0;
-        #10 rst = 1;
+        #10 rst_n = 1;
         #200000;
         gpio_10 = 1'b1;
         #100000;

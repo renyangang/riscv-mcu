@@ -18,7 +18,7 @@
  */
 `include "config.v"
 module ex_branch(
-    input rst,
+    input rst_n,
     input [`MAX_BIT_POS:0] pc_cur,pc_next,
     input [4:0] rd,
     input [`MAX_BIT_POS:0] rs1_data, rs2_data,
@@ -58,7 +58,7 @@ module ex_branch(
 
     /* verilator lint_off LATCH */
     always @(*) begin
-        if (rst) begin
+        if (rst_n) begin
             if (inst_beq) begin
                 pc_next_out = (pc_cur + {{20{imm_2531[6]}}, rd[0], imm_2531[5:0], rd[4:1], 1'b0});
                 jmp_en = (rs1_data == rs2_data) ? 1'b1 : 1'b0;

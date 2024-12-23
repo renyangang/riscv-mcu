@@ -20,7 +20,7 @@ module iic_master#(
     parameter CLK_FREQ = 50_000_000
 )(
     input clk,
-    input rst,
+    input rst_n,
     input rw, //0:write, 1:read
     input [1:0] mode, //0:standard mode, 1:fast mode, 2:high-speed mode
     input [7:0] data,
@@ -83,8 +83,8 @@ module iic_master#(
         SAMPLE_SCL_MAX = SCL_MAX / 4;
     end
 
-    always @(posedge clk or negedge rst) begin
-        if ((!rst) || (state == S_IDLE && nextstate == S_IDLE)) begin
+    always @(posedge clk or negedge rst_n) begin
+        if ((!rst_n) || (state == S_IDLE && nextstate == S_IDLE)) begin
             scl_reg <= 1'b1;
             counter_scl <= 25'd0;
         end
@@ -97,8 +97,8 @@ module iic_master#(
         end
     end
 
-    always @(posedge clk or posedge rst) begin
-        if ((!rst) || (state == S_IDLE && nextstate == S_IDLE)) begin
+    always @(posedge clk or posedge rst_n) begin
+        if ((!rst_n) || (state == S_IDLE && nextstate == S_IDLE)) begin
             sample_scl_reg <= 1'b1;
             counter_sample_scl <= 25'd0;
         end
@@ -112,7 +112,7 @@ module iic_master#(
     end
 
     always @(*) begin
-        if (!rst) begin
+        if (!rst_n) begin
             nextstate = S_IDLE;
         end
         else begin
@@ -153,8 +153,8 @@ module iic_master#(
         end
     end
 
-    always @(posedge sample_scl_reg or posedge rst) begin
-        if (!rst) begin
+    always @(posedge sample_scl_reg or posedge rst_n) begin
+        if (!rst_n) begin
             state <= S_IDLE;
         end
         else begin
@@ -162,8 +162,8 @@ module iic_master#(
         end
     end
 
-    always @(posedge sample_scl_reg or posedge rst) begin
-        if (!rst) begin
+    always @(posedge sample_scl_reg or posedge rst_n) begin
+        if (!rst_n) begin
             proc_ing <= 1'b0;
             done <= 1'b0;
             ack <= 1'b0;

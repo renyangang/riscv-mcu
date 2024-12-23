@@ -20,7 +20,7 @@
 
  module inst_fetch(
     input clk,
-    input rst,
+    input rst_n,
     input [`MAX_BIT_POS:0] jmp_pc,
     input jmp_en,
     input b_n_jmp, // 用于标记跳转指令，并没有发生跳转，在fetch_stop状态下用于解除指令冻结
@@ -68,8 +68,8 @@
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             cur_inst_addr <= `BOOT_ADDR;
             next_inst_addr <= `BOOT_ADDR + 4;
             inst_mem_read_en <= 1'b0;

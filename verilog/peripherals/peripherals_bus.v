@@ -126,7 +126,7 @@ wire gpio_ready;
 
 gpio_controller gpio_controller_inst(
     .gpio_clk(pclk),
-    .rst(rst_n),
+    .rst_n(rst_n),
     .io_addr(io_addr),
     .io_read(gpio_read),
     .io_write(gpio_write),
@@ -145,7 +145,7 @@ gpio_controller gpio_controller_inst(
 
 digital_ram ram(
     .ramclk(pclk),
-    .rst(rst_n),
+    .rst_n(rst_n),
     .mem_io_addr(io_addr),
     .mem_io_read(mem_io_read),
     .mem_io_write(mem_io_write),
@@ -170,7 +170,7 @@ digital_ram ram(
 
 digital_flash flash(
     .flashclk(pclk),
-    .rst(rst_n),
+    .rst_n(rst_n),
     .flash_io_addr(io_addr),
     .flash_io_read(flash_io_read),
     .flash_io_write(flash_io_write),
@@ -197,7 +197,7 @@ wire [`MAX_BIT_POS:0] uart_reg_rdata;
 
 uart_top dut(
 	.clk(pclk),
-    .rst(rst_n),
+    .rst_n(rst_n),
     .uart_rx(uart_rx),
     .uart_tx(uart_tx),
     .uart_reg_wr_en(uart_wr_en),

@@ -19,7 +19,7 @@ Description: UART TX module
 
 module uart_tx(
     input clk_uart,
-    input rst,
+    input rst_n,
     input [7:0] tx_data,
     input tx_start,
     input [1:0] parity_mode,
@@ -38,11 +38,11 @@ localparam PARITY_NONE = 0, PARITY_EVEN = 1, PARITY_ODD = 2;
 
 reg tx;
 
-assign tx_out = (rst && tx_state != TX_IDLE) ? tx : 1'b1;
+assign tx_out = (rst_n && tx_state != TX_IDLE) ? tx : 1'b1;
 
 
-always @(posedge clk_uart or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk_uart or negedge rst_n) begin
+    if (!rst_n) begin
         tx_cnt <= 3'b0;
         tx_state <= TX_IDLE;
         tx_busy <= 1'b0;

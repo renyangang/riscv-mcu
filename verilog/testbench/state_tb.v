@@ -28,7 +28,7 @@ endmodule
 
 module add_mealy_1(
     input clk,
-    input rst,
+    input rst_n,
     input [3:0] p,
     input [1:0] p_seq, // 1 第一个参数，2 第二个参数
     output reg res_valid,
@@ -41,8 +41,8 @@ module add_mealy_1(
     reg [1:0] state;
     reg [3:0] p1;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= IDLE;
             res_valid <= 1'b0;
             p1 <= 4'd0;
@@ -80,7 +80,7 @@ endmodule
 
 module add_mealy_2(
     input clk,
-    input rst,
+    input rst_n,
     input [3:0] p,
     input [1:0] p_seq, // 1 第一个参数，2 第二个参数
     output reg res_valid,
@@ -94,8 +94,8 @@ module add_mealy_2(
     reg [1:0] next_state;
     reg [3:0] p1;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= IDLE;
             res_valid <= 1'b0;
             p1 <= 4'd0;
@@ -143,7 +143,7 @@ endmodule
 
 module add_mealy_3(
     input clk,
-    input rst,
+    input rst_n,
     input [3:0] p,
     input [1:0] p_seq, // 1 第一个参数，2 第二个参数
     output reg res_valid,
@@ -157,8 +157,8 @@ module add_mealy_3(
     reg [1:0] next_state;
     reg [3:0] p1;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= IDLE;
             res_valid <= 1'b0;
             p1 <= 4'd0;
@@ -194,7 +194,7 @@ module add_mealy_3(
     end
 
     always @(posedge clk) begin
-        if (rst) begin
+        if (rst_n) begin
             case (state)
                 IDLE: begin
                     if (p_seq == 2'd1) begin
@@ -217,7 +217,7 @@ endmodule
 
 module add_moore_3(
     input clk,
-    input rst,
+    input rst_n,
     input [3:0] p,
     input [1:0] p_seq, // 1 第一个参数，2 第二个参数
     output reg res_valid,
@@ -233,8 +233,8 @@ module add_moore_3(
     reg [3:0] p1;
     reg [3:0] p2;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= IDLE;
             res_valid <= 1'b0;
             p1 <= 4'd0;
@@ -276,7 +276,7 @@ module add_moore_3(
     end
 
     always @(posedge clk) begin
-        if (rst) begin
+        if (rst_n) begin
             case (state)
                 IDLE: begin
                     s <= 4'd0;
@@ -298,7 +298,7 @@ endmodule
 
 module add_moore_2(
     input clk,
-    input rst,
+    input rst_n,
     input [3:0] p,
     input [1:0] p_seq, // 1 第一个参数，2 第二个参数
     output reg res_valid,
@@ -314,8 +314,8 @@ module add_moore_2(
     reg [3:0] p1;
     reg [3:0] p2;
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= IDLE;
             res_valid <= 1'b0;
             p1 <= 4'd0;
@@ -367,7 +367,7 @@ endmodule
 
 module state_tb;
     reg clk;
-    reg rst;
+    reg rst_n;
 
     reg [1:0] p_seq;
     reg [3:0] p;
@@ -377,7 +377,7 @@ module state_tb;
 
     add_mealy_1 add_mealy_1_inst(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .p_seq(p_seq),
         .p(p),
         .res_valid(add_mealy_1_res_valid),
@@ -389,7 +389,7 @@ module state_tb;
 
     add_mealy_2 add_mealy_2_inst(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .p_seq(p_seq),
         .p(p),
         .res_valid(add_mealy_2_res_valid),
@@ -401,7 +401,7 @@ module state_tb;
 
     add_mealy_3 add_mealy_3_inst(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .p_seq(p_seq),
         .p(p),
         .res_valid(add_mealy_3_res_valid),
@@ -413,7 +413,7 @@ module state_tb;
 
     add_moore_3 add_moore_3_inst(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .p_seq(p_seq),
         .p(p),
         .res_valid(add_moore_3_res_valid),
@@ -425,7 +425,7 @@ module state_tb;
 
     add_moore_2 add_moore_2_inst(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .p_seq(p_seq),
         .p(p),
         .res_valid(add_moore_2_res_valid),
@@ -440,11 +440,11 @@ module state_tb;
 
     initial begin
         clk = 0;
-        rst = 0;
+        rst_n = 0;
         p = 0;
         p_seq = 2'd0;
         #11;
-        rst = 1;
+        rst_n = 1;
         #11;
         p_seq = 2'd1;
         #1;

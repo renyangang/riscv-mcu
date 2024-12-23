@@ -21,7 +21,7 @@ GPIO 控制模块
 `include "config.v"
 
 module gpio(
-    input wire rst,
+    input wire rst_n,
     // 用于CPU设置GPIO值
     input  wire       [`GPIO_NUMS-1:0] gpio_set,
     // 用于清除GPIO中断
@@ -43,7 +43,7 @@ module gpio(
     endgenerate
 
     always @(*) begin
-        if (rst) begin
+        if (rst_n) begin
             if (int_clear) begin
                 gpio_int_set = 0;
             end
@@ -66,7 +66,7 @@ endmodule
 `define GPIO_INT_CLEAR_OFFSET 6'd16
 module gpio_controller(
     input wire gpio_clk,
-    input wire rst,
+    input wire rst_n,
     input wire [`MAX_BIT_POS:0] io_addr,
     input wire io_read,
     input wire io_write,
@@ -93,7 +93,7 @@ module gpio_controller(
 
 
     gpio gpio(
-        .rst(rst),
+        .rst_n(rst_n),
         .gpio_set(gpio_set),
         .int_clear(int_clear),
         .gpio_values(gpio_values),
@@ -102,8 +102,8 @@ module gpio_controller(
         .gpio_int_clear_set(gpio_int_clear_set)
     );
 
-    always @(posedge gpio_clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge gpio_clk or negedge rst_n) begin
+        if (!rst_n) begin
             io_ready <= 1'b0;
             gpio_set <= `GPIO_NUMS'b0;
             gpio_ctrl <= `GPIO_NUMS'b0;

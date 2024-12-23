@@ -18,7 +18,7 @@
  */
 `include "config.v"
 module ex_csr (
-    input rst,
+    input rst_n,
     input [4:0] rd,
     input [4:0] imm_1519,
     input [`MAX_BIT_POS:0] rs1_data, csr_data,
@@ -48,7 +48,7 @@ module ex_csr (
 
 /* verilator lint_off LATCH */
 always @(*) begin
-    if (rst) begin
+    if (rst_n) begin
         rd_out = rd;
         csrw_addr = imm_2031;
         if (inst_csrrc) begin

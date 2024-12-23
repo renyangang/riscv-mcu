@@ -19,7 +19,7 @@ Description: UART RX module
 
 module uart_rx(
     input clk_sample,
-    input rst,
+    input rst_n,
     input rx,
     input [1:0] parity_mode,
     input [1:0] stop_bit,
@@ -41,8 +41,8 @@ reg [3:0] rx_f_cnt; // 高频采样，统计0的次数
 localparam RX_IDLE = 0, RX_START = 1, RX_DATA = 2, RX_PARITY = 3, RX_STOP = 4;
 localparam PARITY_NONE = 0, PARITY_EVEN = 1, PARITY_ODD = 2;
 
-always @(posedge clk_sample or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk_sample or negedge rst_n) begin
+    if (!rst_n) begin
         rx_reg1 <= 1'b1;
         rx_reg2 <= 1'b1;
     end else begin
@@ -51,8 +51,8 @@ always @(posedge clk_sample or negedge rst) begin
     end
 end
 
-always @(posedge clk_sample or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk_sample or negedge rst_n) begin
+    if (!rst_n) begin
         rx_state <= RX_IDLE;
         rx_cnt <= 3'b0;
         rx_sample_cnt <= 3'd0;

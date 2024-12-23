@@ -19,7 +19,7 @@
 `include "config.v"
 module cpu_top(
     input  wire        clk,           // 时钟信号
-    input  wire        rst,           // 复位信号
+    input  wire        rst_n,           // 复位信号
     input  wire        clk_timer,
 
     output wire [`MAX_BIT_POS:0] io_addr,
@@ -76,7 +76,7 @@ module cpu_top(
 
     cpu_pipeline cpu_pipeline(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .read_en,
         .mem_addr(mem_addr),
         .rdata(rdata),
@@ -112,7 +112,7 @@ module cpu_top(
 
     sys_bus sys_bus(
         .clk(clk),
-        .rst(rst),
+        .rst_n(rst_n),
         .inst_read_en(inst_read_en),       
         .inst_read_addr(cur_inst_addr),
         .inst_rdata(inst_data),
