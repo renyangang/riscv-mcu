@@ -63,7 +63,7 @@ assign start_sig = (last_scl && scl) && (last_sda && !sda);
 assign stop_sig = (last_scl && scl) && (!last_sda && sda);
 assign scl_falling_edge = last_scl && !scl;
 assign scl_rising_edge = !last_scl && scl;
-assign sda = sda_out ? 1'bz : 1'b0;
+assign sda = sda_out;
 assign send_data = (CUR_REG_ADDR == REG1_ADDR) ? reg1_out : reg2_out[reg2_offset*8+:8];
 
 
@@ -162,7 +162,7 @@ task init_signals();
         rw_reg <= 0;
         send_ack_flag <= 0;
         ack_flag <= 0;
-        sda_out <= 1'b1;
+        sda_out <= 1'bz;
         reg2_offset <= 0;
     end
 endtask;
@@ -200,6 +200,8 @@ always @(posedge clk or negedge rst_n) begin
         init_signals();
     end
     else begin
+        last_scl <= scl;
+        last_sda <= sda;
         case (state)
             S_IDLE: begin
             end
@@ -213,7 +215,7 @@ always @(posedge clk or negedge rst_n) begin
                         send_ack_flag <= 1;
                     end
                     if (scl_falling_edge && send_ack_flag) begin
-                        sda_out <= 1'b1;
+                        sda_out <= 1'bz;
                         ack_flag <= 1;
                         send_ack_flag <= 0;
                     end
@@ -235,14 +237,16 @@ always @(posedge clk or negedge rst_n) begin
                 recv_data();
             end
             S_SEND: begin
-                sda_out <= send_data[bit_cnt];
                 ack_flag <= 0;
                 if (scl_falling_edge) begin
                     bit_cnt <= bit_cnt - 1;
                     if (bit_cnt == 0) begin
-                        sda_out <= 1'b1;
+                        sda_out <= 1'bz;
                         reg2_offset <= reg2_offset + 1;
                     end
+                end
+                else begin
+                    sda_out <= send_data[bit_cnt];
                 end
             end
             S_WAITACK: begin

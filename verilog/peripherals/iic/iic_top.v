@@ -20,11 +20,11 @@
 module iic_top(
     input clk,
     input rst_n,
-    output iic_scl,
+    output wire iic_scl,
     inout iic_sda,
     input wire iic_reg_wr_en,
     input wire iic_reg_rd_en,
-    // offset [7:0] 8'h00 config 8'h04 write info 8'h08 data 
+    // offset [7:0] 8'h00 scl count max 8'h04 scl sample count max 8'h08 write info 8'h10 data 8'h14 status
     // write info: [7:0] dev addr [15:8] reg addr [23:16] datalen max datalen is 4 bytes [63:24] data
     input wire [`MAX_BIT_POS:0]   iic_reg_addr,  
     input wire [`MAX_BIT_POS:0]   iic_reg_wdata,
@@ -34,40 +34,236 @@ module iic_top(
     output wire write_ready_int // write ready interrupt
 );
 
-// [1:0] mode config 0:standard mode, 1:fast mode, 2:high-speed mode
-// other bits reserved
-reg [`MAX_BIT_POS:0] iic_reg;
+reg [31:0] iic_scl_count_max_reg;
+reg [31:0] iic_scl_sample_count_max_reg;
+// [0] processing [1] data ready [2] write ready
+// [3] data interrupt enable [4] write interrupt enable
+// [5:] reserved
+reg [`MAX_BIT_POS:0] iic_status_reg;
 reg [1:0] data_offset;
 wire [7:0] addr_offset;
 
+assign data_ready_int = iic_status_reg[1] & iic_status_reg[3];
+assign write_ready_int = iic_status_reg[2] & iic_status_reg[4];
 assign addr_offset = iic_reg_addr[7:0];
 
-localparam CONFIG_OFFSET = 8'h00, WRITE_INFO_OFFSET = 8'h04, DATA_OFFSET = 8'h08;
-localparam S_IDLE = 2'b00, S_WRITE = 2'b01, S_READ = 2'b10;
+localparam SCL_COUNT_MAX = 8'h00, SCL_SAMPLE_COUNT_MAX = 8'h04, WRITE_INFO_OFFSET = 8'h08, DATA_OFFSET = 8'h10, STATUS_OFFSET = 8'h14;
+localparam S_IDLE = 0, S_START = 1, S_REG_ADDR = 2, S_DATA_WRITE = 3, S_START_READ = 4, S_DATA_READ = 5, S_WAITACK = 6, S_STOP = 7;
+
+wire sample_scl;
+wire scl_out;
+
+iic_scl iic_scl_inst(
+    .clk(clk),
+    .rst_n(rst_n),
+    .scl_count_max(iic_scl_count_max_reg),
+    .scl_sample_count_max(iic_scl_sample_count_max_reg),
+    .sample_scl_out(sample_scl),
+    .scl_out(scl_out)
+);
+
+reg [2:0] state;
+reg [2:0] next_state;
+reg [2:0] after_ack_state; // state after ack
 
 // 64 bytes tx ram， [0] rw [7:1] dev addr [15:8] reg addr [23:16] datalen [63:24] data
 reg [63:0] tx_ram;
 reg [31:0] rx_ram; // 4 bytes rx ram,max datalen is 4 bytes
+wire data_len;
+
+assign data_len = tx_ram[23:16];
 
 always @(posedge clk or posedge rst_n) begin
     if (!rst_n) begin
         tx_ram <= 64'b0;
+        iic_ready <= 1'b0;
     end
     else begin
-        if (iic_reg_wr_en) begin
+        if (iic_reg_wr_en && !iic_ready) begin
             case (addr_offset)
-                CONFIG_OFFSET: iic_reg <= iic_reg_wdata;
+                SCL_COUNT_MAX: iic_scl_count_max_reg <= iic_reg_wdata;
+                SCL_SAMPLE_COUNT_MAX: iic_scl_sample_count_max_reg <= iic_reg_wdata;
                 WRITE_INFO_OFFSET: tx_ram[31:0] <= iic_reg_wdata;
                 DATA_OFFSET: tx_ram[63:32] <= iic_reg_wdata;
+                STATUS_OFFSET: iic_status_reg <= iic_reg_wdata;
             endcase
+            iic_ready <= 1'b1;
         end
-        else if (iic_reg_rd_en) begin
+        else if (iic_reg_rd_en && !iic_ready) begin
             case (addr_offset)
-                CONFIG_OFFSET: iic_reg_rdata <= iic_reg;
-                WRITE_INFO_OFFSET: iic_reg_rdata <= tx_ram[31:0];
                 DATA_OFFSET: iic_reg_rdata <= rx_ram;
+                STATUS_OFFSET: iic_reg_rdata <= iic_status_reg;
             endcase
+            iic_ready <= 1'b1;
         end
+        else if (!iic_reg_wr_en && !iic_reg_rd_en && iic_ready) begin
+            iic_ready <= 1'b0;
+        end
+    end
+end
+
+reg start;
+reg stop;
+wire proc_ing;
+wire ack;
+wire no_ack;
+reg [7:0] data_send;
+wire [7:0] data_recv;
+
+iic_master iic_master_inst(
+    .scl_in(scl_out),
+    .sample_scl_reg(sample_scl),
+    .rst_n(rst_n),
+    .data(data_send),
+    .start(start),
+    .stop(stop),
+    .sda(iic_sda),
+    .scl(iic_scl),
+    .proc_ing(proc_ing),
+    .data_out(data_recv),
+    .ack(ack),
+    .no_ack(no_ack)
+);
+
+always @(posedge clk or posedge rst_n) begin
+    if (!rst_n) begin
+        state <= S_IDLE;
+    end
+    else begin
+        state <= next_state;
+    end
+end
+
+always @(*) begin
+    next_state = state;
+    case (state)
+        S_IDLE: begin
+            if (iic_reg_wr_en && addr_offset == WRITE_INFO_OFFSET && iic_status_reg[0] == 1'b0) begin
+                next_state = S_START;
+            end
+        end
+        S_START: begin
+            after_ack_state = S_REG_ADDR;
+            if (proc_ing) begin
+                next_state = S_WAITACK;
+            end
+        end
+        S_REG_ADDR: begin
+            if (tx_ram[0]) begin
+                after_ack_state = S_START_READ;
+            end
+            else begin
+                after_ack_state = S_DATA_WRITE;
+            end
+            next_state = S_WAITACK;
+        end
+        S_START_READ: begin
+            after_ack_state = S_DATA_READ;
+            if (proc_ing) begin
+                next_state = S_WAITACK;
+            end
+        end
+        S_DATA_READ: begin
+            if (data_offset >= data_len) begin
+                next_state = S_STOP;
+            end
+            else begin
+                after_ack_state = S_DATA_READ;
+                next_state = S_WAITACK;
+            end
+        end
+        S_DATA_WRITE: begin
+            if (data_offset >= data_len) begin
+                next_state = S_STOP;
+            end
+            else begin
+                after_ack_state = S_DATA_WRITE;
+                next_state = S_WAITACK;
+            end
+        end
+        S_WAITACK: begin
+            if (ack) begin
+                next_state = after_ack_state;
+            end
+            else if (no_ack) begin
+                next_state = S_STOP;
+            end
+        end
+        S_STOP: begin
+            next_state = S_IDLE;
+        end
+        default: next_state = S_IDLE;
+    endcase
+end
+
+always @(posedge clk or posedge rst_n) begin
+    if (!rst_n) begin
+        iic_status_reg <= 0;
+        start <= 1'b0;
+        stop <= 1'b0;
+        data_send <= 8'h00;
+        data_offset <= 2'b00;
+    end
+    else begin
+        case (state)
+            S_IDLE: begin
+                start <= 1'b0;
+                stop <= 1'b0;
+                data_send <= 8'h00;
+                data_offset <= 2'b00;
+                iic_status_reg[0] <= 1'b0;
+            end
+            S_START: begin
+                start <= 1'b1;
+                stop <= 1'b0;
+                iic_status_reg[0] <= 1'b1;
+                data_send <= {tx_ram[7:1],1'b0};
+                if (tx_ram[0]) begin
+                    iic_status_reg[1] <= 1'b0;
+                end
+                else begin
+                    iic_status_reg[2] <= 1'b0;
+                end
+            end
+            S_REG_ADDR: begin
+                start <= 1'b0;
+                stop <= 1'b0;
+                data_send <= tx_ram[7:0];
+                data_offset <= 2'b00;
+            end
+            S_DATA_WRITE: begin
+                start <= 1'b0;
+                stop <= 1'b0;
+                data_send <= tx_ram[((data_offset*8)+24) +: 8];
+            end
+            S_START_READ: begin
+                start <= 1'b1;
+                stop <= 1'b0;
+                data_send <= {tx_ram[7:1],1'b1};
+                data_offset <= 2'b00;
+            end
+            S_DATA_READ: begin
+                start <= 1'b0;
+                stop <= 1'b0;
+                if (proc_ing == 1'b0) begin
+                    rx_ram[(data_offset*8) +: 8] <= data_recv;
+                end
+            end
+            S_WAITACK: begin
+                start <= 1'b0;
+                stop <= 1'b0;
+            end
+            S_STOP: begin
+                start <= 1'b0;
+                stop <= 1'b1;
+                if (tx_ram[0]) begin
+                    iic_status_reg[1] <= 1'b1;
+                end
+                else begin
+                    iic_status_reg[2] <= 1'b1;
+                end
+            end
+        endcase
     end
 end
 

@@ -40,7 +40,7 @@
     assign x1_out = reg_file[1];
     assign x2_out = reg_file[2];
 
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (i = 0; i < `XLEN; i = i + 1) begin
                 reg_file[i] <= `XLEN'h00000000;
