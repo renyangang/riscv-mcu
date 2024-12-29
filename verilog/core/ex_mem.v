@@ -69,7 +69,7 @@ module ex_mem(
     assign inst_sh = inst_flags[35];
     assign inst_sw = inst_flags[36];
 
-    always @(posedge clk or posedge rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= `IDLE;
         end
@@ -126,7 +126,7 @@ module ex_mem(
         end
     end
 
-    always @(posedge clk or posedge rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rd_en <= 1'b0;
             rd_data <= `XLEN'd0;

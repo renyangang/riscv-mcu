@@ -70,6 +70,17 @@ task set_iic_reg(input [31:0] addr, input [31:0] wdata);
     end
 endtask
 
+task get_iic_reg(input [31:0] addr);
+    if (rst_n) begin
+        iic_reg_rd_en = 1;
+        iic_reg_addr = addr;
+        wait(iic_ready);
+        $display("reg = %h", iic_reg_rdata);
+        iic_reg_rd_en = 0;
+        #21;
+    end
+endtask
+
 initial begin
     clk = 0;
     rst_n = 0;
@@ -84,16 +95,47 @@ initial begin
     #21;
     rst_n = 1;
     #21;
-    set_iic_reg(32'h00, (500000000/100000) - 1);
-    set_iic_reg(32'h04, (500000000/100000/4) - 1);
+    set_iic_reg(32'h00, (500000000/300000) - 1);
+    set_iic_reg(32'h04, (500000000/300000/8) - 1);
     set_iic_reg(32'h14, 32'h18);
     #51;
     reg1_in = 8'h0f;
     reg1_w_en = 1;
+    #21;
+    reg1_w_en = 0;
     #51;
-    set_iic_reg(32'h08, 32'h03000002);
+    set_iic_reg(32'h08, 32'h03010003);
+    wait(data_ready_int);
+    get_iic_reg(32'h10);
+    #51;
+    set_iic_reg(32'h08, 32'h03010002);
     wait(write_ready_int);
     $display("reg1_out = %h", reg1_out);
+    #51;
+    set_iic_reg(32'h08, 32'h03010003);
+    wait(data_ready_int);
+    get_iic_reg(32'h10);
+    #51;
+    reg2_in = 32'h04030201;
+    reg2_w_en = 1;
+    #21;
+    reg2_w_en = 0;
+    #51;
+    set_iic_reg(32'h08, 32'h03040103);
+    wait(data_ready_int);
+    get_iic_reg(32'h10);
+    set_iic_reg(32'h14, 32'h18);
+    #51;
+    set_iic_reg(32'h08, 32'h05040102);
+    set_iic_reg(32'h10, 32'h00080706);
+    wait(write_ready_int);
+    $display("reg2_out = %h", reg2_out);
+    set_iic_reg(32'h14, 32'h18);
+    #51;
+    set_iic_reg(32'h08, 32'h03040103);
+    wait(data_ready_int);
+    get_iic_reg(32'h10);
+    set_iic_reg(32'h14, 32'h18);
     #100;
     $finish;
 end

@@ -41,7 +41,7 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-always @(posedge clk or posedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n || scl_sample_count_max == 0) begin
         sample_scl_out <= 1'b1;
         counter_sample_scl <= 25'd0;

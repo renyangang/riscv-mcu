@@ -49,7 +49,7 @@ module hl_adapter #(parameter WIDTH = 32) (
     reg l_data_ready;
     reg l_data_wait;
 
-    always @(posedge clk_h or posedge rst_n) begin
+    always @(posedge clk_h or negedge rst_n) begin
         if (!rst_n) begin
             h_state <= H_IDLE;
         end
@@ -80,7 +80,7 @@ module hl_adapter #(parameter WIDTH = 32) (
         end
     end
 
-    always @(posedge clk_h or posedge rst_n) begin
+    always @(posedge clk_h or negedge rst_n) begin
         if (!rst_n) begin
             h_data_ready <= 0;
             h_data_out <= 0;
@@ -107,7 +107,7 @@ module hl_adapter #(parameter WIDTH = 32) (
         end
     end
 
-    always @(posedge clk_l or posedge rst_n) begin
+    always @(posedge clk_l or negedge rst_n) begin
         if (!rst_n) begin
             l_state <= L_IDLE;
         end
@@ -138,7 +138,7 @@ module hl_adapter #(parameter WIDTH = 32) (
         end
     end
 
-    always @(posedge clk_l or posedge rst_n) begin
+    always @(posedge clk_l or negedge rst_n) begin
         if (!rst_n) begin
             l_read_en <= 0;
             l_write_en <= 0;
