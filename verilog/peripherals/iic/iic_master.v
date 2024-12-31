@@ -21,9 +21,8 @@ module iic_master(
     input rst_n,
     input [7:0] data,
     input start,
-    input stop,
     inout sda,
-    input is_ack, // 1:ack, 0:no_ack, in last byte, no ack send or wait.
+    input is_stop, // 0:ack, 1:no_ack and stop, in last byte, no ack send or wait.
     output wire scl,
     output reg proc_ing, //0:finish, 1:processing
     output reg done, //0:processing, 1: stoped for stop singal comfirm
@@ -40,11 +39,6 @@ module iic_master(
     localparam S_READ = 3'd5;
     localparam S_WAITACK = 3'd6;
     localparam S_SENDACK = 3'd7;
-
-    //Standard mode 100K, fast mode 400K, high-speed mode 3.4M	
-    parameter STD_IC_FREQ = 100_000;
-    parameter FAST_IC_FREQ = 400_000; 
-    parameter HS_IC_FREQ = 3_400_000; 
 
     reg rw; //0:write, 1:read
     reg [24:0] SCL_MAX;
@@ -68,6 +62,15 @@ module iic_master(
     assign scl = scl_reg;
     assign sda = scl_reg ? sda_reg : 1'bz;
 
+    always @(posedge sample_scl_reg or negedge rst_n) begin
+        if (!rst_n) begin
+            state <= S_IDLE;
+        end
+        else begin
+            state <= nextstate;
+        end
+    end
+
     always @(*) begin
         if (!rst_n) begin
             nextstate = S_IDLE;
@@ -75,9 +78,6 @@ module iic_master(
         else begin
             if (start && !proc_ing) begin
                 nextstate = S_START;
-            end
-            else if (stop && !proc_ing) begin
-                nextstate = S_STOP;
             end
             else begin
                 if (state == S_START && !sda_reg && scl_falling_edge) begin
@@ -89,8 +89,11 @@ module iic_master(
                 else if ((state == S_SEND && bit_cnt == 3'd0) && scl_falling_edge) begin
                     nextstate = S_WAITACK;
                 end
-                else if (state == S_WAITACK && ack && scl_falling_edge) begin
-                    if (rw) begin
+                else if (state == S_WAITACK && scl_falling_edge) begin
+                    if (is_stop || !ack) begin
+                        nextstate = S_STOP;
+                    end
+                    else if (rw) begin
                         nextstate = S_READ;
                     end
                     else begin
@@ -98,11 +101,11 @@ module iic_master(
                     end
                 end
                 else if (state == S_READ && bit_cnt == 3'd0 && scl_falling_edge) begin
-                    if (is_ack) begin
-                        nextstate = S_SENDACK;
+                    if (is_stop) begin
+                        nextstate = S_STOP;
                     end
                     else begin
-                        nextstate = S_STOP;
+                        nextstate = S_SENDACK;
                     end
                 end
                 else if (state == S_SENDACK && ack) begin
@@ -112,15 +115,6 @@ module iic_master(
                     nextstate = state;
                 end
             end
-        end
-    end
-
-    always @(posedge sample_scl_reg or negedge rst_n) begin
-        if (!rst_n) begin
-            state <= S_IDLE;
-        end
-        else begin
-            state <= nextstate;
         end
     end
 
@@ -165,19 +159,6 @@ module iic_master(
                     end
                     in_stop <= 1'b0;
                 end
-                S_STOP: begin
-                    proc_ing <= 1'b0;
-                    if (scl_falling_edge) begin
-                        sda_reg <= 1'b0;
-                        in_stop <= 1'b1;
-                    end
-                    else if (scl_reg && in_stop) begin
-                        sda_reg <= 1'b1;
-                        done <= 1'b1;
-                    end
-                    ack <= 1'b0;
-                    no_ack <= 1'b0;
-                end
                 S_SEND: begin
                     proc_ing <= 1'b1;
                     if (scl_falling_edge && !scl_reg) begin
@@ -191,12 +172,10 @@ module iic_master(
                 S_WAITACK: begin
                     proc_ing <= 1'b0;
                     sda_reg <= 1'bz;
+                    no_ack <= 1'b0;
                     ack <= (~sda) & scl_reg;
                     bit_cnt <= 3'd7;
                     send_data <= data;
-                    if (scl_falling_edge) begin
-                        no_ack <= ~ack;
-                    end
                 end
                 S_READ: begin
                     sda_reg <= 1'bz;
@@ -220,6 +199,19 @@ module iic_master(
                     end
                     bit_cnt <= 3'd7;
                     no_ack <= 1'b0;
+                end
+                S_STOP: begin
+                    proc_ing <= 1'b0;
+                    if (scl_falling_edge) begin
+                        sda_reg <= 1'b0;
+                        in_stop <= 1'b1;
+                    end
+                    else if (scl_reg && in_stop) begin
+                        sda_reg <= 1'b1;
+                        done <= 1'b1;
+                    end
+                    ack <= 1'b0;
+                    no_ack <= 1'b1;
                 end
             endcase
         end

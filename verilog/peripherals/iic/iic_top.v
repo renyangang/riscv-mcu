@@ -104,7 +104,6 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 reg start;
-reg stop;
 wire proc_ing;
 wire ack;
 wire no_ack;
@@ -112,7 +111,7 @@ wire done;
 reg [7:0] data_send;
 wire [7:0] data_recv;
 reg stoped;
-reg is_ack;
+reg is_stop;
 
 iic_master iic_master_inst(
     .scl_in(scl_out),
@@ -120,8 +119,7 @@ iic_master iic_master_inst(
     .rst_n(rst_n),
     .data(data_send),
     .start(start),
-    .stop(stop),
-    .is_ack(is_ack),
+    .is_stop(is_stop),
     .sda(iic_sda),
     .scl(iic_scl),
     .proc_ing(proc_ing),
@@ -210,29 +208,26 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         iic_status_reg <= 0;
         start <= 1'b0;
-        stop <= 1'b0;
         data_send <= 8'h00;
         data_offset <= 0;
         in_data_procing <= 1'b0;
         rx_ram <= 0;
-        is_ack <= 1'b1;
+        is_stop <= 1'b0;
     end
     else begin
         case (state)
             S_IDLE: begin
                 start <= 1'b0;
-                stop <= 1'b0;
                 data_send <= 8'h00;
                 data_offset <= 0;
                 iic_status_reg[0] <= 1'b0;
                 in_data_procing <= 1'b0;
                 stoped <= 1'b0;
-                is_ack <= 1'b1;
+                is_stop <= 1'b0;
             end
             S_START: begin
                 start <= 1'b1;
-                stop <= 1'b0;
-                is_ack <= 1'b1;
+                is_stop <= 1'b0;
                 iic_status_reg[0] <= 1'b1;
                 data_send <= {tx_ram[7:1],1'b0};
                 if (tx_ram[0]) begin
@@ -245,45 +240,43 @@ always @(posedge clk or negedge rst_n) begin
             end
             S_REG_ADDR: begin
                 start <= 1'b0;
-                stop <= 1'b0;
+                is_stop <= 1'b0;
                 data_send <= tx_ram[15:8];
                 data_offset <= 0;
             end
             S_DATA_WRITE: begin
                 start <= 1'b0;
-                stop <= 1'b0;
+                is_stop <= 1'b0;
                 in_data_procing <= 1'b1;
                 data_send <= tx_ram[((data_offset*8)+24) +: 8];
             end
             S_START_READ: begin
                 start <= 1'b1;
-                stop <= 1'b0;
                 rx_ram <= 0;
+                is_stop <= 1'b0;
                 data_send <= {tx_ram[7:1],1'b1};
                 data_offset <= 0;
             end
             S_DATA_READ: begin
                 start <= 1'b0;
-                stop <= 1'b0;
                 in_data_procing <= 1'b1;
-                if (data_offset >= (data_len - 1)) begin
-                    is_ack <= 1'b0;
-                end
             end
             S_WAITACK: begin
                 start <= 1'b0;
-                stop <= 1'b0;
                 if (in_data_procing && !proc_ing) begin
                     data_offset <= data_offset + 1'b1;
                     in_data_procing <= 1'b0;
                     if (tx_ram[0]) begin
                         rx_ram[(data_offset*8) +: 8] <= data_recv;
                     end
+                    if (data_offset >= data_len) begin
+                        is_stop <= 1'b1;
+                    end
                 end
             end
             S_STOP: begin
+                is_stop <= 1'b1;
                 start <= 1'b0;
-                stop <= 1'b1;
                 if (done) begin
                     if (tx_ram[0]) begin
                         iic_status_reg[1] <= 1'b1;
