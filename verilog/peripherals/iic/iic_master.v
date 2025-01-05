@@ -25,7 +25,7 @@ module iic_master(
     input is_stop, // 0:ack, 1:no_ack and stop, in last byte, no ack send or wait.
     output wire scl,
     output reg proc_ing, //0:finish, 1:processing
-    output reg done, //0:processing, 1: stoped for stop singal comfirm
+    output reg done, //0:processing, 1: after stop singal confirm
     output reg [7:0] data_out,
     output reg ack,
     output reg no_ack
@@ -34,22 +34,18 @@ module iic_master(
     localparam S_IDLE = 3'd0;
     localparam S_START = 3'd1;
     localparam S_STOP = 3'd2;
-    localparam S_DEVADDR = 3'd3;
-    localparam S_SEND = 3'd4;
-    localparam S_READ = 3'd5;
-    localparam S_WAITACK = 3'd6;
-    localparam S_SENDACK = 3'd7;
+    localparam S_SEND = 3'd3;
+    localparam S_READ = 3'd4;
+    localparam S_WAITACK = 3'd5;
+    localparam S_SENDACK = 3'd6;
 
     reg rw; //0:write, 1:read
-    reg [24:0] SCL_MAX;
-    reg [24:0] SAMPLE_SCL_MAX;
     reg sda_reg;
     wire scl_reg;
     reg [7:0] send_data;
 
     reg [2:0] state,nextstate;
     reg [2:0] bit_cnt;
-    reg last_sample_scl;
     reg last_scl;
     reg in_stop;
     wire scl_falling_edge;
