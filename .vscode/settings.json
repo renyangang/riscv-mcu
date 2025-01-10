@@ -68,6 +68,6 @@
     },
     "verilog.linting.linter": "iverilog",
     "verilog.linting.iverilog.includePath": ["verilog","verilog/core","verilog/soc"],
-    "verilog.linting.iverilog.arguments": "-yverilog -yverilog/peripherals/digital -yverilog/peripherals/uart -yverilog/peripherals/iic -yverilog/common -yverilog/core -yverilog/soc -yverilog/peripherals",
+    "verilog.linting.iverilog.arguments": "-yverilog -yverilog/peripherals/digital -yverilog/peripherals/uart -yverilog/peripherals/iic -yverilog/peripherals/spi -yverilog/common -yverilog/core -yverilog/soc -yverilog/peripherals",
     "verilog.linting.iverilog.runAtFileLocation": false
 }
