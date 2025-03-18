@@ -26,14 +26,9 @@ module spi_master #(
     input wire         op_mode,      // 操作模式， 0: 发送数据 1: 接收数据 2: 发送接收
     input wire [1:0]   spi_mode,    // SPI 模式 (Mode 0-3: CPOL, CPHA)
     input wire [15:0]  clk_div,     // SPI 时钟分频值 (控制速度)
-    input wire         cs_enable,   // 片选使能信号
     input wire [DATA_WIDTH-1:0] tx_data,  // 要发送的数据
-    input wire         tx_valid,    // 发送数据有效
-    output wire        tx_ready,    // 发送缓冲区准备好
-
     output wire [DATA_WIDTH-1:0] rx_data,  // 接收到的数据
-    output wire        rx_valid,    // 接收数据有效
-    input wire         rx_ready,    // 读取接收缓冲区准备好
+    output wire op_ready,
 
     output wire        spi_clk,     // SPI 时钟信号
     output wire        spi_mosi,    // 主输出从输入 (MOSI)
@@ -52,6 +47,7 @@ reg [3:0] bit_cnt;           // 位计数器
 reg busy;                    // 忙状态标志
 wire cpol;     // 时钟极性
 wire cpha;     // 时钟相位
+wire change_edge; // 变化时刻
 wire sample_edge; // 采样时刻
 // 状态机定义
 localparam IDLE = 2'b00;     // 空闲状态
@@ -62,11 +58,12 @@ localparam OP_MODE_RECEIVE = 2'b01;
 localparam OP_MODE_BOTH = 2'b10;
 
 
-reg [1:0] state, next_state;
+reg [1:0] state;
 
 assign cpol = spi_mode[0];
 assign cpha = spi_mode[1];
 assign sample_edge = ((cpol == 1'b0 && cpha == 1'b0) || (cpol == 1'b1 && cpha == 1'b1)) ? spi_clk_reg : ~spi_clk_reg;
+assign change_edge = ((cpol == 1'b0 && cpha == 1'b1) || (cpol == 1'b1 && cpha == 1'b0)) ? spi_clk_reg : ~spi_clk_reg;
 
 // SPI时钟生成
 always @(posedge clk or negedge rst_n) begin
@@ -87,18 +84,15 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 
-// 状态机
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        state <= IDLE;
-        next_state <= IDLE;
         busy <= 1'b0;
+        state <= IDLE;
         bit_cnt <= 4'd0;
         spi_cs_reg <= 1'b1;
         tx_shift_reg <= {DATA_WIDTH{1'b0}};
         rx_shift_reg <= {DATA_WIDTH{1'b0}};
     end else begin
-        state <= next_state;
         case (state)
             IDLE: begin
                 if (start) begin
@@ -106,39 +100,34 @@ always @(posedge clk or negedge rst_n) begin
                     spi_cs_reg <= 1'b0;
                     tx_shift_reg <= tx_data;
                     bit_cnt <= 4'd0;
-                    next_state <= TRANSFER;
+                    state <= TRANSFER;
                 end else begin
                     busy <= 1'b0;
                     spi_cs_reg <= 1'b1;
-                    next_state <= IDLE;
+                    state <= IDLE;
                 end
             end
             TRANSFER: begin
                 if (bit_cnt == DATA_WIDTH) begin
                     busy <= 1'b0;
                     spi_cs_reg <= 1'b1;
-                    next_state <= IDLE;
-                end else if (sample_edge) begin
+                    state <= IDLE;
+                end
+                else if (change_edge) begin
                     bit_cnt <= bit_cnt + 1'b1;
-                    case (op_mode)
-                        OP_MODE_SEND: begin // 发送数据
-                            tx_shift_reg <= {tx_shift_reg[DATA_WIDTH-2:0], 1'b0};
-                        end
-                        OP_MODE_RECEIVE: begin // 接收数据
-                            rx_shift_reg <= {rx_shift_reg[DATA_WIDTH-2:0], spi_miso};
-                        end
-                        OP_MODE_BOTH: begin // 同时发送和接受
-                            tx_shift_reg <= {tx_shift_reg[DATA_WIDTH-2:0], 1'b0};
-                            rx_shift_reg <= {rx_shift_reg[DATA_WIDTH-2:0], spi_miso};
-                        end
-                    endcase
+                    if (OP_MODE_SEND == op_mode || OP_MODE_BOTH == op_mode) begin
+                        tx_shift_reg <= {tx_shift_reg[DATA_WIDTH-2:0], 1'b0};
+                    end
+                end
+                else if (sample_edge) begin
+                    if (OP_MODE_RECEIVE == op_mode || OP_MODE_BOTH == op_mode) begin
+                        rx_shift_reg[bit_cnt] <= spi_miso;
+                    end
                 end
             end
         endcase
     end
 end
-
-
 
 
 // 输出赋值
